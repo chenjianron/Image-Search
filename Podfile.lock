@@ -1,0 +1,38 @@
+PODS:
+  - JGProgressHUD (2.2)
+  - Reachability (3.2)
+  - SnapKit (4.0.1)
+  - STRegex (2.1.1)
+  - SwiftyJSON-flow (4.1.0)
+  - Toolkit (5.3.36):
+    - JGProgressHUD
+    - Reachability
+    - SnapKit
+    - STRegex
+    - SwiftyJSON-flow (= 4.1.0)
+
+DEPENDENCIES:
+  - SnapKit
+  - Toolkit
+
+SPEC REPOS:
+  http://git.flowever.net/component/Specs.git:
+    - SwiftyJSON-flow
+    - Toolkit
+  https://github.com/CocoaPods/Specs.git:
+    - JGProgressHUD
+    - Reachability
+    - SnapKit
+    - STRegex
+
+SPEC CHECKSUMS:
+  JGProgressHUD: d83d7a981b85d11205e19ff8ad5bb9c40571c847
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SnapKit: 0de968a9fec17499afa29683b05d0c775b6d1c29
+  STRegex: d49e88d0fe58538d3175fdd989bc1243b9be2a07
+  SwiftyJSON-flow: 6d8033763d84a8d9f5b2355ac9ada4a822b4ece5
+  Toolkit: 91223cf0a62a0343f913090726417208751f0c13
+
+PODFILE CHECKSUM: 9cba2c9746b5e5edaafbaac902ad9f4aaaabd455
+
+COCOAPODS: 1.10.2
