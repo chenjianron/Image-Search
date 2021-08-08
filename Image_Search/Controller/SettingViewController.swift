@@ -18,7 +18,6 @@ class SettingViewController: UIViewController {
         let leftBarBtn = UIBarButtonItem(image: UIImage(named: "back.png")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
         return leftBarBtn
     }()
-    
     lazy var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect(x:0,y:21,width: fullScreenSize.width,height: fullScreenSize.height-200-(UIApplication.shared.keyWindow?.safeAreaInsets.bottom)!),style:.plain)
         tableView.backgroundColor = .white
@@ -36,12 +35,10 @@ class SettingViewController: UIViewController {
         setUpUI()
         setupConstrains()
     }
-    
     override func viewWillDisappear(_ animated: Bool) {
 //        print("viewWillDisappear")
        
     }
-    
 //    override func awakeFromNib() {
 //        print("awakeFromNib")
 //    }
@@ -50,22 +47,18 @@ class SettingViewController: UIViewController {
 //        super.loadView()
 //        print("loadView")
 //    }
-//
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.barTintColor = UIColor.white
     }
-//
 //    override func viewWillLayoutSubviews() {
 //        print("viewWillLayoutSubviews")
 //    }
-////
 //    override func viewDidAppear(_ animated: Bool) {
 //
 //    }
 //    override func viewDidDisappear(_ animated: Bool) {
 //
 //    }
-//
 //    override func didReceiveMemoryWarning() {
 //        print("didReceiveMemoryWarning")
 //    }
@@ -96,6 +89,7 @@ extension SettingViewController {
         self.navigationItem.title = "设置"
         self.view.addSubview(tableView)
     }
+    
     func setupConstrains(){
         
     }
@@ -103,7 +97,6 @@ extension SettingViewController {
 
 //MARK: - TableView
 extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             switch indexPath.row {
             case 0:
@@ -150,9 +143,6 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
             make.left.equalToSuperview().offset(16)
             make.centerY.equalToSuperview()
         }
-//        headerView.snp.makeConstraints{ make in
-//            make.top.equalToSuperview().offset(10)
-//        }
         if section == 0 {
             label.text = "帮助与反馈"
         } else {
@@ -181,7 +171,6 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 52
     }
-    
 //    func tableView(_ tableView: UITableView,viewForFooterInSection section:Int) -> UIView? {
 //        return UIView()
 //    }
@@ -190,5 +179,3 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
 //        return 18
 //    }
 }
-
-

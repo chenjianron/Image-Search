@@ -1,4 +1,5 @@
 PODS:
+  - Alamofire (5.4.3)
   - JGProgressHUD (2.2)
   - Reachability (3.2)
   - SnapKit (4.0.1)
@@ -12,6 +13,7 @@ PODS:
     - SwiftyJSON-flow (= 4.1.0)
 
 DEPENDENCIES:
+  - Alamofire
   - SnapKit
   - Toolkit
 
@@ -20,12 +22,14 @@ SPEC REPOS:
     - SwiftyJSON-flow
     - Toolkit
   https://github.com/CocoaPods/Specs.git:
+    - Alamofire
     - JGProgressHUD
     - Reachability
     - SnapKit
     - STRegex
 
 SPEC CHECKSUMS:
+  Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
   JGProgressHUD: d83d7a981b85d11205e19ff8ad5bb9c40571c847
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   SnapKit: 0de968a9fec17499afa29683b05d0c775b6d1c29
@@ -33,6 +37,6 @@ SPEC CHECKSUMS:
   SwiftyJSON-flow: 6d8033763d84a8d9f5b2355ac9ada4a822b4ece5
   Toolkit: 91223cf0a62a0343f913090726417208751f0c13
 
-PODFILE CHECKSUM: 9cba2c9746b5e5edaafbaac902ad9f4aaaabd455
+PODFILE CHECKSUM: 3052f09b54e8b445e63c03c97927a18f434b8985
 
 COCOAPODS: 1.10.2

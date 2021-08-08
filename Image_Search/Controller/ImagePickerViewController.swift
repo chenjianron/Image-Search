@@ -5,53 +5,48 @@
 //  Created by GC on 2021/8/4.
 //
 
-//
-//  SettingViewController.swift
-//  Image_Search
-//
-//  Created by GC on 2021/8/3.
-//
-
 import UIKit
 import SnapKit
-import Photos
+import Alamofire
+import Toolkit
+import WebKit
 
-class ImagePickerViewController: UIViewController {
+class ImagePickerViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate,WKNavigationDelegate{
     
+    // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
-    let titles = [["意见反馈"],["分享给好友", "给个评价","隐私政策", "用户协议"]]
-    let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: nil) as? PHFetchResult
+    
+    var headers: HTTPHeaders = [:]
+    var isFromWebViewController = false
     var delegate:MainViewController?
+    var imagePicker:UIImagePickerController?
+    var myActivityIndicator:UIActivityIndicatorView!
     
     lazy var leftBarBtn:UIBarButtonItem = {
-        let leftBarBtn = UIBarButtonItem(image: UIImage(named: "back.png")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
+        let leftBarBtn = UIBarButtonItem()
         return leftBarBtn
     }()
-    
-    lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: CGRect(x:0,y:21,width: fullScreenSize.width,height: fullScreenSize.height-200-(UIApplication.shared.keyWindow?.safeAreaInsets.bottom)!),style:.plain)
-        tableView.backgroundColor = .white
-        tableView.delegate = self
-        tableView.dataSource = self
-//        tableView.tableHeaderView = UIView()
-//        tableView.tableFooterView = UIView()
-        tableView.separatorStyle = .none
-        tableView.register(SettingTableViewCell.classForCoder(), forCellReuseIdentifier: "SettingTableViewCell")
-        return tableView
+//    lazy var leftBarBtn:UIBarButtonItem = {
+//        let leftBarBtn = UIBarButtonItem(image: UIImage(named: "back.png")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
+//        return leftBarBtn
+//    }()
+    lazy var selectImage:UIImageView = {
+        let image = UIImageView()
+        return image
     }()
     
     override func viewDidLoad() {
+        print("viewDidLoad")
         super.viewDidLoad()
         setUpUI()
         setupConstrains()
         setupDataSource()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+//    override func viewWillDisappear(_ animated: Bool) {
 //        print("viewWillDisappear")
-       
-    }
-    
+//    }
+//    
 //    override func awakeFromNib() {
 //        print("awakeFromNib")
 //    }
@@ -60,20 +55,29 @@ class ImagePickerViewController: UIViewController {
 //        super.loadView()
 //        print("loadView")
 //    }
-//
+
     override func viewWillAppear(_ animated: Bool) {
-        self.navigationController?.navigationBar.barTintColor = UIColor.white
+        print("viewWillAppear")
+        if isFromWebViewController {
+            self.present(imagePicker!, animated: false, completion:nil)
+            isFromWebViewController = false
+        }
+//        self.navigationController?.navigationBar.barTintColor = UIColor.white
     }
-//
+
 //    override func viewWillLayoutSubviews() {
 //        print("viewWillLayoutSubviews")
 //    }
-////
-//    override func viewDidAppear(_ animated: Bool) {
 //
+//    override func viewDidLayoutSubviews() {
+//        print("viewDidLayoutSubviews")
+//    }
+//
+//    override func viewDidAppear(_ animated: Bool) {
+//        print("viewDidAppear")
 //    }
 //    override func viewDidDisappear(_ animated: Bool) {
-//
+//        print("viewDidDisappear")
 //    }
 //
 //    override func didReceiveMemoryWarning() {
@@ -87,141 +91,108 @@ extension ImagePickerViewController{
         self.navigationController!.popViewController(animated: true)
     }
     
-    func setDelegate(delegate:MainViewController){
-        self.delegate = delegate
+    func setUIImagePickerController(){
+        imagePicker = UIImagePickerController()
+        imagePicker!.modalPresentationStyle = .fullScreen
+        imagePicker!.sourceType = UIImagePickerController.SourceType.photoLibrary
+//        ic.isNavigationBarHidden = true
+        imagePicker!.isToolbarHidden = true
+//        ic.sourceType = UIImagePickerController.SourceType.camera
+//        ic.cameraCaptureMode = UIImagePickerController.CameraCaptureMode.photo
+//        ic.showsCameraControls = false
+        imagePicker!.delegate = self
+        imagePicker!.view.addSubview(myActivityIndicator)
+        self.present(imagePicker!, animated: false, completion:nil)
     }
     
-    func setTextView(text:String){
-      
+    func setDelegate(delegate:MainViewController){
+        self.delegate = delegate
     }
 }
 
 //MARK: - UI
 extension ImagePickerViewController {
     func setUpUI(){
-//        navigationController?.navigationBar.barStyle = .black
         self.navigationController?.navigationBar.barTintColor = UIColor.white
-        view.backgroundColor = .white
+        self.view.backgroundColor = .white
         self.navigationItem.leftBarButtonItem = leftBarBtn
-        self.navigationItem.title = "设置"
-        self.view.addSubview(tableView)
+        // 建立環狀進度條
+        myActivityIndicator = UIActivityIndicatorView(style:.gray)
+        myActivityIndicator.center = CGPoint(x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.5)
+        self.setUIImagePickerController()
+//        self.view.addSubview(selectImage)
+//        let alertController = UIAlertController(
+//            title: "确认刪除",
+//            message: "我们需要访问照片以搜索图片的来源",
+//            preferredStyle: .alert)
+//        // 建立选择照片按鈕
+//        let selectAction = UIAlertAction(
+//          title: "选择照片...",
+//            style: .default,
+//          handler: { _ in
+//            self.setUIImagePickerController()
+//          })
+//        alertController.addAction(selectAction)
+//        // 建立允许访问所有照片按鈕
+//        let permitAction = UIAlertAction(
+//            title: "允许访问所有照片",
+//            style: .default,
+//            handler: {_ in
+////      let smartAlbum = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options:     nil) as? PHFetchResult
+//                self.setUIImagePickerController()
+//        })
+//        alertController.addAction(permitAction)
+//
+//        let forbidAction = UIAlertAction(
+//            title: "不允许",
+//            style: .cancel,
+//            handler: {_ in
+//                self.backToPrevious()
+//        })
+//        alertController.addAction(forbidAction)
+//        // 顯示提示框
+//        self.present(
+//            alertController,
+//            animated: true,
+//            completion: nil)
     }
     func setupConstrains(){
         
     }
     
     func setupDataSource(){
-        for collection in smartAlbums {
-            //遍历获取相册
-            if collection.numberOfAssets() > 0 {
-                //获取当前相册里所有的PHAsset，也就是图片或者视频
-                let fetchResult = PHAsset.fetchAssets(in: collection, options: nil) as? PHFetchResult
-                for j in 0..<(fetchResult?.count ?? 0) {
-                    //从相册中取出照片
-                    asset = fetchResult?[j]
-                    if asset.mediaType == PHAssetMediaType.image {
-                        //得到一个图片类型资源
-                    } else if asset.mediaType == PHAssetMediaType.video {
-                        //得到一个视频类型资源
-                    } else if asset.mediaType == PHAssetMediaType.audio {
-                        //音频，PHAsset的mediaType属性有三个枚举值，笔者对PHAssetMediaTypeAudio暂时没有进行处理
-                    }
-                }
-                
-            }
-        }
     }
 }
 
-//MARK: - TableView
-extension ImagePickerViewController: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            switch indexPath.row {
-            case 0:
-                break
-            case 1:
-                // Statistics.event(.setting_tap, label: "隐私政策")
-//                sendEMail()
-                break
-            case 2:
-//                Statistics.event(.setting_tap, label: "分享给好友")
-                break
-            case 3:
-//                Statistics.event(.setting_tap, label: "评价")
-                break
-            case 4:
-//                Statistics.event(.setting_tap, label: "隐私政策")
-                break
-            case 5:
-//                Statistics.event(.setting_tap, label: "用户协议")
-                break
-            default:
-                ()
+//MARK: - UIImagePickerController
+extension ImagePickerViewController {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]){
+        let image = info[UIImagePickerController.InfoKey(rawValue: UIImagePickerController.InfoKey.originalImage.rawValue)]
+        headers = [
+            "Content-type": "text/html; charset=GBK"
+        ]
+        // 顯示進度條
+        myActivityIndicator.startAnimating()
+        AF.upload(multipartFormData: { (multipartFormData) in
+            multipartFormData.append(((image as! UIImage?)!.jpegData(compressionQuality: 1.0))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+        },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
+            if let lastUrl = result.value{
+                print(lastUrl)
+                self.dismiss(animated: true, completion: nil)
+                let webViewController = WebViewController()
+                webViewController.delegate = self
+                webViewController.setURL(url: lastUrl)
+                self.isFromWebViewController = true
+                myActivityIndicator.stopAnimating()
+                self.navigationController!.pushViewController(webViewController,animated: false)
+            } else {
+                print("上传失败")
             }
-        tableView.deselectRow(at: indexPath, animated: false)
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return titles[section].count;
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return titles.count
-    }
-    
-    func tableView(_ tableView: UITableView,
-      viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView()
-        headerView.backgroundColor = UIColor.white
-        let label = UILabel()
-        label.textColor = UIColor.gray
-        label.font = UIFont.systemFont(ofSize: 12)
-        headerView.addSubview(label)
-        label.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(16)
-            make.centerY.equalToSuperview()
         }
-//        headerView.snp.makeConstraints{ make in
-//            make.top.equalToSuperview().offset(10)
-//        }
-        if section == 0 {
-            label.text = "帮助与反馈"
-        } else {
-            label.text = "关于我们"
-        }
-        return headerView
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        if indexPath.row == 0 {
-//            let cell:SwitchCell = tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath) as! SwitchCell
-//            cell.addTitleString(title: titles[indexPath.row], image: images[indexPath.row])
-//            return cell
-//        }
-        let cell:SettingTableViewCell = tableView.dequeueReusableCell(withIdentifier: "SettingTableViewCell", for: indexPath) as! SettingTableViewCell
-        cell.addTitleString(title: titles[indexPath.section][indexPath.row])
-        return cell
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        self.dismiss(animated: true, completion: nil)
+        self.navigationController?.popViewController(animated: true)
     }
-    
-    func tableView(_ tableView: UITableView,
-      titleForHeaderInSection section: Int) -> String? {
-        let title = section == 0 ? "帮助与反馈" : "关于我们"
-        return title
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 52
-    }
-    
-//    func tableView(_ tableView: UITableView,viewForFooterInSection section:Int) -> UIView? {
-//        return UIView()
-//    }
-    
-//    func tableView(_ tableView:UITableView,heightForFooterInSection section :Int)-> CGFloat {
-//        return 18
-//    }
-}
-
-
-
+  }

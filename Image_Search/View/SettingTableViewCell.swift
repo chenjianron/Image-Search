@@ -17,17 +17,15 @@ class SettingTableViewCell: UITableViewCell {
         label.font = UIFont(name: "Helvetica", size: 15)
         return label
     }()
-    
     lazy var cellBack: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "cell_arrow.png")
         return imageView
     }()
-    
 //    lazy var line: UIView = {
 //        let view = UIView()
 //        return view
-//    }()
+//  }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

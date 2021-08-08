@@ -22,13 +22,7 @@ class MainViewController: UIViewController {
     }()
     
     lazy var settingViewController:SettingViewController = {
-        
         return SettingViewController()
-    }()
-    
-    lazy var imagePickerViewController:ImagePickerViewController = {
-        
-        return ImagePickerViewController()
     }()
     
     lazy var topBackgroundImage: UIImageView = {
@@ -65,7 +59,11 @@ class MainViewController: UIViewController {
 //        label.bounds.size.width = fullScreenSize.width
 //        label.bounds.size.height = fullScreenSize.height/2
         label.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
-        label.layer.shadowColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
+        if #available(iOS 13.0, *) {
+            label.layer.shadowColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
+        } else {
+            // Fallback on earlier versions
+        }
         label.layer.shadowOffset = CGSize(width: 1, height: 1)
         label.layer.shadowOpacity = 0.3
         label.layer.shadowRadius = 8
@@ -147,7 +145,7 @@ extension MainViewController {
     }
     @objc func imageSearch(){
        print("imageSearch")
-        self.navigationController?.pushViewController(imagePickerViewController,animated: false)
+        self.navigationController?.pushViewController(ImagePickerViewController(),animated: false)
     }
     @objc func cameraSearch(){
        print("cameraSearch")
@@ -172,12 +170,12 @@ extension MainViewController {
     func setupUI() {
         // 底色
         self.view.backgroundColor = UIColor.white
+        navigationController?.navigationBar.shadowImage = UIImage()
         // 導覽列底色
         self.navigationController?.navigationBar.barTintColor = UIColor(red: 19/255, green: 165/255, blue: 255/255, alpha: 1)
         // 導覽列是否半透明
         self.navigationController?.navigationBar.isTranslucent = false
-        
-        self.navigationController?.navigationBar.clipsToBounds = true
+//        self.navigationController?.navigationBar.clipsToBounds = true
         // 加到導覽列中
         self.navigationItem.rightBarButtonItem = settingButton
         
@@ -223,14 +221,17 @@ extension MainViewController {
             make.top.left.right.equalToSuperview()
             make.height.equalToSuperview().multipliedBy(0.6)
         }
+        
         searchImageView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaTop).offset(32)
             make.centerX.equalToSuperview()
         }
+        
         appTitle.snp.makeConstraints{ make in
             make.top.equalTo(safeAreaTop).offset(136)
             make.centerX.equalToSuperview()
         }
+        
         hintTitle.snp.makeConstraints{ (make) in
             make.top.equalTo(safeAreaTop).offset(248)
             make.left.equalToSuperview().offset(24)
@@ -295,4 +296,3 @@ extension MainViewController {
         }
     }
 }
-
