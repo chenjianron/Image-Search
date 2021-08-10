@@ -23,8 +23,8 @@ class SettingViewController: UIViewController {
         tableView.backgroundColor = .white
         tableView.delegate = self
         tableView.dataSource = self
-//        tableView.tableHeaderView = UIView()
-//        tableView.tableFooterView = UIView()
+        //        tableView.tableHeaderView = UIView()
+        //        tableView.tableFooterView = UIView()
         tableView.separatorStyle = .none
         tableView.register(SettingTableViewCell.classForCoder(), forCellReuseIdentifier: "SettingTableViewCell")
         return tableView
@@ -35,33 +35,10 @@ class SettingViewController: UIViewController {
         setUpUI()
         setupConstrains()
     }
-    override func viewWillDisappear(_ animated: Bool) {
-//        print("viewWillDisappear")
-       
-    }
-//    override func awakeFromNib() {
-//        print("awakeFromNib")
-//    }
-//
-//    override func loadView() {
-//        super.loadView()
-//        print("loadView")
-//    }
+    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.barTintColor = UIColor.white
     }
-//    override func viewWillLayoutSubviews() {
-//        print("viewWillLayoutSubviews")
-//    }
-//    override func viewDidAppear(_ animated: Bool) {
-//
-//    }
-//    override func viewDidDisappear(_ animated: Bool) {
-//
-//    }
-//    override func didReceiveMemoryWarning() {
-//        print("didReceiveMemoryWarning")
-//    }
 }
 
 //MARK: -
@@ -73,18 +50,15 @@ extension SettingViewController{
     func setDelegate(delegate:MainViewController){
         self.delegate = delegate
     }
-    
-    func setTextView(text:String){
-      
-    }
 }
 
 //MARK: - UI
 extension SettingViewController {
+    
     func setUpUI(){
-//        navigationController?.navigationBar.barStyle = .black
+        //        navigationController?.navigationBar.barStyle = .black
+        self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
-        view.backgroundColor = .white
         self.navigationItem.leftBarButtonItem = leftBarBtn
         self.navigationItem.title = "设置"
         self.view.addSubview(tableView)
@@ -97,29 +71,30 @@ extension SettingViewController {
 
 //MARK: - TableView
 extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            switch indexPath.row {
-            case 0:
-                break
-            case 1:
-                // Statistics.event(.setting_tap, label: "隐私政策")
-//                sendEMail()
-                break
-            case 2:
-//                Statistics.event(.setting_tap, label: "分享给好友")
-                break
-            case 3:
-//                Statistics.event(.setting_tap, label: "评价")
-                break
-            case 4:
-//                Statistics.event(.setting_tap, label: "隐私政策")
-                break
-            case 5:
-//                Statistics.event(.setting_tap, label: "用户协议")
-                break
-            default:
-                ()
-            }
+        switch indexPath.row {
+        case 0:
+            break
+        case 1:
+            // Statistics.event(.setting_tap, label: "隐私政策")
+            //                sendEMail()
+            break
+        case 2:
+            //                Statistics.event(.setting_tap, label: "分享给好友")
+            break
+        case 3:
+            //                Statistics.event(.setting_tap, label: "评价")
+            break
+        case 4:
+            //                Statistics.event(.setting_tap, label: "隐私政策")
+            break
+        case 5:
+            //                Statistics.event(.setting_tap, label: "用户协议")
+            break
+        default:
+            ()
+        }
         tableView.deselectRow(at: indexPath, animated: false)
     }
     
@@ -132,7 +107,7 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView,
-      viewForHeaderInSection section: Int) -> UIView? {
+                   viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView()
         headerView.backgroundColor = UIColor.white
         let label = UILabel()
@@ -152,18 +127,18 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-//        if indexPath.row == 0 {
-//            let cell:SwitchCell = tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath) as! SwitchCell
-//            cell.addTitleString(title: titles[indexPath.row], image: images[indexPath.row])
-//            return cell
-//        }
+        //        if indexPath.row == 0 {
+        //            let cell:SwitchCell = tableView.dequeueReusableCell(withIdentifier: switchCellIdentifier, for: indexPath) as! SwitchCell
+        //            cell.addTitleString(title: titles[indexPath.row], image: images[indexPath.row])
+        //            return cell
+        //        }
         let cell:SettingTableViewCell = tableView.dequeueReusableCell(withIdentifier: "SettingTableViewCell", for: indexPath) as! SettingTableViewCell
         cell.addTitleString(title: titles[indexPath.section][indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView,
-      titleForHeaderInSection section: Int) -> String? {
+                   titleForHeaderInSection section: Int) -> String? {
         let title = section == 0 ? "帮助与反馈" : "关于我们"
         return title
     }
@@ -171,11 +146,4 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 52
     }
-//    func tableView(_ tableView: UITableView,viewForFooterInSection section:Int) -> UIView? {
-//        return UIView()
-//    }
-    
-//    func tableView(_ tableView:UITableView,heightForFooterInSection section :Int)-> CGFloat {
-//        return 18
-//    }
 }

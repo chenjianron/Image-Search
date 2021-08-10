@@ -15,35 +15,24 @@ class MainViewController: UIViewController {
     lazy var settingButton: UIBarButtonItem = {
         let settingButton = UIBarButtonItem(
             image: UIImage(named: "setting_icon.png")?.withRenderingMode(.alwaysOriginal),
-         style:.plain ,
-          target:self ,
-          action: #selector(MainViewController.setting))
+            style:.plain ,
+            target:self ,
+            action: #selector(MainViewController.setting))
         return settingButton
     }()
-    
     lazy var settingViewController:SettingViewController = {
         return SettingViewController()
     }()
-    
     lazy var topBackgroundImage: UIImageView = {
         let image = UIImageView()
         image.image = UIImage(named: "background.png")
         return image
     }()
-    
-//    lazy var searchButton: UIButton = {
-//        let searchButton = UIButton(frame: CGRect(x: fullScreenSize.width / 2 - 71, y: fullScreenSize.height-800-(UIApplication.shared.keyWindow?.safeAreaInsets.bottom)!, width: 142, height: 92))
-//        searchButton.setImage(UIImage(named: "search_icon.png"), for: .normal)
-//        searchButton.addTarget(self, action: #selector(MainViewController.search), for: .touchUpInside)
-//        return searchButton
-//    }()
-    
     lazy var searchImageView: UIImageView = {
         let searchImageView = UIImageView()
         searchImageView.image = UIImage(named: "search_icon.png")
         return searchImageView
     }()
-    
     lazy var appTitle: UILabel = {
         let appTitle = UILabel()
         appTitle.text = "按图搜索"
@@ -51,13 +40,12 @@ class MainViewController: UIViewController {
         appTitle.textColor = UIColor.white
         return appTitle
     }()
-    
     lazy var bottomBackgroundLabel: UIView = {
         let label = UIView()
         label.layer.cornerRadius = fullScreenSize.width / 20
         label.layer.masksToBounds = false
-//        label.bounds.size.width = fullScreenSize.width
-//        label.bounds.size.height = fullScreenSize.height/2
+        //        label.bounds.size.width = fullScreenSize.width
+        //        label.bounds.size.height = fullScreenSize.height/2
         label.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
         if #available(iOS 13.0, *) {
             label.layer.shadowColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
@@ -69,59 +57,43 @@ class MainViewController: UIViewController {
         label.layer.shadowRadius = 8
         return label
     }()
-    
     lazy var hintTitle: UILabel = {
         let hintTitle = UILabel()
         hintTitle.text = "选择图片"
         hintTitle.font = UIFont(name: "Helvetica", size: 16)
         return hintTitle
     }()
-    
-//    lazy var imageSearchButton: UIButton = {
-//        let searchButton = UIButton(type: .custom)
-//        searchButton.setImage(UIImage(named: "image_search.png"), for: .normal)
-//        searchButton.addTarget(self, action: #selector(MainViewController.search), for: .touchUpInside)
-//        searchButton.isEnabled = true
-//        return searchButton
-//    }()
-    
     lazy var imageSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "图片", image: "image_search.png")
         return searchButton
     }()
-    
     lazy var cameraSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "相机", image: "camera_search.png")
         return searchButton
     }()
-    
     lazy var fileSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "文件", image: "file_search.png")
         return searchButton
     }()
-    
     lazy var urlSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "图片url", image: "url_search.png")
         return searchButton
     }()
-    
-    
     lazy var keywordSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "关键词", image: "keyword_search.png")
         return searchButton
     }()
-    
     lazy var recordSearchButton: ButtonView = {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "搜索记录", image: "record_search.png")
         return searchButton
     }()
-        
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -136,31 +108,41 @@ class MainViewController: UIViewController {
 
 //MARK: -
 extension MainViewController {
+    
     @objc func setting(){
-       print("setting")
+        print("setting")
         self.navigationController?.pushViewController(settingViewController,animated: false)
     }
+    
     @objc func search(){
-       print("search")
+        print("search")
     }
+    
     @objc func imageSearch(){
-       print("imageSearch")
+        print("imageSearch")
         self.navigationController?.pushViewController(ImagePickerViewController(),animated: false)
     }
+    
     @objc func cameraSearch(){
-       print("cameraSearch")
+        print("cameraSearch")
+        self.navigationController?.pushViewController(CameraViewController(),animated: false)
     }
+    
     @objc func fileSearch(){
-       print("fileSearch")
+        print("fileSearch")
+        self.navigationController?.pushViewController(DocumentPickerViewController(),animated: false)
     }
+    
     @objc func urlSearch(){
-       print("urlSearch")
+        print("urlSearch")
     }
+    
     @objc func keywordSearch(){
-       print("keywordSearch")
+        print("keywordSearch")
     }
+    
     @objc func recordSearch(){
-       print("recordSearch")
+        print("recordSearch")
     }
 }
 
@@ -175,14 +157,14 @@ extension MainViewController {
         self.navigationController?.navigationBar.barTintColor = UIColor(red: 19/255, green: 165/255, blue: 255/255, alpha: 1)
         // 導覽列是否半透明
         self.navigationController?.navigationBar.isTranslucent = false
-//        self.navigationController?.navigationBar.clipsToBounds = true
+        //        self.navigationController?.navigationBar.clipsToBounds = true
         // 加到導覽列中
         self.navigationItem.rightBarButtonItem = settingButton
         
         self.view.addSubview(topBackgroundImage)
         
         self.view.addSubview(searchImageView)
-
+        
         self.view.addSubview(appTitle)
         
         self.view.addSubview(bottomBackgroundLabel)
@@ -190,29 +172,30 @@ extension MainViewController {
         bottomBackgroundLabel.addSubview(hintTitle)
         bottomBackgroundLabel.isUserInteractionEnabled = true
         
-        bottomBackgroundLabel.addSubview(imageSearchButton)
         imageSearchButton.isUserInteractionEnabled = true
         imageSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(imageSearch)))
+        bottomBackgroundLabel.addSubview(imageSearchButton)
         
-        bottomBackgroundLabel.addSubview(cameraSearchButton)
         cameraSearchButton.isUserInteractionEnabled = true
         cameraSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(cameraSearch)))
+        bottomBackgroundLabel.addSubview(cameraSearchButton)
         
-        bottomBackgroundLabel.addSubview(fileSearchButton)
         fileSearchButton.isUserInteractionEnabled = true
         fileSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(fileSearch)))
+        bottomBackgroundLabel.addSubview(fileSearchButton)
         
-        bottomBackgroundLabel.addSubview(urlSearchButton)
         urlSearchButton.isUserInteractionEnabled = true
         urlSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(urlSearch)))
+        bottomBackgroundLabel.addSubview(urlSearchButton)
         
-        bottomBackgroundLabel.addSubview(keywordSearchButton)
         keywordSearchButton.isUserInteractionEnabled = true
         keywordSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(keywordSearch)))
+        bottomBackgroundLabel.addSubview(keywordSearchButton)
         
-        bottomBackgroundLabel.addSubview(recordSearchButton)
         recordSearchButton.isUserInteractionEnabled = true
         recordSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(recordSearch)))
+        bottomBackgroundLabel.addSubview(recordSearchButton)
+        
     }
     
     func setupConstraints() {
@@ -239,8 +222,8 @@ extension MainViewController {
         
         bottomBackgroundLabel.snp.makeConstraints { (make) in
             make.top.equalTo(safeAreaTop).offset(218)
-//            make.left.equalToSuperview().offset(20)
-//            make.right.equalToSuperview().offset(20)
+            //            make.left.equalToSuperview().offset(20)
+            //            make.right.equalToSuperview().offset(20)
             make.height.equalToSuperview().multipliedBy(0.6)
             make.left.equalToSuperview().offset(20)
             make.right.equalToSuperview().offset(-20)
@@ -250,15 +233,15 @@ extension MainViewController {
         imageSearchButton.snp.makeConstraints { (make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(80)
             make.left.equalToSuperview().offset(24)
         }
-
+        
         cameraSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(80)
             make.left.equalToSuperview().offset(175)
         }
@@ -266,7 +249,7 @@ extension MainViewController {
         fileSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(196)
             make.left.equalToSuperview().offset(24)
         }
@@ -274,7 +257,7 @@ extension MainViewController {
         urlSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(196)
             make.left.equalToSuperview().offset(175)
         }
@@ -282,7 +265,7 @@ extension MainViewController {
         keywordSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(312)
             make.left.equalToSuperview().offset(24)
         }
@@ -290,7 +273,7 @@ extension MainViewController {
         recordSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(fullScreenSize.height / 9 )
             make.width.equalTo((fullScreenSize.width / 10 ) * 9)
-//            make.center.equalToSuperview()
+            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(312)
             make.left.equalToSuperview().offset(175)
         }

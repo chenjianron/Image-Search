@@ -8,20 +8,17 @@
 import UIKit
 
 class TopButtonView :UIView {
+    
     lazy var backgroundLabel: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "top_rectangle.png")
-    //        imageView.setImage(UIImage(named: "矩形备份"), for: .normal)
-    //        imageView.isUserInteractionEnabled = true
         return imageView
     }()
-
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "triangle.png")
         return imageView
     }()
-
     lazy var textLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Helvetica", size: 14)

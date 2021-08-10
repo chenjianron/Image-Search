@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		673220D326BFCDE1006B7DC9 /* refresh.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 673220D226BFCDE1006B7DC9 /* refresh.pdf */; };
 		673220D726BFD559006B7DC9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 673220D626BFD559006B7DC9 /* Assets.xcassets */; };
+		673220D926C0BE10006B7DC9 /* network_error.png in Resources */ = {isa = PBXBuildFile; fileRef = 673220D826C0BE10006B7DC9 /* network_error.png */; };
+		673220DD26C178FD006B7DC9 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673220DC26C178FD006B7DC9 /* CameraViewController.swift */; };
+		673220DF26C25281006B7DC9 /* DocumentPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */; };
 		677BDF5B26BB7BAA00B5B387 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */; };
 		677D7EC626BCC33F005A902D /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7EC526BCC33F005A902D /* cancel.png */; };
 		677D7ECE26BCD52C005A902D /* index.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7ECD26BCD52C005A902D /* index.png */; };
@@ -42,8 +44,10 @@
 /* Begin PBXFileReference section */
 		13A82A766B949D8ACE6E0E11 /* Pods-Image_Search.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Image_Search.release.xcconfig"; path = "Target Support Files/Pods-Image_Search/Pods-Image_Search.release.xcconfig"; sourceTree = "<group>"; };
 		2BBCE8916F28804F5921EB59 /* Pods_Image_Search.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Image_Search.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		673220D226BFCDE1006B7DC9 /* refresh.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = refresh.pdf; path = ../../../../refresh.pdf; sourceTree = "<group>"; };
 		673220D626BFD559006B7DC9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../../../.Trash/Assets.xcassets; sourceTree = "<group>"; };
+		673220D826C0BE10006B7DC9 /* network_error.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = network_error.png; path = "../../../../图片/network_error.png"; sourceTree = "<group>"; };
+		673220DC26C178FD006B7DC9 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
+		673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerViewController.swift; sourceTree = "<group>"; };
 		677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		677D7EC526BCC33F005A902D /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cancel.png; path = "../../../../图片/cancel.png"; sourceTree = "<group>"; };
 		677D7ECD26BCD52C005A902D /* index.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = index.png; path = ../../../../../.Trash/index.png; sourceTree = "<group>"; };
@@ -164,6 +168,8 @@
 				67D1AA7D26B7A2A500832DA0 /* MainViewController.swift */,
 				679022B426B983FA00C34B74 /* SettingViewController.swift */,
 				678846AE26BA93F300B15D20 /* ImagePickerViewController.swift */,
+				673220DC26C178FD006B7DC9 /* CameraViewController.swift */,
+				673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */,
 				677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */,
 			);
 			path = Controller;
@@ -183,9 +189,9 @@
 				678846B726BA9D2200B15D20 /* background.png */,
 				678846A826BA35D000B15D20 /* cell_arrow.png */,
 				677D7EDF26BD0C75005A902D /* forward.png */,
-				673220D226BFCDE1006B7DC9 /* refresh.pdf */,
 				677D7EC526BCC33F005A902D /* cancel.png */,
 				677D7ECD26BCD52C005A902D /* index.png */,
+				673220D826C0BE10006B7DC9 /* network_error.png */,
 				677D7ED126BCDE93005A902D /* top_rectangle.png */,
 				677D7ECF26BCDD84005A902D /* triangle.png */,
 				67895E5C26B93D9100F30042 /* rectangle.png */,
@@ -278,6 +284,7 @@
 				678846B626BA9CD900B15D20 /* Main.storyboard in Resources */,
 				67895E5526B92FF400F30042 /* image_search.png in Resources */,
 				67D1AAA826B7CE7E00832DA0 /* setting_icon.png in Resources */,
+				673220D926C0BE10006B7DC9 /* network_error.png in Resources */,
 				67895E5D26B93D9100F30042 /* rectangle.png in Resources */,
 				677D7EE026BD0C75005A902D /* forward.png in Resources */,
 				678846A926BA35D000B15D20 /* cell_arrow.png in Resources */,
@@ -285,7 +292,6 @@
 				677D7ED226BCDE93005A902D /* top_rectangle.png in Resources */,
 				677D7ECE26BCD52C005A902D /* index.png in Resources */,
 				67895E5426B92FF400F30042 /* file_search.png in Resources */,
-				673220D326BFCDE1006B7DC9 /* refresh.pdf in Resources */,
 				67895E5726B9300100F30042 /* url_search.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,6 +346,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				67D1AA7E26B7A2A500832DA0 /* MainViewController.swift in Sources */,
+				673220DD26C178FD006B7DC9 /* CameraViewController.swift in Sources */,
 				678846AF26BA93F300B15D20 /* ImagePickerViewController.swift in Sources */,
 				67895E4F26B9206F00F30042 /* UIViewController.swift in Sources */,
 				677D7ED426BCE40C005A902D /* TopButtonView.swift in Sources */,
@@ -348,6 +355,7 @@
 				679022B526B983FA00C34B74 /* SettingViewController.swift in Sources */,
 				678846B326BA9BB700B15D20 /* ButtonView.swift in Sources */,
 				677BDF5B26BB7BAA00B5B387 /* WebViewController.swift in Sources */,
+				673220DF26C25281006B7DC9 /* DocumentPickerViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,7 +502,7 @@
 			baseConfigurationReference = B5DA9E0615E953D314364289 /* Pods-Image_Search.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Image_Search/Image_Search.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WBZ3547R4B;
 				INFOPLIST_FILE = Image_Search/Info.plist;
@@ -515,7 +523,7 @@
 			baseConfigurationReference = 13A82A766B949D8ACE6E0E11 /* Pods-Image_Search.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Image_Search/Image_Search.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = WBZ3547R4B;
 				INFOPLIST_FILE = Image_Search/Info.plist;

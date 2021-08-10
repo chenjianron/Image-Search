@@ -22,10 +22,6 @@ class SettingTableViewCell: UITableViewCell {
         imageView.image = UIImage(named: "cell_arrow.png")
         return imageView
     }()
-//    lazy var line: UIView = {
-//        let view = UIView()
-//        return view
-//  }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -40,7 +36,7 @@ class SettingTableViewCell: UITableViewCell {
         
         contentView.addSubview(titleLabel)
         contentView.addSubview(cellBack)
-//        contentView.addSubview(line)
+        
         titleLabel.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
             make.left.equalTo(contentView).offset(16)
@@ -49,14 +45,7 @@ class SettingTableViewCell: UITableViewCell {
         cellBack.snp.makeConstraints { (make) in
             make.centerY.equalToSuperview()
             make.right.equalTo(-16)
-//            make.width.equalTo(7)
-//            make.height.equalTo(11)
         }
-        
-//        line.snp.makeConstraints { (make) in
-//            make.left.right.bottom.equalToSuperview()
-//            make.height.equalTo(1)
-//        }
 
     }
 

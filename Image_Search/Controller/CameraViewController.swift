@@ -1,8 +1,8 @@
 //
-//  ImagePickerController.swift
+//  CameraViewController.swift
 //  Image_Search
 //
-//  Created by GC on 2021/8/4.
+//  Created by GC on 2021/8/9.
 //
 
 import UIKit
@@ -11,7 +11,7 @@ import Alamofire
 import Toolkit
 import WebKit
 
-class ImagePickerViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class CameraViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
@@ -60,7 +60,7 @@ class ImagePickerViewController: UIViewController, UIImagePickerControllerDelega
 }
 
 //MARK: -
-extension ImagePickerViewController{
+extension CameraViewController{
     
     @objc func backToPrevious(){
         self.navigationController!.popViewController(animated: true)
@@ -72,16 +72,19 @@ extension ImagePickerViewController{
 }
 
 //MARK: - UI
-extension ImagePickerViewController {
+extension CameraViewController {
     
     func setUpUI(){
+        
         self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
-        myActivityIndicator.center = CGPoint(x: self.fullScreenSize.width * 0.5, y: self.fullScreenSize.height * 0.5)
+        
+        myActivityIndicator.center = CGPoint(x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.5)
         imagePicker.delegate = self
         imagePicker.view.addSubview(myActivityIndicator)
         self.present(imagePicker, animated: false, completion:nil)
+
         //        self.view.addSubview(selectImage)
         //        let alertController = UIAlertController(
         //            title: "确认刪除",
@@ -124,7 +127,7 @@ extension ImagePickerViewController {
 }
 
 //MARK: - UIImagePickerController
-extension ImagePickerViewController {
+extension CameraViewController {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]){
         let image = info[UIImagePickerController.InfoKey(rawValue: UIImagePickerController.InfoKey.originalImage.rawValue)]
@@ -132,6 +135,7 @@ extension ImagePickerViewController {
             "Content-type": "text/html; charset=GBK"
         ]
         if !isSelect {
+            // 顯示進度條
             isSelect = true
             myActivityIndicator.startAnimating()
             AF.upload(multipartFormData: { (multipartFormData) in
@@ -175,3 +179,4 @@ extension ImagePickerViewController {
         self.navigationController?.popViewController(animated: true)
     }
 }
+
