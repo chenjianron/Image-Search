@@ -13,7 +13,6 @@
 		673220DF26C25281006B7DC9 /* DocumentPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */; };
 		677BDF5B26BB7BAA00B5B387 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */; };
 		677D7EC626BCC33F005A902D /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7EC526BCC33F005A902D /* cancel.png */; };
-		677D7ECE26BCD52C005A902D /* index.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7ECD26BCD52C005A902D /* index.png */; };
 		677D7ED026BCDD84005A902D /* triangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7ECF26BCDD84005A902D /* triangle.png */; };
 		677D7ED226BCDE93005A902D /* top_rectangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 677D7ED126BCDE93005A902D /* top_rectangle.png */; };
 		677D7ED426BCE40C005A902D /* TopButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677D7ED326BCE40C005A902D /* TopButtonView.swift */; };
@@ -34,10 +33,11 @@
 		67895E5B26B9302100F30042 /* record_search.png in Resources */ = {isa = PBXBuildFile; fileRef = 67895E5A26B9302100F30042 /* record_search.png */; };
 		67895E5D26B93D9100F30042 /* rectangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 67895E5C26B93D9100F30042 /* rectangle.png */; };
 		679022B526B983FA00C34B74 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 679022B426B983FA00C34B74 /* SettingViewController.swift */; };
+		67A91A5626C35A0E00268DC8 /* EditWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A91A5526C35A0D00268DC8 /* EditWindowView.swift */; };
+		67A91A5826C3A7F200268DC8 /* UrlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67A91A5726C3A7F200268DC8 /* UrlViewController.swift */; };
 		67D1AA7A26B7A2A500832DA0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D1AA7926B7A2A500832DA0 /* AppDelegate.swift */; };
 		67D1AA7E26B7A2A500832DA0 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67D1AA7D26B7A2A500832DA0 /* MainViewController.swift */; };
 		67D1AA8626B7A2A600832DA0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 67D1AA8426B7A2A600832DA0 /* LaunchScreen.storyboard */; };
-		67D1AAA826B7CE7E00832DA0 /* setting_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67D1AAA726B7CE7E00832DA0 /* setting_icon.png */; };
 		83FC5A4023D0DF00016CB78E /* Pods_Image_Search.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BBCE8916F28804F5921EB59 /* Pods_Image_Search.framework */; };
 /* End PBXBuildFile section */
 
@@ -50,7 +50,6 @@
 		673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerViewController.swift; sourceTree = "<group>"; };
 		677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		677D7EC526BCC33F005A902D /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cancel.png; path = "../../../../图片/cancel.png"; sourceTree = "<group>"; };
-		677D7ECD26BCD52C005A902D /* index.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = index.png; path = ../../../../../.Trash/index.png; sourceTree = "<group>"; };
 		677D7ECF26BCDD84005A902D /* triangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = triangle.png; path = "../../../../图片/triangle.png"; sourceTree = "<group>"; };
 		677D7ED126BCDE93005A902D /* top_rectangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = top_rectangle.png; path = "../../../../图片/top_rectangle.png"; sourceTree = "<group>"; };
 		677D7ED326BCE40C005A902D /* TopButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopButtonView.swift; sourceTree = "<group>"; };
@@ -71,12 +70,13 @@
 		67895E5A26B9302100F30042 /* record_search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = record_search.png; sourceTree = "<group>"; };
 		67895E5C26B93D9100F30042 /* rectangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rectangle.png; sourceTree = "<group>"; };
 		679022B426B983FA00C34B74 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
+		67A91A5526C35A0D00268DC8 /* EditWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWindowView.swift; sourceTree = "<group>"; };
+		67A91A5726C3A7F200268DC8 /* UrlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UrlViewController.swift; sourceTree = "<group>"; };
 		67D1AA7626B7A2A500832DA0 /* Image_Search.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Image_Search.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		67D1AA7926B7A2A500832DA0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		67D1AA7D26B7A2A500832DA0 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		67D1AA8526B7A2A600832DA0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		67D1AA8726B7A2A600832DA0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		67D1AAA726B7CE7E00832DA0 /* setting_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setting_icon.png; sourceTree = "<group>"; };
 		B5DA9E0615E953D314364289 /* Pods-Image_Search.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Image_Search.debug.xcconfig"; path = "Target Support Files/Pods-Image_Search/Pods-Image_Search.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,6 +105,7 @@
 			isa = PBXGroup;
 			children = (
 				678846B226BA9BB700B15D20 /* ButtonView.swift */,
+				67A91A5526C35A0D00268DC8 /* EditWindowView.swift */,
 				678846A626BA348600B15D20 /* SettingTableViewCell.swift */,
 				677D7ED326BCE40C005A902D /* TopButtonView.swift */,
 			);
@@ -167,6 +168,7 @@
 			children = (
 				67D1AA7D26B7A2A500832DA0 /* MainViewController.swift */,
 				679022B426B983FA00C34B74 /* SettingViewController.swift */,
+				67A91A5726C3A7F200268DC8 /* UrlViewController.swift */,
 				678846AE26BA93F300B15D20 /* ImagePickerViewController.swift */,
 				673220DC26C178FD006B7DC9 /* CameraViewController.swift */,
 				673220DE26C25281006B7DC9 /* DocumentPickerViewController.swift */,
@@ -190,7 +192,6 @@
 				678846A826BA35D000B15D20 /* cell_arrow.png */,
 				677D7EDF26BD0C75005A902D /* forward.png */,
 				677D7EC526BCC33F005A902D /* cancel.png */,
-				677D7ECD26BCD52C005A902D /* index.png */,
 				673220D826C0BE10006B7DC9 /* network_error.png */,
 				677D7ED126BCDE93005A902D /* top_rectangle.png */,
 				677D7ECF26BCDD84005A902D /* triangle.png */,
@@ -201,7 +202,6 @@
 				67895E5126B92FF400F30042 /* file_search.png */,
 				67895E5226B92FF400F30042 /* image_search.png */,
 				67895E5026B92FF400F30042 /* keyword_search.png */,
-				67D1AAA726B7CE7E00832DA0 /* setting_icon.png */,
 			);
 			path = image;
 			sourceTree = "<group>";
@@ -283,14 +283,12 @@
 				67895E5326B92FF400F30042 /* keyword_search.png in Resources */,
 				678846B626BA9CD900B15D20 /* Main.storyboard in Resources */,
 				67895E5526B92FF400F30042 /* image_search.png in Resources */,
-				67D1AAA826B7CE7E00832DA0 /* setting_icon.png in Resources */,
 				673220D926C0BE10006B7DC9 /* network_error.png in Resources */,
 				67895E5D26B93D9100F30042 /* rectangle.png in Resources */,
 				677D7EE026BD0C75005A902D /* forward.png in Resources */,
 				678846A926BA35D000B15D20 /* cell_arrow.png in Resources */,
 				677D7EC626BCC33F005A902D /* cancel.png in Resources */,
 				677D7ED226BCDE93005A902D /* top_rectangle.png in Resources */,
-				677D7ECE26BCD52C005A902D /* index.png in Resources */,
 				67895E5426B92FF400F30042 /* file_search.png in Resources */,
 				67895E5726B9300100F30042 /* url_search.png in Resources */,
 			);
@@ -346,6 +344,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				67D1AA7E26B7A2A500832DA0 /* MainViewController.swift in Sources */,
+				67A91A5626C35A0E00268DC8 /* EditWindowView.swift in Sources */,
+				67A91A5826C3A7F200268DC8 /* UrlViewController.swift in Sources */,
 				673220DD26C178FD006B7DC9 /* CameraViewController.swift in Sources */,
 				678846AF26BA93F300B15D20 /* ImagePickerViewController.swift in Sources */,
 				67895E4F26B9206F00F30042 /* UIViewController.swift in Sources */,

@@ -43,6 +43,7 @@ class SettingViewController: UIViewController {
 
 //MARK: -
 extension SettingViewController{
+    
     @objc func backToPrevious(){
         self.navigationController!.popViewController(animated: true)
     }
@@ -108,6 +109,7 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    viewForHeaderInSection section: Int) -> UIView? {
+        
         let headerView = UIView()
         headerView.backgroundColor = UIColor.white
         let label = UILabel()

@@ -75,6 +75,7 @@ extension ImagePickerViewController{
 extension ImagePickerViewController {
     
     func setUpUI(){
+        
         self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
@@ -127,6 +128,7 @@ extension ImagePickerViewController {
 extension ImagePickerViewController {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]){
+        
         let image = info[UIImagePickerController.InfoKey(rawValue: UIImagePickerController.InfoKey.originalImage.rawValue)]
         headers = [
             "Content-type": "text/html; charset=GBK"
@@ -149,7 +151,7 @@ extension ImagePickerViewController {
                     isSelect = false
                 } else {
                     print("上传失败")
-                    print(result.error?.errorDescription)
+                    print(result.error?.errorDescription ?? " ")
                     if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                         let alertController = UIAlertController(
                             title: nil,

@@ -1,4 +1,11 @@
 //
+//  DocumentPickerViewController.swift
+//  Image_Search
+//
+//  Created by GC on 2021/8/10.
+//
+
+//
 //  CameraViewController.swift
 //  Image_Search
 //
@@ -11,7 +18,7 @@ import Alamofire
 import Toolkit
 import WebKit
 
-class CameraViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate{
+class DocumentPickerViewController: UIViewController, UIDocumentPickerDelegate, UINavigationControllerDelegate{
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
@@ -20,6 +27,7 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
     var isFromWebViewController = false
     var isSelect = false
     var delegate:MainViewController?
+    var documentPicker:UIDocumentPickerViewController!
     
     lazy var leftBarBtn:UIBarButtonItem = {
         let leftBarBtn = UIBarButtonItem()
@@ -31,16 +39,8 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
     }()
     var myActivityIndicator:UIActivityIndicatorView = {
        let myActivityIndicator = UIActivityIndicatorView(style:.gray)
-        myActivityIndicator.color = .white
-        myActivityIndicator.backgroundColor = .gray
+        myActivityIndicator.color = .gray
         return myActivityIndicator
-    }()
-    var imagePicker:UIImagePickerController = {
-        let imagePicker = UIImagePickerController()
-        imagePicker.modalPresentationStyle = .fullScreen
-        imagePicker.sourceType = UIImagePickerController.SourceType.camera
-        imagePicker.isToolbarHidden = true
-        return imagePicker
     }()
     
     override func viewDidLoad() {
@@ -53,38 +53,41 @@ class CameraViewController: UIViewController, UIImagePickerControllerDelegate, U
     override func viewWillAppear(_ animated: Bool) {
         print("viewWillAppear")
         if isFromWebViewController {
-            self.present(imagePicker, animated: false, completion:nil)
+            self.present(documentPicker!, animated: false, completion:nil)
             isFromWebViewController = false
         }
     }
 }
 
 //MARK: -
-extension CameraViewController{
+extension DocumentPickerViewController{
     
     @objc func backToPrevious(){
         self.navigationController!.popViewController(animated: true)
     }
     
-    func setDelegate(delegate:MainViewController){
-        self.delegate = delegate
+    func setUIImagePickerController(){
+        
+        let letdocumentTypes = ["public.image"]
+        documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
+        documentPicker?.modalPresentationStyle = .fullScreen
+        documentPicker!.delegate = self
+        self.view.addSubview(myActivityIndicator)
+        self.present(documentPicker!, animated: false, completion:nil)
+//        self.navigationController?.pushViewController(documentPicker!, animated: false)
     }
 }
 
 //MARK: - UI
-extension CameraViewController {
+extension DocumentPickerViewController {
     
     func setUpUI(){
         
         self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
-        
-        myActivityIndicator.center = CGPoint(x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.5)
-        imagePicker.delegate = self
-        imagePicker.view.addSubview(myActivityIndicator)
-        self.present(imagePicker, animated: false, completion:nil)
-
+        myActivityIndicator.center = CGPoint(x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.35)
+        self.setUIImagePickerController()
         //        self.view.addSubview(selectImage)
         //        let alertController = UIAlertController(
         //            title: "确认刪除",
@@ -124,23 +127,26 @@ extension CameraViewController {
     func setupConstrains(){
         
     }
+    
+    func setupDataSource(){
+    }
 }
 
 //MARK: - UIImagePickerController
-extension CameraViewController {
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]){
+extension DocumentPickerViewController {
+    func documentPicker(_ controller: UIDocumentPickerViewController,didPickDocumentAt url: URL) {
         
-        let image = info[UIImagePickerController.InfoKey(rawValue: UIImagePickerController.InfoKey.originalImage.rawValue)]
+        let imgData = try! Data.init(contentsOf: url)
         headers = [
             "Content-type": "text/html; charset=GBK"
         ]
+        myActivityIndicator.startAnimating()
         if !isSelect {
             // 顯示進度條
             isSelect = true
             myActivityIndicator.startAnimating()
             AF.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(((image as! UIImage?)!.jpegData(compressionQuality: 1.0))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                multipartFormData.append(((UIImage(data: imgData) as! UIImage?)!.jpegData(compressionQuality: 1.0))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)
@@ -160,12 +166,13 @@ extension CameraViewController {
                             title: nil,
                             message: "网络超时，请重试",
                             preferredStyle: .alert)
-                        self.imagePicker.present(
+                        self.present(
                             alertController,
                             animated: true,
                             completion: nil)
                         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
-                            self.imagePicker.dismiss(animated: true, completion: nil)
+                            self.dismiss(animated: true, completion: nil)
+                            self.navigationController?.popViewController(animated: true)
                         }
                     }
                     myActivityIndicator.stopAnimating()
@@ -173,11 +180,16 @@ extension CameraViewController {
                 }
             }
         }
+        
     }
     
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+    func documentPickerWasCancelled(_: UIDocumentPickerViewController){
         self.dismiss(animated: true, completion: nil)
         self.navigationController?.popViewController(animated: true)
     }
+    
+    
+    
 }
+
 

@@ -14,15 +14,19 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
+    let urlSearchEngineUrlPrefix = ["https://www.google.com.hk/searchbyimage?image_url=","https://yandex.com/images/search?family=yes&rpt=imageview&url=","https://pic.sogou.com/ris?query="]
+    let keywordSearchEngineUrlPrefix = ["https://www.google.com/search?q=","&tbm=isch", "https://yandex.com/images/search?from=tabbar&text=","https://pic.sogou.com/pics?query=","https://cn.bing.com/images/search?q="]
     let googleUrlPrefix = "https://www.google.com.hk/searchbyimage?image_url="
     let yandexUrlPrefix = "https://yandex.com/images/search?family=yes&rpt=imageview&url="
     let sougouUrlPrefix = "https://pic.sogou.com/ris?query="
     
     var delegate:UIViewController?
-    var firstlUrl:String!
-    var imageLink:String!
+    var firstUrl:String!
+    var imageLink:String?
+    var keyword:String!
     var observation: NSKeyValueObservation! = nil
     var isStop = false
+    var isLoding = false
     
     lazy var myWebView :WKWebView = {
         let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83 ))
@@ -50,7 +54,6 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         let barBtn = TopButtonView()
         barBtn.setText(title: "Google")
         barBtn.isUserInteractionEnabled = true
-        barBtn.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(selectSearchEngine)))
         return barBtn
     }()
     lazy var cancelRightBarBtn:UIBarButtonItem = {
@@ -115,17 +118,21 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
 extension WebViewController: WKUIDelegate {
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        
         print("didStartProvisionalNavigation")
         progressView.isHidden = false//展示
-        myActivityIndicator.startAnimating()
+        self.isLoding = true
+        self.myActivityIndicator.startAnimating()
         self.navigationItem.rightBarButtonItem = cancelRightBarBtn
-        bottomLeftbutton.isEnabled = false
-        bottomRightbutton.isEnabled = false
-        bottomIndexbutton.isEnabled = false
+        self.bottomLeftbutton.isEnabled = false
+        self.bottomRightbutton.isEnabled = false
+        self.bottomIndexbutton.isEnabled = false
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        
         print("didFinish")
+        self.isLoding = false
         myActivityIndicator.stopAnimating()
         progressView.isHidden = true
         leftRightBtnState()
@@ -135,15 +142,17 @@ extension WebViewController: WKUIDelegate {
             isStop = false
         }
         // 更新網址列的內容
-        if let currentURL = myWebView.url {
+        if myWebView.url != nil {
             
         }
     }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        
         print("didFail navigation")
         print(error)
         // 隱藏進度條
+        self.isLoding = false
         myActivityIndicator.stopAnimating()
         progressView.isHidden = true
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
@@ -152,20 +161,22 @@ extension WebViewController: WKUIDelegate {
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        
         print("didFaiProvisionalNavigation")
         print(error)
-        if isStop == false {
+        if self.isStop == false {
             self.navigationItem.rightBarButtonItem = refreshRightBarBtn
             // 隱藏進度條
-            myActivityIndicator.stopAnimating()
+            self.myActivityIndicator.stopAnimating()
             self.progressView.isHidden = true
             self.networkErrorImageView.isHidden = false
             self.networkErrorHint.isHidden = false
             self.myWebView.isHidden = true
             leftRightBtnState()
-            bottomIndexbutton.isEnabled = true
+            self.bottomIndexbutton.isEnabled = true
         }
-        isStop = false
+        self.isLoding = false
+        self.isStop = false
     }
     
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
@@ -181,6 +192,7 @@ extension WebViewController: WKUIDelegate {
 extension WebViewController {
     
     func leftRightBtnState(){
+        
         if myWebView.canGoBack == false {
             print(myWebView.canGoBack)
             self.bottomLeftbutton.isEnabled = false
@@ -198,10 +210,9 @@ extension WebViewController {
     @objc func back() {
         // 上一頁
         if self.myWebView.isHidden == true {
-            self.networkErrorImageView.isHidden = true
             self.myWebView.isHidden = false
             self.networkErrorImageView.isHidden = true
-            self.networkErrorHint.isHidden = false
+            self.networkErrorHint.isHidden = true
         }
         myWebView.goBack()
     }
@@ -214,10 +225,9 @@ extension WebViewController {
     @objc func forward() {
         // 下一頁
         if self.myWebView.isHidden {
-            self.networkErrorImageView.isHidden = true
             self.myWebView.isHidden = false
             self.networkErrorImageView.isHidden = true
-            self.networkErrorHint.isHidden = false
+            self.networkErrorHint.isHidden = true
         }
         myWebView.goForward()
     }
@@ -225,30 +235,32 @@ extension WebViewController {
     @objc func reload() {
         // 重新讀取
         if self.myWebView.isHidden {
-            self.networkErrorImageView.isHidden = true
             self.myWebView.isHidden = false
             self.networkErrorImageView.isHidden = true
-            self.networkErrorHint.isHidden = false
+            self.networkErrorHint.isHidden = true
         }
         myWebView.reload()
     }
     
     @objc func stop() {
-        // 取消讀取
-        myWebView.stopLoading()
-        // 隱藏環狀進度條
+      
         myActivityIndicator.stopAnimating()
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
         leftRightBtnState()
         bottomIndexbutton.isEnabled = true
         progressView.isHidden = true
         isStop = true
+        myWebView.stopLoading()
+
     }
     
     @objc func go() {
         // 隱藏鍵盤
         self.view.endEditing(true)
-        myWebView.load(URLRequest(url: URL(string: firstlUrl)!))
+        if self.imageLink == nil {
+            self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        }
+        myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
         // 你也可以設置 HTML 內容到一個常數
         // 用來載入一個靜態的網頁內容
         // let content = "<html><body><h1>Hello World !</h1></body></html>"
@@ -261,15 +273,21 @@ extension WebViewController {
             self.networkErrorHint.isHidden = false
             self.myWebView.isHidden = false
         }
-        myWebView.load(URLRequest(url: URL(string: firstlUrl)!))
+        myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
     }
     
     func setURL(url:String){
         imageLink = url
-        firstlUrl = "https://www.google.com.hk/searchbyimage?image_url=" + url
+        firstUrl = "https://www.google.com.hk/searchbyimage?image_url=" + url
     }
     
-    @objc func selectSearchEngine(){
+    func setKeyword(keyword:String){
+        self.keyword = keyword
+        self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
+        print(self.firstUrl)
+    }
+    
+    @objc func selectUrlSearchEngine(){
         // 建立一個提示框
         let alertController = UIAlertController(
             title: "请选择搜索引擎", message: nil,
@@ -289,10 +307,12 @@ extension WebViewController {
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.firstlUrl = self.googleUrlPrefix + self.imageLink
+                self.firstUrl = self.googleUrlPrefix + self.imageLink!
                 self.centerBarBtn.setText(title: "Google")
-                self.stop()
-                self.myWebView.load(URLRequest(url: URL(string: self.firstlUrl)!))
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
         alertController.addAction(google)
         
@@ -304,9 +324,11 @@ extension WebViewController {
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Yandex")
-                self.firstlUrl = self.yandexUrlPrefix + self.imageLink
-                self.stop()
-                self.myWebView.load(URLRequest(url: URL(string: self.firstlUrl)!))
+                self.firstUrl = self.yandexUrlPrefix + self.imageLink!
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
         alertController.addAction(yandex)
         
@@ -318,11 +340,102 @@ extension WebViewController {
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Sougou")
-                self.firstlUrl = self.sougouUrlPrefix + self.imageLink
-                self.stop()
-                self.myWebView.load(URLRequest(url: URL(string: self.firstlUrl)!))
+                self.firstUrl = self.sougouUrlPrefix + self.imageLink!
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
         alertController.addAction(souGou)
+        
+        
+        // 顯示提示框
+        self.present(
+            alertController,
+            animated: true,
+            completion: nil)
+    }
+    
+    @objc func selectKeywordUrlSearchEngine(){
+        // 建立一個提示框
+        let alertController = UIAlertController(
+            title: "请选择搜索引擎", message: nil,
+            preferredStyle: .actionSheet)
+        // 建立[取消]按鈕
+        let cancelAction = UIAlertAction(
+            title: "取消",
+            style: .cancel,
+            handler: nil)
+        alertController.addAction(cancelAction)
+        
+        // 建立[確認]按鈕
+        let google = UIAlertAction(
+            title: "Google",
+            style: .default,
+            handler: {_ in
+                self.networkErrorImageView.isHidden = true
+                self.networkErrorHint.isHidden = false
+                self.myWebView.isHidden = false
+                self.firstUrl = self.keywordSearchEngineUrlPrefix[0] + self.keyword + self.keywordSearchEngineUrlPrefix[1]
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                self.centerBarBtn.setText(title: "Google")
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
+            })
+        alertController.addAction(google)
+        
+        let yandex = UIAlertAction(
+            title: "Yandex",
+            style: .default,
+            handler: {_ in
+                self.networkErrorImageView.isHidden = true
+                self.networkErrorHint.isHidden = false
+                self.myWebView.isHidden = false
+                self.centerBarBtn.setText(title: "Yandex")
+                self.firstUrl = self.keywordSearchEngineUrlPrefix[2] + self.keyword
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
+            })
+        alertController.addAction(yandex)
+        
+        let souGou = UIAlertAction(
+            title: "Sougou",
+            style: .default,
+            handler: {_ in
+                self.networkErrorImageView.isHidden = true
+                self.networkErrorHint.isHidden = false
+                self.myWebView.isHidden = false
+                self.centerBarBtn.setText(title: "Sougou")
+                self.firstUrl = self.keywordSearchEngineUrlPrefix[3] + self.keyword
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
+            })
+        alertController.addAction(souGou)
+        
+        let bing = UIAlertAction(
+            title: "Bing",
+            style: .default,
+            handler: {_ in
+                self.networkErrorImageView.isHidden = true
+                self.networkErrorHint.isHidden = false
+                self.myWebView.isHidden = false
+                self.centerBarBtn.setText(title: "Bing")
+                self.firstUrl = self.keywordSearchEngineUrlPrefix[4] + self.keyword
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                if self.isLoding {
+                    self.stop()
+                }
+                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
+            })
+        alertController.addAction(bing)
         
         // 顯示提示框
         self.present(
@@ -337,9 +450,15 @@ extension WebViewController {
 extension WebViewController {
     
     func setupUI(){
+        
         self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
+        if self.imageLink == nil {
+            centerBarBtn.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(selectKeywordUrlSearchEngine)))
+        } else {
+            centerBarBtn.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(selectUrlSearchEngine)))
+        }
         self.navigationItem.titleView = centerBarBtn
         self.view.addSubview(self.myWebView)
         self.view.addSubview(self.networkErrorImageView)

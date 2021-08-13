@@ -14,7 +14,7 @@ class MainViewController: UIViewController {
     
     lazy var settingButton: UIBarButtonItem = {
         let settingButton = UIBarButtonItem(
-            image: UIImage(named: "setting_icon.png")?.withRenderingMode(.alwaysOriginal),
+            image: UIImage(named: "setting_icon_image")?.withRenderingMode(.alwaysOriginal),
             style:.plain ,
             target:self ,
             action: #selector(MainViewController.setting))
@@ -61,6 +61,7 @@ class MainViewController: UIViewController {
         let hintTitle = UILabel()
         hintTitle.text = "选择图片"
         hintTitle.font = UIFont(name: "Helvetica", size: 16)
+        hintTitle.font = UIFont.boldSystemFont(ofSize: 16)
         return hintTitle
     }()
     lazy var imageSearchButton: ButtonView = {
@@ -92,6 +93,25 @@ class MainViewController: UIViewController {
         let searchButton = ButtonView()
         searchButton.dataSouce(title: "搜索记录", image: "record_search.png")
         return searchButton
+    }()
+    lazy var urlEditWindowViewController:UrlViewController = {
+       let editViewController = UrlViewController()
+        if #available(iOS 13.0, *) {
+            editViewController.modalPresentationStyle = .overFullScreen
+        } else {
+            // Fallback on earlier versions
+        }
+        return editViewController
+    }()
+    
+    lazy var keywordEditWindowViewController:UrlViewController = {
+       let editViewController = UrlViewController()
+        if #available(iOS 13.0, *) {
+            editViewController.modalPresentationStyle = .overFullScreen
+        } else {
+            // Fallback on earlier versions
+        }
+        return editViewController
     }()
     
     override func viewDidLoad() {
@@ -135,14 +155,26 @@ extension MainViewController {
     
     @objc func urlSearch(){
         print("urlSearch")
+        self.present(urlEditWindowViewController, animated: true, completion: nil)
+        
+    }
+    
+    func goWebViewControllerFromUrlViewController(webViewController:WebViewController){
+        self.navigationController?.pushViewController(webViewController,animated: false)
+        
     }
     
     @objc func keywordSearch(){
         print("keywordSearch")
+        self.present(keywordEditWindowViewController, animated: true, completion: nil)
     }
     
     @objc func recordSearch(){
         print("recordSearch")
+    }
+    
+    func cancel(){
+        self.dismiss(animated: true, completion: nil)
     }
 }
 
@@ -168,6 +200,12 @@ extension MainViewController {
         self.view.addSubview(appTitle)
         
         self.view.addSubview(bottomBackgroundLabel)
+        
+        urlEditWindowViewController.setType(type: "url")
+        urlEditWindowViewController.setDelegate(delegate: self)
+        
+        keywordEditWindowViewController.setType(type: "关键词")
+        keywordEditWindowViewController.setDelegate(delegate: self)
         
         bottomBackgroundLabel.addSubview(hintTitle)
         bottomBackgroundLabel.isUserInteractionEnabled = true
