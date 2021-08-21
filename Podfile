@@ -7,9 +7,12 @@ use_frameworks!
 
 target 'Image_Search' do
   use_frameworks!
-  
+pod 'FMDB'  
   pod 'Toolkit'
   pod 'SnapKit'
   pod 'Alamofire'
+  pod 'AdLib'
+  pod 'MarketingHelper'
+
 end
 

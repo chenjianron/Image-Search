@@ -11,7 +11,7 @@ import SnapKit
 class SettingViewController: UIViewController {
     
     let fullScreenSize = UIScreen.main.bounds.size
-    let titles = [["意见反馈"],["分享给好友", "给个评价","隐私政策", "用户协议"]]
+    let titles = [[__("意见反馈")],[__("分享给好友"), __("给个评价"),__("隐私政策"), __("用户协议")]]
     var delegate:MainViewController?
     
     lazy var leftBarBtn:UIBarButtonItem = {
@@ -61,7 +61,7 @@ extension SettingViewController {
         self.view.backgroundColor = .white
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
-        self.navigationItem.title = "设置"
+        self.navigationItem.title = __("设置")
         self.view.addSubview(tableView)
     }
     
@@ -121,9 +121,9 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
             make.centerY.equalToSuperview()
         }
         if section == 0 {
-            label.text = "帮助与反馈"
+            label.text = __("帮助与反馈")
         } else {
-            label.text = "关于我们"
+            label.text = __("关于我们")
         }
         return headerView
     }
@@ -141,7 +141,7 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView,
                    titleForHeaderInSection section: Int) -> String? {
-        let title = section == 0 ? "帮助与反馈" : "关于我们"
+        let title = section == 0 ? __("帮助与反馈") : __("关于我们")
         return title
     }
     

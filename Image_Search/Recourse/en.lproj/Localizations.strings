@@ -1,0 +1,54 @@
+/* 
+  Localization.strings
+  Image_Search
+
+  Created by GC on 2021/8/20.
+  
+*/
+
+// 未翻译
+"搜索关键字"="搜索关键字";
+"请输入合法链接！"="请输入合法链接！";
+"请输入非空字符"="请输入非空字符";
+
+// 已翻译
+"按图搜索"="Search by image";
+"选择图片"="Select Image";
+"图片"="image";
+"相机"="Camera";
+"文件"="Files";
+"图片url"="Picture URL";
+"关键词"="Key words";
+"搜索记录"="Search Records";
+"上传失败"="Upload Failed";
+"网络超时，请重试"="Network timed out, please try again";
+"暂无搜索记录"="No search history";
+"已保存到相册"="Saved to Albums";
+"保存失败"="Save Failed";
+"编辑"="Edit";
+"取消"="Cancel";
+"删除"="Delete";
+"搜索图片"="Search pictures";
+"保存到相册"="Save to Albums";
+"清空"="Clear";
+"意见反馈"="Feedback";
+"分享给好友"="Share to friends";
+"给个评价"="Give a comment ";
+"隐私政策"="Privacy Policy";
+"用户协议"="User Agreements";
+"设置"="Settings";
+"帮助与反馈"="Help&Feedback";
+"关于我们"="About Us";
+"请连接网络后重试！"="Please try again after connecting to the network!";
+"请输入有效链接！"="Please enter a valid link!";
+"输入图片URL"="Enter picture URL";
+"输入关键词"="enter keyword";
+"搜索"="Search";
+"请选择搜索引擎"="Please select a search engine";
+"您还没有开启消息通知"="You haven't turned on Notifications yet";
+"“通知”可能包括提醒、声音和图标标记。这些可在“设置”中配置。"="Notifications may include alerts, sounds, and icon badges. These can be configured in settings.";
+"稍后再说"="Later";
+"立即设置"="Set now";
+"无邮件账户"="No Mail Accounts";
+"请设置邮件账户来发送电子邮件"="Please set up a Mail account in order to send email.";
+"好"="OK";

@@ -11,6 +11,7 @@ import Alamofire
 class UrlViewController:UIViewController {
     
     let fullScreenSize = UIScreen.main.bounds.size
+    let dformatter = DateFormatter()
     var delegate:MainViewController!
     var type:String!
     
@@ -49,6 +50,7 @@ class UrlViewController:UIViewController {
         let hintTitle = UILabel()
         hintTitle.font = UIFont(name: "Helvetica", size: 14)
         hintTitle.textColor = UIColor.red
+        hintTitle.textAlignment = .center
         return hintTitle
     }()
     lazy var inputTextField:UITextField = {
@@ -70,6 +72,7 @@ class UrlViewController:UIViewController {
         textField.keyboardType = .default
         textField.textAlignment = .left
         textField.delegate = self
+//        textField.addTarget(self, action: #selector(), for: .editingDidEndOnExit)
         return textField
     }()
     lazy var hintLabel:UILabel = {
@@ -85,50 +88,111 @@ class UrlViewController:UIViewController {
         return button
     }()
     
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nil, bundle: nil)
+        modalPresentationStyle = .custom
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setupUI()
         setupConstrains()
+        showAnimate()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
     }
 }
 
 // MARK: -
 extension UrlViewController {
     
+    func showAnimate() {
+        
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
+            
+//            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: .curveLinear) {
+//                self.view.layoutIfNeeded()
+//                self.contentLabel.transform = CGAffineTransform.init(scaleX: 1, y: 1)
+//            }
+            UIView.animate(withDuration: 0.3) {
+//                self.view.layoutIfNeeded()
+                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
+            }
+        }
+    }
+    
+    func dismissAnimate(complete: @escaping () -> Void) {
+        
+//        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: .curveLinear) {
+//            self.view.layoutIfNeeded()
+//            self.contentLabel.transform = CGAffineTransform.init(scaleX: 0.9, y: 0.9)
+//            self.contentLabel.alpha = 0
+//            self.closeButton.alpha = 0
+//        }
+        
+        UIView.animate(withDuration: 0.3) {
+//            self.view.layoutIfNeeded()
+            self.view.backgroundColor = .clear
+        } completion: { _ in
+            self.dismiss(animated: false) {
+                complete()
+            }
+        }
+
+    }
+    
     func urlNetwordRequest(){
+        
         if self.verifyUrl(urlString: self.inputTextField.text) {
-            AF.request(self.inputTextField.text!).response{ response in
+            AF.request(self.inputTextField.text!).response{ [self] response in
                 print(response.response?.statusCode ?? "")
                 if response.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                    self.hintTitle.text = "请连接网络后重试！"
+                    self.hintTitle.text = __("请连接网络后重试！")
                 } else if response.error?.errorDescription == "URLSessionTask failed with error: Could not connect to the server." {
-                    self.hintTitle.text = "请输入有效链接！"
+                    self.hintTitle.text = __("请输入有效链接！")
                 } else if response.response?.statusCode == 404 {
-                    self.hintTitle.text = "请输入有效链接！"
+                    self.hintTitle.text = __("请输入有效链接！")
                 } else {
+                    if(response.data != nil){
+                        SQL.insert(imagedata: response.data!)
+                    }
                     let webViewController = WebViewController()
                     webViewController.delegate = self
                     webViewController.setURL(url: self.inputTextField.text!)
+                    
                     self.dismiss(animated: true, completion: nil)
                     self.delegate.goWebViewControllerFromUrlViewController(webViewController: webViewController)
                 }
             }
         } else {
-            self.hintTitle.text = "请输入合法链接！"
+            self.hintTitle.text = __("请输入合法链接！")
         }
     }
     
     func keywordNetwordRequest(){
-        AF.request("https://www.google.com/search?q=" + self.inputTextField.text! + "&tbm=isch").response{ response in
+        AF.request("https://www.google.com/search?q=" + self.inputTextField.text! + " &tbm=isch").response{ [self] response in
             if response.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                self.hintTitle.text = "请连接网络后重试！"
+                self.hintTitle.text = __("请连接网络后重试！")
             } else  {
-                let webViewController = WebViewController()
-                webViewController.delegate = self
-                webViewController.setKeyword(keyword: self.inputTextField.text!)
-                self.dismiss(animated: true, completion: nil)
-                self.delegate.goWebViewControllerFromUrlViewController(webViewController: webViewController)
+                let text = self.inputTextField.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
+                if text != "" {
+                    SQL.insert(keyword: self.inputTextField.text!)
+                    let webViewController = WebViewController()
+                    webViewController.delegate = self
+                    webViewController.setKeyword(keyword: self.inputTextField.text!)
+                    
+                    self.dismiss(animated: true, completion: nil)
+                    self.delegate.goWebViewControllerFromUrlViewController(webViewController: webViewController)// 编写SQL语句
+                }
+                self.hintTitle.text = __("请输入非空字符")
             }
         }
     }
@@ -160,13 +224,13 @@ extension UrlViewController {
         
         self.type = type
         if self.type == "url" {
-            self.titleLable.text = "输入图片URL"
+            self.titleLable.text = __("输入图片URL")
             self.searchBtn.setTitle("导入", for: .normal)
             hintLabel.text = "URL..."
         } else {
-            self.titleLable.text = "输入关键词"
-            self.searchBtn.setTitle("搜索", for: .normal)
-            hintLabel.text = "关键词"
+            self.titleLable.text = __("输入关键词")
+            self.searchBtn.setTitle(__("搜索"), for: .normal)
+            hintLabel.text = __("关键词")
         }
     }
     
@@ -176,6 +240,10 @@ extension UrlViewController {
     
     @objc func cancel(){
         self.delegate.cancel()
+        dismissAnimate {
+           
+        }
+
     }
 }
 
@@ -203,6 +271,10 @@ extension UrlViewController:UITextFieldDelegate {
             hintLabel.isHidden = false
         }
     }
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+      // 设置相应其他的textField
+          return true
+    }
 }
 
 // MARK: - UI
@@ -222,7 +294,9 @@ extension UrlViewController {
         
         backgroundBoard.addSubview(searchBtn)
         
-        backgroundBoard.addSubview(hintLabel)
+        inputTextField.addSubview(hintLabel)
+        
+        dformatter.dateFormat = "M月dd日 ah:mm"
         //        self.delegate.view.backgroundColor = .gray
         //        self.delegate.view.alpha = 0.6
     }
@@ -231,52 +305,52 @@ extension UrlViewController {
         
         backgroundBoard.snp.makeConstraints{ (make) in
             make.width.equalTo(335)
-            make.height.equalTo(204)
-            make.top.equalToSuperview().offset(202)
-            make.left.equalToSuperview().offset(20)
+            make.height.equalTo(GetWidthHeight.getHeight(height: 204))
+            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 202))
+            make.centerX.equalToSuperview()
         }
         
         cancelBtn.snp.makeConstraints{ (make) in
             make.width.equalTo(24)
             make.height.equalTo(24)
-            make.top.equalToSuperview().offset(12)
-            make.left.equalToSuperview().offset(291)
+            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 12))
+            make.right.equalToSuperview().offset(GetWidthHeight.getWidth(width: -20))
         }
         
         titleLable.snp.makeConstraints{ (make) in
             make.width.equalTo(103)
             make.height.equalTo(24)
-            make.top.equalToSuperview().offset(24)
-            make.left.equalToSuperview().offset(116)
+            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 24))
+            make.centerX.equalToSuperview()
             
         }
         
         hintTitle.snp.makeConstraints{ (make) in
             make.width.equalTo(140)
             make.height.equalTo(20)
-            make.top.equalToSuperview().offset(52)
-            make.left.equalToSuperview().offset(105)
+            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.getHeight(height: 4))
+            make.centerX.equalToSuperview()
         }
         
         inputTextField.snp.makeConstraints{ (make) in
             make.width.equalTo(295)
             make.height.equalTo(38)
-            make.top.equalToSuperview().offset(76)
-            make.left.equalToSuperview().offset(20)
+            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.getHeight(height:28))
+            make.centerX.equalToSuperview()
         }
         
         hintLabel.snp.makeConstraints{ (make) in
             make.width.equalTo(60)
             make.height.equalTo(21)
-            make.top.equalToSuperview().offset(84)
-            make.left.equalToSuperview().offset(32)
+            make.centerY.equalToSuperview()
+            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 16))
         }
         
         searchBtn.snp.makeConstraints{ (make) in
             make.width.equalTo(152)
             make.height.equalTo(38)
-            make.top.equalToSuperview().offset(138)
-            make.left.equalToSuperview().offset(92)
+            make.top.equalTo(inputTextField.snp.bottom).offset(GetWidthHeight.getHeight(height: 24))
+            make.centerX.equalToSuperview()
         }
         
     }

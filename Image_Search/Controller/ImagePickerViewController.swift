@@ -53,7 +53,7 @@ class ImagePickerViewController: UIViewController, UIImagePickerControllerDelega
     override func viewWillAppear(_ animated: Bool) {
         print("viewWillAppear")
         if isFromWebViewController {
-            self.present(imagePicker, animated: false, completion:nil)
+//            self.present(imagePicker, animated: false, completion:nil)
             isFromWebViewController = false
         }
     }
