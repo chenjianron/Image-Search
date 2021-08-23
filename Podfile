@@ -7,12 +7,12 @@ use_frameworks!
 
 target 'Image_Search' do
   use_frameworks!
-pod 'FMDB'  
+  pod 'FMDB'  
   pod 'Toolkit'
   pod 'SnapKit'
   pod 'Alamofire'
   pod 'AdLib'
   pod 'MarketingHelper'
-
+  pod 'WKWebViewJavascriptBridge', '~> 1.2.0'
 end
 

@@ -1,15 +1,6 @@
 //
-//  bridge.h
-//  Image_Search
+//  Use this file to import your target's public headers that you would like to expose to Swift.
 //
-//  Created by GC on 2021/8/17.
-//
-
-#ifndef bridge_h
-#define bridge_h
-
-
-#endif /* bridge_h */
 
 @import AdLib;
 @import Toolkit;

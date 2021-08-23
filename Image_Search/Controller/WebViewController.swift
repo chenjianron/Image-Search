@@ -10,7 +10,7 @@ import WebKit
 import Alamofire
 
 
-class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate {
+class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate {
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
@@ -29,18 +29,18 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     var isLoding = false
     
     lazy var myWebView :WKWebView = {
-        var javascript = ""
-        javascript += "document.documentElement.style.webkitTouchCallout='none';" //禁止长按
-        let noneSelectScript = WKUserScript(source: javascript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-        let config = WKWebViewConfiguration()
-        config.userContentController.addUserScript(noneSelectScript)
-        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83 ),configuration: config)
+//        var javascript = ""
+//        javascript += "document.documentElement.style.webkitTouchCallout='none';" //禁止长按
+//        let noneSelectScript = WKUserScript(source: javascript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+//        let config = WKWebViewConfiguration()
+//        config.userContentController.addUserScript(noneSelectScript)
+        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83))
         myWebView.navigationDelegate = self
         myWebView.uiDelegate = self
-        let longPress = UILongPressGestureRecognizer(target: self, action: nil)
-        longPress.minimumPressDuration = 0.3
-        longPress.numberOfTapsRequired = 1
-        myWebView.addGestureRecognizer(longPress)
+//        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(startLongPress(pressSender:)))
+//        longPress.minimumPressDuration = 0.3
+//        longPress.numberOfTapsRequired = 1
+//        myWebView.addGestureRecognizer(longPress)
         return myWebView
     }()
     lazy var progressView: UIProgressView = {
@@ -125,80 +125,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
 
 //MARK: - WebView
 extension WebViewController: WKUIDelegate {
-    
-    @objc func startLongPress(pressSender: UILongPressGestureRecognizer) { if pressSender.state == .began {
-        let touchPoint = pressSender.location(in: pressSender.view)
-        let jsString = String(
-            format: """
-                            function getURLandRect(){\
-                              var ele=document.elementFromPoint(%f, %f);\
-                              var url=ele.src;\
-                              var jsonString= `{"url":"${url}"}`;\
-                              return(jsonString)} getURLandRect()
-                            """, touchPoint.x, touchPoint.y)
-        myWebView.evaluateJavaScript(jsString) { [self] result, error in
-            let data = (result as! String).data(using: .utf8)
-            var resultDic: [AnyHashable : Any]? = nil
-            do {
-                if let data = data {
-                    resultDic = try JSONSerialization.jsonObject(with: data, options: []) as? [AnyHashable : Any]
-                }
-            } catch {
-            }
-            let imageURL = resultDic?["url"] as? String
-            if (imageURL?.count ?? 0) == 0 || (imageURL == "undefined") {
-                return
-            }
-            var imageData: Data? = nil
-            if (imageURL?.hasPrefix("http")) ?? false {
-                if let url = URL(string: imageURL ?? "") {
-                    let semaphore = DispatchSemaphore(value: 0)
-                    //imageData = try NSURLConnection.sendSynchronousRequest(URLRequest(url: url), returning: nil)
-                    //创建 NSURLSession 对象
-                    let session = URLSession.shared
-                    let dataTask = session.dataTask(with: url) { data, response, error in
-                        if error == nil {
-                            imageData = data
-                        }
-                        semaphore.signal()
-                    }
-                    dataTask.resume()
-                    _ = semaphore.wait(timeout: DispatchTime.distantFuture)
-                }
-            } else {
-                let dataString = imageURL?.components(separatedBy: ",").last
-                //            imageData = [dataString dataUsingEncoding:NSUTF8StringEncoding];
-                imageData = Data(base64Encoded: dataString ?? "", options: .ignoreUnknownCharacters)
-            }
-            var image: UIImage? = nil
-            if let imageData = imageData {
-                image = UIImage(data: imageData)
-            }
-            if let image = image {
-                let imageHandleAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-                let searchHandle = UIAlertAction(title: __("搜索图片"), style: .default) { (alertAction) in
-                }
-                let copyHandle = UIAlertAction(title: __("复制图片"), style: .default) { (alertAction) in
-                    UIPasteboard.general.image = image
-                    //                    self.successCopyPhoto()
-                }
-                let saveHandle = UIAlertAction(title: __("保存图片"), style: .default) { (alertAction) in
-                    UIImageWriteToSavedPhotosAlbum(image, self, nil, nil)
-                    //                    self.successSavePhoto()
-                }
-                let cancleHandle = UIAlertAction(title: __("取消"), style: .cancel, handler: nil)
-                imageHandleAlertController.addAction(searchHandle)
-                imageHandleAlertController.addAction(copyHandle)
-                imageHandleAlertController.addAction(saveHandle)
-                imageHandleAlertController.addAction(cancleHandle)
-                imageHandleAlertController.popoverPresentationController?.sourceView = myWebView
-                let pressLocation = pressSender.location(in: myWebView)
-                //                imageHandleAlertController.popoverPresentationController?.sourceRect =  CGRect(x: pressLocation.x, y: pressLocation.y - 44, width: alertView.size.width, height: alertView.size.height)// why -44?
-                present(imageHandleAlertController, animated: true, completion: nil)
-            }
-        }
-    }
-    
+
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         
@@ -269,10 +196,11 @@ extension WebViewController: WKUIDelegate {
         }
         return nil
     }
-    }
 }
+
 // MARK: -
 extension WebViewController {
+   
     
     func leftRightBtnState(){
         

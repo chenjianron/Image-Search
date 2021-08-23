@@ -366,7 +366,7 @@ extension MainViewController:UIDocumentPickerDelegate {
             "Content-type": "text/html; charset=GBK"
         ]
         self.dismiss(animated: true, completion: nil)
-        self.showActivityIndicatory(uiView: self.view)
+        self.showActivityIndicatory(uiView:self.view)
         if !isSelect {
             // 顯示進度條显
             isSelect = true
@@ -457,7 +457,7 @@ extension MainViewController {
         bottomBackgroundLabel.addSubview(fileSearchButton)
         
         urlSearchButton.isUserInteractionEnabled = true
-        urlSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(urlSearch)))
+        urlSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action:º))
         bottomBackgroundLabel.addSubview(urlSearchButton)
         
         keywordSearchButton.isUserInteractionEnabled = true
