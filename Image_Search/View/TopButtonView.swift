@@ -46,6 +46,7 @@ class TopButtonView :UIView {
             make.width.equalTo(100)
             make.height.equalTo(30)
         }
+        
         backgroundLabel.addSubview(imageView)
         backgroundLabel.addSubview(textLabel)
         textLabel.snp.makeConstraints { (make) in
@@ -54,6 +55,7 @@ class TopButtonView :UIView {
             make.width.equalTo(47)
             make.height.equalTo(20)
         }
+        
         imageView.snp.makeConstraints { (make) in
             make.right.equalToSuperview().offset(-12)
             make.top.equalToSuperview().offset(13)

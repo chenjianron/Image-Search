@@ -8,7 +8,7 @@
 import UIKit
 import WebKit
 import Alamofire
-
+import Photos
 
 class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate {
     
@@ -16,9 +16,8 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     let fullScreenSize = UIScreen.main.bounds.size
     let urlSearchEngineUrlPrefix = ["https://www.google.com.hk/searchbyimage?image_url=","https://yandex.com/images/search?family=yes&rpt=imageview&url=","https://pic.sogou.com/ris?query="]
     let keywordSearchEngineUrlPrefix = ["https://www.google.com/search?q=","&tbm=isch", "https://yandex.com/images/search?from=tabbar&text=","https://pic.sogou.com/pics?query=","https://cn.bing.com/images/search?q="]
-    let googleUrlPrefix = "https://www.google.com.hk/searchbyimage?image_url="
-    let yandexUrlPrefix = "https://yandex.com/images/search?family=yes&rpt=imageview&url="
-    let sougouUrlPrefix = "https://pic.sogou.com/ris?query="
+    let urlSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/"]
+    let keywordSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/","https://www.bing.com/"]
     
     var delegate:UIViewController?
     var firstUrl:String!
@@ -29,18 +28,23 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     var isLoding = false
     
     lazy var myWebView :WKWebView = {
-//        var javascript = ""
-//        javascript += "document.documentElement.style.webkitTouchCallout='none';" //禁止长按
-//        let noneSelectScript = WKUserScript(source: javascript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
-//        let config = WKWebViewConfiguration()
-//        config.userContentController.addUserScript(noneSelectScript)
-        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83))
+        var javascript = ""
+        javascript += "document.documentElement.style.webkitTouchCallout='none';" //禁止长按
+        let noneSelectScript = WKUserScript(source: javascript, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
+        let config = WKWebViewConfiguration()
+        config.userContentController.addUserScript(noneSelectScript)
+        
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(startLongPress(pressSender:)))
+        longPress.delegate = self
+        longPress.minimumPressDuration = 0.4
+        longPress.numberOfTouchesRequired = 1
+        longPress.cancelsTouchesInView = true
+        
+        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83),configuration: config)
         myWebView.navigationDelegate = self
         myWebView.uiDelegate = self
-//        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(startLongPress(pressSender:)))
-//        longPress.minimumPressDuration = 0.3
-//        longPress.numberOfTapsRequired = 1
-//        myWebView.addGestureRecognizer(longPress)
+        myWebView.addGestureRecognizer(longPress)
+        
         return myWebView
     }()
     lazy var progressView: UIProgressView = {
@@ -114,6 +118,10 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         searchImageView.text = __("网络超时，请重试")
         return searchImageView
     }()
+    lazy var hintAlert:AlertView = {
+        let alert = AlertView()
+        return alert
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -123,9 +131,126 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     
 }
 
-//MARK: - WebView
+//MARK: - WKWebView
 extension WebViewController: WKUIDelegate {
-
+    
+    @objc func startLongPress(pressSender: UILongPressGestureRecognizer) {
+        if pressSender.state == .began {
+            let touchPoint = pressSender.location(in: pressSender.view)
+            let jsString = String(
+                format: """
+                function getURLandRect(){\
+                  var ele=document.elementFromPoint(%f, %f);\
+                  var url=ele.src;\
+                  var jsonString= `{"url":"${url}"}`;\
+                  return(jsonString)} getURLandRect()
+                """, touchPoint.x, touchPoint.y)
+            myWebView.evaluateJavaScript(jsString) { [self] result, error in
+                let data = (result as! String).data(using: .utf8)
+                var resultDic: [AnyHashable : Any]? = nil
+                do {
+                    if let data = data {
+                        resultDic = try JSONSerialization.jsonObject(with: data, options: []) as? [AnyHashable : Any]
+                    }
+                } catch {
+                }
+                let imageURL = resultDic?["url"] as? String
+                if (imageURL?.count ?? 0) == 0 || (imageURL == "undefined") {
+                    return
+                }
+                var imageData: Data? = nil
+                if (imageURL?.hasPrefix("http")) ?? false {
+                    if let url = URL(string: imageURL ?? "") {
+                        let semaphore = DispatchSemaphore(value: 0)
+                        //imageData = try NSURLConnection.sendSynchronousRequest(URLRequest(url: url), returning: nil)
+                        //创建 NSURLSession 对象
+                        let session = URLSession.shared
+                        let dataTask = session.dataTask(with: url) { data, response, error in
+                            if error == nil {
+                                imageData = data
+                            }
+                            semaphore.signal()
+                        }
+                        dataTask.resume()
+                        _ = semaphore.wait(timeout: DispatchTime.distantFuture)
+                    }
+                } else {
+                    let dataString = imageURL?.components(separatedBy: ",").last
+                    //            imageData = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+                    imageData = Data(base64Encoded: dataString ?? "", options: .ignoreUnknownCharacters)
+                }
+                var image: UIImage? = nil
+                if let imageData = imageData {
+                    image = UIImage(data: imageData)
+                }
+                if let image = image {
+                    let imageHandleAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+                    let searchHandle = UIAlertAction(title: __("搜索图片"), style: .default) { (alertAction) in
+                        let headers = [
+                            "Content-type": "text/html; charset=GBK"
+                        ]
+                        AF.upload(multipartFormData: { (multipartFormData) in
+                            multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                        },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers as? HTTPHeaders).responseString { [self] (result) in
+                            if let lastUrl = result.value{
+                                    if self.firstUrl.contains("www.google.com.hk") {
+                                        centerBarBtn.setText(title: "Google")
+                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
+                                        SQL.insert(imagedata: (image as UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                    } else if self.firstUrl.contains("yandex.com"){
+                                        centerBarBtn.setText(title: "Yandex")
+                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
+                                        SQL.insert(imagedata: (image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                    } else {
+                                        centerBarBtn.setText(title: "Sougou")
+                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
+                                        SQL.insert(imagedata: (image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                    }
+                            } else {
+                                print(__("上传失败"))
+                                print(result.error?.errorDescription ?? " ")
+                                if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
+                                    let alertController = UIAlertController(
+                                        title: nil,
+                                        message: __("网络超时，请重试"),
+                                        preferredStyle: .alert)
+                                }
+                            }
+                        }
+                    }
+                    let copyHandle = UIAlertAction(title: __("复制图片"), style: .default) { (alertAction) in
+                        UIPasteboard.general.image = image
+                        self.setAlert(title: "已复制到粘贴板中", image: "ok_icon")
+                    }
+                    let saveHandle = UIAlertAction(title: __("保存图片"), style: .default) { (alertAction) in
+                        saveImage(image: image)
+                    }
+                    let cancleHandle = UIAlertAction(title: __("取消"), style: .cancel, handler: nil)
+                    imageHandleAlertController.addAction(searchHandle)
+                    imageHandleAlertController.addAction(copyHandle)
+                    imageHandleAlertController.addAction(saveHandle)
+                    imageHandleAlertController.addAction(cancleHandle)
+                    //                       imageHandleAlertController.popoverPresentationController?.sourceView = webView
+                    let pressLocation = pressSender.location(in: myWebView)
+                    imageHandleAlertController.popoverPresentationController?.sourceRect =  CGRect(x: pressLocation.x, y: pressLocation.y - 44, width: fullScreenSize.width, height: fullScreenSize.height / 2 )// why -44?
+                    present(imageHandleAlertController, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+//        print("\(type(of: otherGestureRecognizer))")
+//
+//        if otherGestureRecognizer is UILongPressGestureRecognizer {
+//            //只有当手势为长按手势时反馈，飞长按手势将阻止。
+//            print(1)
+//            return true
+//        } else {
+//            print(2)
+//            return false
+//        }
+//    }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         
@@ -200,12 +325,34 @@ extension WebViewController: WKUIDelegate {
 
 // MARK: -
 extension WebViewController {
-   
+    
+    func setAlert(title:String,image:String){
+        hintAlert.dataSouce(title: __("\(title)"), image: image)
+        hintAlert.isHidden = false
+        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
+            self.hintAlert.isHidden = true
+        }
+    }
+    
+    func saveImage(image: UIImage) {
+        
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image)
+        }, completionHandler: { [weak self](isSuccess, error) in
+            DispatchQueue.main.async { [self] in
+                if isSuccess {// 成功
+                    self!.setAlert(title: "以保存到相册", image: "ok_icon")
+                                    
+                } else {
+                    self!.setAlert(title: "保存失败", image: "fail_icon")
+                }
+            }
+        })
+    }
     
     func leftRightBtnState(){
         
         if myWebView.canGoBack == false {
-            print(myWebView.canGoBack)
             self.bottomLeftbutton.isEnabled = false
         } else {
             self.bottomLeftbutton.isEnabled = true
@@ -279,17 +426,40 @@ extension WebViewController {
     }
     
     @objc func goIndex(){
-        if self.myWebView.isHidden {
-            self.networkErrorImageView.isHidden = true
-            self.networkErrorHint.isHidden = false
-            self.myWebView.isHidden = false
+        if keyword == nil {
+            if self.firstUrl.contains("www.google.com.hk") {
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[0])!))
+                centerBarBtn.setText(title: "Google")
+                
+            } else if self.firstUrl.contains("yandex.com"){
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[1])!))
+                centerBarBtn.setText(title: "Yandex")
+            } else {
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[2])!))
+                centerBarBtn.setText(title: "Sougou")
+            }
+        } else {
+            if firstUrl.contains("www.google.com") {
+                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[0])!))
+                centerBarBtn.setText(title: "Google")
+            } else if firstUrl.contains("yandex.com"){
+                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[1])!))
+                centerBarBtn.setText(title: "Yandex")
+            } else if firstUrl.contains("pic.sogou.com") {
+                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[2])!))
+                centerBarBtn.setText(title: "Sougou")
+            } else {
+                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[3])!))
+                centerBarBtn.setText(title: "Bing")
+            }
+            
         }
-        myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
     }
     
     func setURL(url:String){
         imageLink = url
-        firstUrl = "https://www.google.com.hk/searchbyimage?image_url=" + url
+        firstUrl = urlSearchEngineUrlPrefix[0] + url
+        
     }
     
     func setKeyword(keyword:String){
@@ -318,7 +488,7 @@ extension WebViewController {
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.firstUrl = self.googleUrlPrefix + self.imageLink!
+                self.firstUrl = self.urlSearchEngineUrlPrefix[0] + self.imageLink!
                 self.centerBarBtn.setText(title: "Google")
                 if self.isLoding {
                     self.stop()
@@ -335,7 +505,7 @@ extension WebViewController {
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Yandex")
-                self.firstUrl = self.yandexUrlPrefix + self.imageLink!
+                self.firstUrl = self.urlSearchEngineUrlPrefix[1] + self.imageLink!
                 if self.isLoding {
                     self.stop()
                 }
@@ -351,7 +521,7 @@ extension WebViewController {
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Sougou")
-                self.firstUrl = self.sougouUrlPrefix + self.imageLink!
+                self.firstUrl = self.urlSearchEngineUrlPrefix[2] + self.imageLink!
                 if self.isLoding {
                     self.stop()
                 }
@@ -364,16 +534,6 @@ extension WebViewController {
             popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
         }
-        //        if ( UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiom.pad ){
-        //
-        //                    if let currentPopoverpresentioncontroller = alertController.popoverPresentationController{
-        //                        currentPopoverpresentioncontroller.barButtonItem = sender as! UIBarButtonItem
-        //                        currentPopoverpresentioncontroller.permittedArrowDirections = UIPopoverArrowDirection.down;
-        //                        self.present(alertController, animated: true, completion: nil)
-        //                    }
-        //                }else{
-        //                    self.present(alertController, animated: true, completion: nil)
-        //                }
         
         // 顯示提示框
         self.present(
@@ -503,6 +663,9 @@ extension WebViewController {
         self.networkErrorImageView.isHidden = true
         self.networkErrorHint.isHidden = true
         
+        self.view.addSubview(hintAlert)
+        hintAlert.isHidden = true
+        
         self.go()
     }
     
@@ -554,6 +717,12 @@ extension WebViewController {
         bottomIndexbutton.snp.makeConstraints{ (make) in
             make.bottom.equalToSuperview().offset(-49)
             make.right.equalToSuperview().offset(-54)
+        }
+        
+        hintAlert.snp.makeConstraints{
+            make in
+            make.left.equalToSuperview().offset(Float(fullScreenSize.width) / 2 - GetWidthHeight.getWidth(width: 60))
+            make.top.equalTo(safeTop).offset(GetWidthHeight.getHeight(height: 270))
         }
     }
 }

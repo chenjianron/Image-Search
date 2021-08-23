@@ -12,6 +12,7 @@
 		670FE3A426D3318100C55520 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 670FE39926D3318100C55520 /* InfoPlist.strings */; };
 		670FE3A526D3318100C55520 /* Localizations.strings in Resources */ = {isa = PBXBuildFile; fileRef = 670FE39B26D3318100C55520 /* Localizations.strings */; };
 		670FE3A626D3318100C55520 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 670FE3A126D3318100C55520 /* Assets.xcassets */; };
+		670FE3A826D3866900C55520 /* keyword_background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 670FE3A726D3866900C55520 /* keyword_background.jpg */; };
 		677BDF5B26BB7BAA00B5B387 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */; };
 		677D7ED426BCE40C005A902D /* TopButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677D7ED326BCE40C005A902D /* TopButtonView.swift */; };
 		678846A726BA348600B15D20 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678846A626BA348600B15D20 /* SettingTableViewCell.swift */; };
@@ -46,7 +47,6 @@
 		67E5D31826D3305600643C63 /* top_rectangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E5D31726D3305600643C63 /* top_rectangle.png */; };
 		67E5D31A26D3306700643C63 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E5D31926D3306700643C63 /* cancel.png */; };
 		67E5D31C26D3308400643C63 /* forward.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E5D31B26D3308400643C63 /* forward.png */; };
-		67E5D31E26D3309000643C63 /* search_icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E5D31D26D3309000643C63 /* search_icon.png */; };
 		83FC5A4023D0DF00016CB78E /* Pods_Image_Search.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BBCE8916F28804F5921EB59 /* Pods_Image_Search.framework */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +64,7 @@
 		670FE3A126D3318100C55520 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		670FE3A226D3318100C55520 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		670FE3A326D3318100C55520 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizations.strings"; sourceTree = "<group>"; };
+		670FE3A726D3866900C55520 /* keyword_background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = keyword_background.jpg; sourceTree = "<group>"; };
 		677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		677D7ED326BCE40C005A902D /* TopButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopButtonView.swift; sourceTree = "<group>"; };
 		678846A626BA348600B15D20 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
@@ -233,6 +234,7 @@
 				67895E5826B9301000F30042 /* camera_search.png */,
 				67895E5626B9300100F30042 /* url_search.png */,
 				67895E5126B92FF400F30042 /* file_search.png */,
+				670FE3A726D3866900C55520 /* keyword_background.jpg */,
 				67895E5226B92FF400F30042 /* image_search.png */,
 				67895E5026B92FF400F30042 /* keyword_search.png */,
 			);
@@ -347,7 +349,7 @@
 				678846A926BA35D000B15D20 /* cell_arrow.png in Resources */,
 				67E5D31C26D3308400643C63 /* forward.png in Resources */,
 				67895E5426B92FF400F30042 /* file_search.png in Resources */,
-				67E5D31E26D3309000643C63 /* search_icon.png in Resources */,
+				670FE3A826D3866900C55520 /* keyword_background.jpg in Resources */,
 				67895E5726B9300100F30042 /* url_search.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,6 +483,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -528,7 +531,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -542,6 +545,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -583,7 +587,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -604,7 +608,7 @@
 				DEVELOPMENT_TEAM = WBZ3547R4B;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Image_Search/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -629,7 +633,7 @@
 				DEVELOPMENT_TEAM = WBZ3547R4B;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Image_Search/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

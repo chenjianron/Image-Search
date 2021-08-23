@@ -14,6 +14,7 @@ class SQL {
         dformatter.dateFormat = "MM-dd hh:mm:ss"
         return dformatter
     }()
+    static let db = SQLiteManager.shareManger().db
     
     static func createTable() {
         
@@ -26,7 +27,6 @@ class SQL {
             "); \n"
         
         // 执行SQL语句（注意点: 在FMDB中除了查询意外, 都称之为更新）
-        let db = SQLiteManager.shareManger().db
         if db.open() {
             if db.executeUpdate(sql, withArgumentsIn: []){
                 print("创建表成功")
@@ -39,8 +39,7 @@ class SQL {
     
     static func insert(imagedata:Data = Data(),keyword:String = ""){
         let sql = "INSERT INTO SearchRecord (image,keyword,date) VALUES (?,?,?);"
-        // 执行SQL语句
-        let db = SQLiteManager.shareManger().db
+
         if db.open() {
             if db.executeUpdate(sql, withArgumentsIn: [ imagedata,keyword, dformatter.string(from: Date())]){
                 print("插入成功")
@@ -48,13 +47,13 @@ class SQL {
                 print("插入失败")
             }
         }
+        db.close()
     }
     
     static func delete(id:Int){
         // 编写SQL语句
         let sql = "DELETE FROM SearchRecord WHERE id = ?;"
-        // 执行SQL语句
-        let db = SQLiteManager.shareManger().db
+
         if db.open() {
             if db.executeUpdate(sql, withArgumentsIn: [id]){
                 print("删除成功")
@@ -62,18 +61,20 @@ class SQL {
                 print("删除失败")
             }
         }
+        db.close()
     }
     static func deleteAll() -> Bool{
         // 编写SQL语句
         let sql = "DELETE FROM SearchRecord;"
-        // 执行SQL语句
-        let db = SQLiteManager.shareManger().db
+
         if db.open() {
             if db.executeUpdate(sql, withArgumentsIn: []){
                 print("删除成功")
+                db.close()
                 return true
             }else{
                 print("删除失败")
+                db.close()
                 return false
             }
         }
@@ -83,9 +84,7 @@ class SQL {
     static func find(resourceData:inout [SearchRecord]){
         // 编写SQL语句
         let sql = "SELECT * FROM SearchRecord order by id desc"
-        //执行SQL语句
-        let db = SQLiteManager.shareManger().db
-//        var resourceData = [SearchRecord]()
+
         if db.open() {
             if let res = db.executeQuery(sql, withArgumentsIn: []){
                 // 遍历输出结果
@@ -100,5 +99,6 @@ class SQL {
                 print("查询失败")
             }
         }
+        db.close()
     }
 }

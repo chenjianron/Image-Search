@@ -111,7 +111,6 @@ extension SearchRecordViewController {
         }, completionHandler: { [weak self](isSuccess, error) in
             DispatchQueue.main.async { [self] in
                 if isSuccess {// 成功
-                    print("Success")
                     self!.hintAlert.dataSouce(title: __("已保存到相册"), image: "ok_icon")
                     self!.hintAlert.isHidden = false
                     Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
@@ -214,7 +213,6 @@ extension SearchRecordViewController {
                     multipartFormData.append( self.resourceData[row].image!, withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
                 }, to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                     if let lastUrl = result.value{
-                        print("daozhelile ")
                         self.myActivityIndicator.stopAnimating()
                         self.dismiss(animated: true, completion: nil)
                         let webViewController = WebViewController()
@@ -234,7 +232,7 @@ extension SearchRecordViewController {
                             self.collectionView.isHidden = true
                         }
                     } else {
-                        print("上传失败")
+                        print("图片上传转链接失败")
                         print(result.error?.errorDescription ?? "")
                         if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                             let alertController = UIAlertController(
@@ -356,7 +354,6 @@ extension SearchRecordViewController {
 extension SearchRecordViewController {
         
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        print(resourceData.count)
         return resourceData.count
     }
     
@@ -365,6 +362,7 @@ extension SearchRecordViewController {
         if resourceData[indexPath.row].keyword == "" {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! CollectionViewCell
             cell.imageView.image = UIImage(data:resourceData[indexPath.row].image!)
+        
             return cell
         } else {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "keywordCell", for: indexPath) as! KeywordCollectionViewCell
@@ -374,7 +372,6 @@ extension SearchRecordViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(indexPath.row)
         if resourceData[indexPath.row].keyword == "" {
             searchImage(row: indexPath.row)
         } else {
@@ -400,8 +397,7 @@ extension SearchRecordViewController {
         layout.minimumLineSpacing = 1
         layout.minimumInteritemSpacing = 1
         layout.itemSize = CGSize(width: (fullScreenSize.width - 1) / 2 , height: (fullScreenSize.width - 1) / 2 )
-        //        layout.headerReferenceSize = CGSize(width: fullScreenSize.width, height: fullScreenSize.height)
-        //        layout.footerReferenceSize = CGSize(width: fullScreenSize.width, height: fullScreenSize.height)
+       
         collectionView = UICollectionView(frame: CGRect(x: 0, y: 0,width: fullScreenSize.width, height: fullScreenSize.height - 20),collectionViewLayout: layout)
         collectionView.backgroundColor = .white
         collectionView.register(CollectionViewCell.self, forCellWithReuseIdentifier: "Cell")

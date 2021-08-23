@@ -79,19 +79,19 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
             break
         case 1:
             // Statistics.event(.setting_tap, label: "隐私政策")
-            //                sendEMail()
+            // sendEMail()
             break
         case 2:
-            //                Statistics.event(.setting_tap, label: "分享给好友")
+            // Statistics.event(.setting_tap, label: "分享给好友")
             break
         case 3:
-            //                Statistics.event(.setting_tap, label: "评价")
+            // Statistics.event(.setting_tap, label: "评价")
             break
         case 4:
-            //                Statistics.event(.setting_tap, label: "隐私政策")
+            // Statistics.event(.setting_tap, label: "隐私政策")
             break
         case 5:
-            //                Statistics.event(.setting_tap, label: "用户协议")
+            // Statistics.event(.setting_tap, label: "用户协议")
             break
         default:
             ()

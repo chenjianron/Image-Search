@@ -60,8 +60,6 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
         let label = UIView()
         label.layer.cornerRadius = fullScreenSize.width / 20
         label.layer.masksToBounds = false
-        //        label.bounds.size.width = fullScreenSize.width
-        //        label.bounds.size.height = fullScreenSize.height/2
         label.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1)
         if #available(iOS 13.0, *) {
             label.layer.shadowColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
@@ -169,8 +167,6 @@ extension MainViewController {
     }
     
     @objc func setting(){
-        print("setting")
-        //        var settingViewController = SettingViewController()
         self.navigationController?.pushViewController(SettingViewController(),animated: false)
     }
     
@@ -213,7 +209,6 @@ extension MainViewController {
     }
     
     @objc func fileSearch(){
-        print("fileSearch")
         let letdocumentTypes = ["public.image"]
         var documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
         documentPicker.modalPresentationStyle = .fullScreen
@@ -222,7 +217,6 @@ extension MainViewController {
     }
     
     @objc func urlSearch(){
-        print("urlSearch")
         var urlEditWindowViewController = UrlViewController()
         urlEditWindowViewController.setType(type: "url")
         urlEditWindowViewController.setDelegate(delegate: self)
@@ -234,7 +228,6 @@ extension MainViewController {
     }
     
     @objc func keywordSearch(){
-        print("keywordSearch")
         var keywordEditWindowViewController = UrlViewController()
         keywordEditWindowViewController.setType(type: __("关键词"))
         keywordEditWindowViewController.setDelegate(delegate: self)
@@ -242,8 +235,6 @@ extension MainViewController {
     }
     
     @objc func recordSearch(){
-        print("recordSearch")
-        //        var searchRecordViewController = SearchRecordViewController()
         self.navigationController?.pushViewController(SearchRecordViewController(),animated: false)
     }
     
@@ -273,7 +264,7 @@ extension MainViewController {
                     self.navigationController!.pushViewController(webViewController,animated: false)
                     isSelect = false
                 } else {
-                    print(__("上传失败"))
+                    print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
                     if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                         let alertController = UIAlertController(
@@ -316,7 +307,7 @@ extension MainViewController {
                     self.navigationController!.pushViewController(webViewController,animated: false)
                     isSelect = false
                 } else {
-                    print(__("上传失败"))
+                    print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? " ")
                     if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                         let alertController = UIAlertController(
@@ -383,7 +374,7 @@ extension MainViewController:UIDocumentPickerDelegate {
                     self.navigationController!.pushViewController(webViewController,animated: false)
                     isSelect = false
                 } else {
-                    print(__("上传失败"))
+                    print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
                     if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                         let alertController = UIAlertController(
@@ -457,7 +448,7 @@ extension MainViewController {
         bottomBackgroundLabel.addSubview(fileSearchButton)
         
         urlSearchButton.isUserInteractionEnabled = true
-        urlSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action:º))
+        urlSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(urlSearch)))
         bottomBackgroundLabel.addSubview(urlSearchButton)
         
         keywordSearchButton.isUserInteractionEnabled = true
@@ -559,5 +550,4 @@ extension MainViewController {
             make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
         }
     }
-    
 }

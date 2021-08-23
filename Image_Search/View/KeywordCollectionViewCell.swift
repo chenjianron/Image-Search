@@ -41,8 +41,6 @@ class KeywordCollectionViewCell: UICollectionViewCell {
         imageView.snp.makeConstraints{ (make) in
             make.width.equalToSuperview()
             make.height.equalToSuperview()
-//            make.left.equalToSuperview()
-//            make.top.equalToSuperview()
         }
         
         label.snp.makeConstraints{ (make) in

@@ -13,7 +13,6 @@ class CollectionViewCell: UICollectionViewCell {
     
     lazy var imageView:UIImageView = {
         let imageView = UIImageView()
-//        imageView.image = UIImage(named: "search_icon.png")
         return imageView
     }()
 
@@ -34,8 +33,6 @@ class CollectionViewCell: UICollectionViewCell {
         imageView.snp.makeConstraints{ (make) in
             make.width.equalTo(fullScreenSize.width / 2)
             make.height.equalTo(fullScreenSize.width / 2)
-//            make.left.equalToSuperview()
-//            make.top.equalToSuperview()
         }
         
     }

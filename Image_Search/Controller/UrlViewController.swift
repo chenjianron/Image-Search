@@ -209,7 +209,6 @@ extension UrlViewController {
     
     func verifyUrl(urlString: String?) -> Bool {
         //Check for nil
-        print(urlString ?? "")
         if let urlString = urlString {
             // create NSURL instance
             if let url = NSURL(string: urlString) {
@@ -225,7 +224,7 @@ extension UrlViewController {
         self.type = type
         if self.type == "url" {
             self.titleLable.text = __("输入图片URL")
-            self.searchBtn.setTitle("导入", for: .normal)
+            self.searchBtn.setTitle(__("导入"), for: .normal)
             hintLabel.text = "URL..."
         } else {
             self.titleLable.text = __("输入关键词")
