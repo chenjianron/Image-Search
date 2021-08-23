@@ -12,6 +12,7 @@
 "请输入非空字符"="请输入非空字符";
 
 // 已翻译
+"似乎已断开与互联网的连接。" = "URLSessionTask failed with error: The Internet connection appears to be offline.";
 "按图搜索"="Search by image";
 "选择图片"="Select Image";
 "图片"="image";

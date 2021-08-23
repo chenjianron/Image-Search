@@ -10,7 +10,7 @@ import WebKit
 import Alamofire
 import Photos
 
-class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate {
+class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate{
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
@@ -53,11 +53,6 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         progressView.progress = 0.05
         progressView.trackTintColor = UIColor.white
         return progressView
-    }()
-    lazy var myActivityIndicator:UIActivityIndicatorView = {
-        let myActivityIndicator = UIActivityIndicatorView(style:.gray)
-        myActivityIndicator.center = CGPoint(x: fullScreenSize.width * 0.5, y: fullScreenSize.height * 0.5)
-        return myActivityIndicator
     }()
     lazy var leftBarBtn:UIBarButtonItem = {
         let barBtn = UIBarButtonItem(image: UIImage(named: "back")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
@@ -186,31 +181,31 @@ extension WebViewController: WKUIDelegate {
                 if let image = image {
                     let imageHandleAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                     let searchHandle = UIAlertAction(title: __("搜索图片"), style: .default) { (alertAction) in
-                        let headers = [
+                        let headers:HTTPHeaders = [
                             "Content-type": "text/html; charset=GBK"
                         ]
                         AF.upload(multipartFormData: { (multipartFormData) in
                             multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
-                        },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers as? HTTPHeaders).responseString { [self] (result) in
+                        },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                             if let lastUrl = result.value{
                                     if self.firstUrl.contains("www.google.com.hk") {
                                         centerBarBtn.setText(title: "Google")
                                         myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
                                     } else if self.firstUrl.contains("yandex.com"){
                                         centerBarBtn.setText(title: "Yandex")
                                         myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
                                     } else {
                                         centerBarBtn.setText(title: "Sougou")
                                         myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
+                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
                                     }
                             } else {
                                 print(__("上传失败"))
                                 print(result.error?.errorDescription ?? " ")
                                 if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                                    let alertController = UIAlertController(
+                                    _ = UIAlertController(
                                         title: nil,
                                         message: __("网络超时，请重试"),
                                         preferredStyle: .alert)
@@ -257,7 +252,6 @@ extension WebViewController: WKUIDelegate {
         print("didStartProvisionalNavigation")
         progressView.isHidden = false//展示
         self.isLoding = true
-        self.myActivityIndicator.startAnimating()
         self.navigationItem.rightBarButtonItem = cancelRightBarBtn
         self.bottomLeftbutton.isEnabled = false
         self.bottomRightbutton.isEnabled = false
@@ -268,7 +262,6 @@ extension WebViewController: WKUIDelegate {
         
         print("didFinish")
         self.isLoding = false
-        myActivityIndicator.stopAnimating()
         progressView.isHidden = true
         leftRightBtnState()
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
@@ -288,7 +281,6 @@ extension WebViewController: WKUIDelegate {
         print(error)
         // 隱藏進度條
         self.isLoding = false
-        myActivityIndicator.stopAnimating()
         progressView.isHidden = true
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
         leftRightBtnState()
@@ -302,7 +294,6 @@ extension WebViewController: WKUIDelegate {
         if self.isStop == false {
             self.navigationItem.rightBarButtonItem = refreshRightBarBtn
             // 隱藏進度條
-            self.myActivityIndicator.stopAnimating()
             self.progressView.isHidden = true
             self.networkErrorImageView.isHidden = false
             self.networkErrorHint.isHidden = false
@@ -401,8 +392,7 @@ extension WebViewController {
     }
     
     @objc func stop() {
-        
-        myActivityIndicator.stopAnimating()
+    
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
         leftRightBtnState()
         bottomIndexbutton.isEnabled = true
@@ -465,7 +455,7 @@ extension WebViewController {
     func setKeyword(keyword:String){
         self.keyword = keyword
         self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
-        print(self.firstUrl)
+        print(self.firstUrl!)
     }
     
     @objc func selectUrlSearchEngine(){
@@ -651,7 +641,6 @@ extension WebViewController {
         self.view.addSubview(networkErrorHint)
         self.view.sendSubviewToBack(self.networkErrorImageView)
         self.view.bringSubviewToFront(self.myWebView)
-        self.view.addSubview(myActivityIndicator);
         self.view.addSubview(bottomBackgroundLabel)
         self.myWebView.addSubview(progressView)
         bottomBackgroundLabel.addSubview(bottomLeftbutton)
@@ -692,11 +681,6 @@ extension WebViewController {
             (make) in
             make.top.equalTo(safeAreaTop).offset(372)
             make.left.equalToSuperview().offset(132)
-        }
-        
-        myActivityIndicator.snp.makeConstraints{(make) in
-            make.bottom.equalToSuperview().multipliedBy(0.4)
-            make.centerX.equalToSuperview()
         }
         
         bottomBackgroundLabel.snp.makeConstraints{(make) in

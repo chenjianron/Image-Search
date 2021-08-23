@@ -108,18 +108,7 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
         searchButton.dataSouce(title: __("搜索记录"), image: "record_search.png")
         return searchButton
     }()
-   
-    lazy var myActivityIndicator:UIActivityIndicatorView = {
-        let myActivityIndicator = UIActivityIndicatorView(style:.gray)
-        myActivityIndicator.color = .black
-        myActivityIndicator.backgroundColor = .gray
-        if #available(iOS 13.0, *) {
-            myActivityIndicator.style = .medium
-        } else {
-            // Fallback on earlier versions
-        }
-        return myActivityIndicator
-    }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -142,42 +131,53 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
 //MARK: -
 extension MainViewController {
     
+    func showNetworkErrorAlert(_ container: UIViewController){
+        
+        let alertController = UIAlertController(
+            title: nil,
+            message: __("网络超时，请重试"),
+            preferredStyle: .alert)
+        container.present(alertController,animated: true,completion: nil)
+        
+        self.loadingView.isHidden = true
+        
+        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
+            container.dismiss(animated: true, completion: nil)
+        }
+    }
+    
     func showActivityIndicatory(uiView: UIView) {
-//     var container: UIView = UIView()
-//     container.frame = uiView.frame
-//     container.center = uiView.center
-//        container.backgroundColor = UIColor(hex: 0xffffff, alpha: 0.3)
-     loadingView = UIView()
-     loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-     loadingView.center = uiView.center
-     loadingView.backgroundColor = UIColor(hex: 0x444444, alpha: 0.7)
-     loadingView.clipsToBounds = true
-     loadingView.layer.cornerRadius = 10
-
-     var actInd: UIActivityIndicatorView = UIActivityIndicatorView()
-     actInd.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+        //     var container: UIView = UIView()
+        //     container.frame = uiView.frame
+        //     container.center = uiView.center
+        //        container.backgroundColor = UIColor(hex: 0xffffff, alpha: 0.3)
+        loadingView = UIView()
+        loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+        loadingView.center = uiView.center
+        loadingView.backgroundColor = UIColor(hex: 0x444444, alpha: 0.7)
+        loadingView.clipsToBounds = true
+        loadingView.layer.cornerRadius = 10
+        
+        let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
+        actInd.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
         actInd.style =
             UIActivityIndicatorView.Style.whiteLarge
         actInd.center = CGPoint(x: loadingView.frame.size.width / 2,
                                 y: loadingView.frame.size.height / 2);
-     loadingView.addSubview(actInd)
-     self.loadingView.isHidden = false
-     uiView.addSubview(loadingView)
-     actInd.startAnimating()
+        loadingView.addSubview(actInd)
+        self.loadingView.isHidden = false
+        uiView.addSubview(loadingView)
+        actInd.startAnimating()
+    }
+    
+    func cancel(){
+        self.dismiss(animated: true, completion: nil)
     }
     
     @objc func setting(){
         self.navigationController?.pushViewController(SettingViewController(),animated: false)
     }
     
-    func startUIActivityIndicatorView(){
-        self.myActivityIndicator.startAnimating()
-    }
-    
-    func stopUIActivityIndicatorView(){
-        self.myActivityIndicator.stopAnimating()
-    }
-        
     @objc func imageSearch(){
         isImage = true
         imagePicker = UIImagePickerController()
@@ -185,11 +185,6 @@ extension MainViewController {
         imagePicker.modalPresentationStyle = .fullScreen
         imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
         imagePicker.isToolbarHidden = true
-        imagePicker.view.addSubview(myActivityIndicator)
-        myActivityIndicator.snp.makeConstraints{ (make) in
-            make.top.equalTo(fullScreenSize.height / 2 - 44)
-            make.left.equalTo(fullScreenSize.width / 2)
-        }
         self.present(imagePicker, animated: false, completion: nil)
     }
     
@@ -200,35 +195,26 @@ extension MainViewController {
         cameraPicker.modalPresentationStyle = .fullScreen
         cameraPicker.sourceType = UIImagePickerController.SourceType.camera
         cameraPicker.isToolbarHidden = true
-        cameraPicker.view.addSubview(myActivityIndicator)
-        myActivityIndicator.snp.makeConstraints{ (make) in
-            make.top.equalTo(fullScreenSize.height / 2 - 44)
-            make.left.equalTo(fullScreenSize.width / 2)
-        }
         self.present(cameraPicker, animated: false, completion: nil)
     }
     
     @objc func fileSearch(){
         let letdocumentTypes = ["public.image"]
-        var documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
+        let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
         documentPicker.modalPresentationStyle = .fullScreen
         documentPicker.delegate = self
         self.present(documentPicker, animated: true, completion: nil)
     }
     
     @objc func urlSearch(){
-        var urlEditWindowViewController = UrlViewController()
+        let urlEditWindowViewController = UrlViewController()
         urlEditWindowViewController.setType(type: "url")
         urlEditWindowViewController.setDelegate(delegate: self)
         self.present(urlEditWindowViewController, animated: false, completion: nil)
     }
     
-    func goWebViewControllerFromUrlViewController(webViewController:WebViewController){
-        self.navigationController?.pushViewController(webViewController,animated: false)
-    }
-    
     @objc func keywordSearch(){
-        var keywordEditWindowViewController = UrlViewController()
+        let keywordEditWindowViewController = UrlViewController()
         keywordEditWindowViewController.setType(type: __("关键词"))
         keywordEditWindowViewController.setDelegate(delegate: self)
         self.present(keywordEditWindowViewController, animated: false, completion: nil)
@@ -238,8 +224,8 @@ extension MainViewController {
         self.navigationController?.pushViewController(SearchRecordViewController(),animated: false)
     }
     
-    func cancel(){
-        self.dismiss(animated: false, completion: nil)
+    func goWebViewControllerFromUrlViewController(webViewController:WebViewController){
+        self.navigationController?.pushViewController(webViewController,animated: false)
     }
     
     func camera(){
@@ -266,18 +252,8 @@ extension MainViewController {
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                        let alertController = UIAlertController(
-                            title: nil,
-                            message: __("网络超时，请重试"),
-                            preferredStyle: .alert)
-                        self.cameraPicker.present(
-                            alertController,
-                            animated: true,
-                            completion: nil)
-                        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
-                            self.cameraPicker.dismiss(animated: true, completion: nil)
-                        }
+                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                        showNetworkErrorAlert(cameraPicker)
                     }
                     isSelect = false
                 }
@@ -309,19 +285,8 @@ extension MainViewController {
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? " ")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                        let alertController = UIAlertController(
-                            title: nil,
-                            message: __("网络超时，请重试"),
-                            preferredStyle: .alert)
-                        self.imagePicker.present(
-                            alertController,
-                            animated: true,
-                            completion: nil)
-                        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
-                            self.imagePicker.view.isUserInteractionEnabled = true
-                            self.imagePicker.dismiss(animated: true, completion: nil)
-                        }
+                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                       showNetworkErrorAlert(imagePicker)
                     }
                     isSelect = false
                 }
@@ -349,7 +314,9 @@ extension MainViewController:UIImagePickerControllerDelegate{
 
 //MARK: - UIDocumentPickerController
 extension MainViewController:UIDocumentPickerDelegate {
+    
     func documentPicker(_ controller: UIDocumentPickerViewController,didPickDocumentAt url: URL) {
+        
         CFURLStartAccessingSecurityScopedResource(url as CFURL)
         let imgData = try! Data.init(contentsOf: url)
         CFURLStopAccessingSecurityScopedResource(url as CFURL)
@@ -362,7 +329,7 @@ extension MainViewController:UIDocumentPickerDelegate {
             // 顯示進度條显
             isSelect = true
             AF.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(((UIImage(data: imgData) as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                multipartFormData.append(((UIImage(data: imgData)!).jpegData(compressionQuality: 0.8)!), withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)
@@ -376,19 +343,8 @@ extension MainViewController:UIDocumentPickerDelegate {
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                        let alertController = UIAlertController(
-                            title: nil,
-                            message: __("网络超时，请重试"),
-                            preferredStyle: .alert)
-                        self.present(
-                            alertController,
-                            animated: true,
-                            completion: nil)
-                        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
-                            self.dismiss(animated: true, completion: nil)
-
-                        }
+                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                        showNetworkErrorAlert(self)
                     }
                     isSelect = false
                 }
@@ -428,7 +384,6 @@ extension MainViewController {
         
         self.view.addSubview(bottomBackgroundLabel)
         
-        self.view.addSubview(myActivityIndicator)
         
         SQL.createTable()
         
@@ -458,15 +413,10 @@ extension MainViewController {
         recordSearchButton.isUserInteractionEnabled = true
         recordSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(recordSearch)))
         bottomBackgroundLabel.addSubview(recordSearchButton)
-    
+        
     }
     
-    func setupConstraints() {
-        
-        myActivityIndicator.snp.makeConstraints{ (make) in
-            make.top.equalTo(fullScreenSize.height / 2 - 44)
-            make.left.equalTo(fullScreenSize.width / 2)
-        }
+    func setupConstraints() { 
         
         topBackgroundImage.snp.makeConstraints { make in
             make.top.left.right.equalToSuperview()
@@ -474,19 +424,19 @@ extension MainViewController {
         }
         
         searchImageView.snp.makeConstraints { make in
-//            make.top.equalTo(safeAreaTop).offset(32)
+            //            make.top.equalTo(safeAreaTop).offset(32)
             make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 32))
             make.centerX.equalToSuperview()
         }
         
         appTitle.snp.makeConstraints{ make in
-//            make.top.equalTo(safeAreaTop).offset(136)
+            //            make.top.equalTo(safeAreaTop).offset(136)
             make.top.equalTo(searchImageView.snp.bottom).offset(GetWidthHeight.getHeight(height: 12))
             make.centerX.equalToSuperview()
         }
         
         hintTitle.snp.makeConstraints{ (make) in
-//            make.top.equalTo(safeAreaTop).offset(248)
+            //            make.top.equalTo(safeAreaTop).offset(248)
             make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 248))
             make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
         }
@@ -536,7 +486,6 @@ extension MainViewController {
         keywordSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(92 )
             make.width.equalTo(136)
-            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 312))
             make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
         }
@@ -544,8 +493,6 @@ extension MainViewController {
         recordSearchButton.snp.makeConstraints{(make) in
             make.height.equalTo(92)
             make.width.equalTo(keywordSearchButton)
-//            make.width.equalTo(136)
-            //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 312))
             make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
         }

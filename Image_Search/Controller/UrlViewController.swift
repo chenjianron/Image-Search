@@ -57,7 +57,7 @@ class UrlViewController:UIViewController {
         let textField = UITextField()
         var frame = textField.frame
         frame.size.width = 10 // 距离左侧的距离
-        let leftview = UIView(frame: frame ?? CGRect.zero)
+        let leftview = UIView(frame: frame)
         textField.leftView = leftview
         textField.leftViewMode = UITextField.ViewMode.always
         //        textField.borderStyle = .roundedRect
@@ -182,7 +182,7 @@ extension UrlViewController {
             if response.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                 self.hintTitle.text = __("请连接网络后重试！")
             } else  {
-                let text = self.inputTextField.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
+                let text = self.inputTextField.text!.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) 
                 if text != "" {
                     SQL.insert(keyword: self.inputTextField.text!)
                     let webViewController = WebViewController()
@@ -240,7 +240,6 @@ extension UrlViewController {
     @objc func cancel(){
         self.delegate.cancel()
         dismissAnimate {
-           
         }
 
     }
@@ -296,8 +295,6 @@ extension UrlViewController {
         inputTextField.addSubview(hintLabel)
         
         dformatter.dateFormat = "M月dd日 ah:mm"
-        //        self.delegate.view.backgroundColor = .gray
-        //        self.delegate.view.alpha = 0.6
     }
     
     func setupConstrains(){
