@@ -188,27 +188,12 @@ extension WebViewController: WKUIDelegate {
                             multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
                         },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                             if let lastUrl = result.value{
-                                    if self.firstUrl.contains("www.google.com.hk") {
-                                        centerBarBtn.setText(title: "Google")
-                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-                                    } else if self.firstUrl.contains("yandex.com"){
-                                        centerBarBtn.setText(title: "Yandex")
-                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-                                    } else {
-                                        centerBarBtn.setText(title: "Sougou")
-                                        myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
-                                        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-                                    }
+                                    secondSearch(image, lastUrl)
                             } else {
                                 print(__("上传失败"))
                                 print(result.error?.errorDescription ?? " ")
-                                if result.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
-                                    _ = UIAlertController(
-                                        title: nil,
-                                        message: __("网络超时，请重试"),
-                                        preferredStyle: .alert)
+                                if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                                    showNetworkErrorAlert(self)
                                 }
                             }
                         }
@@ -225,7 +210,7 @@ extension WebViewController: WKUIDelegate {
                     imageHandleAlertController.addAction(copyHandle)
                     imageHandleAlertController.addAction(saveHandle)
                     imageHandleAlertController.addAction(cancleHandle)
-                    //                       imageHandleAlertController.popoverPresentationController?.sourceView = webView
+                    // imageHandleAlertController.popoverPresentationController?.sourceView = webView
                     let pressLocation = pressSender.location(in: myWebView)
                     imageHandleAlertController.popoverPresentationController?.sourceRect =  CGRect(x: pressLocation.x, y: pressLocation.y - 44, width: fullScreenSize.width, height: fullScreenSize.height / 2 )// why -44?
                     present(imageHandleAlertController, animated: true, completion: nil)
@@ -233,19 +218,6 @@ extension WebViewController: WKUIDelegate {
             }
         }
     }
-    
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-//        print("\(type(of: otherGestureRecognizer))")
-//
-//        if otherGestureRecognizer is UILongPressGestureRecognizer {
-//            //只有当手势为长按手势时反馈，飞长按手势将阻止。
-//            print(1)
-//            return true
-//        } else {
-//            print(2)
-//            return false
-//        }
-//    }
     
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         
@@ -317,6 +289,57 @@ extension WebViewController: WKUIDelegate {
 // MARK: -
 extension WebViewController {
     
+    func secondSearch(_ image:UIImage, _ lastUrl:String){
+        
+        if keyword == nil {
+            if self.firstUrl.contains("www.google.com.hk") {
+                centerBarBtn.setText(title: "Google")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            } else if self.firstUrl.contains("yandex.com/images/search?family=yes&rpt=imageview&url="){
+                centerBarBtn.setText(title: "Yandex")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            } else {
+                centerBarBtn.setText(title: "pic.sogou.com/ris?query=")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            }
+        } else {
+            if self.firstUrl.contains("www.google.com") {
+                centerBarBtn.setText(title: "Google")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            } else if self.firstUrl.contains("yandex.com"){
+                centerBarBtn.setText(title: "Yandex")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            } else if self.firstUrl.contains("sogou.com"){
+                centerBarBtn.setText(title: "Sougou")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            } else {
+                centerBarBtn.setText(title: "Google")
+                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
+                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+            }
+        }
+    }
+    
+    func showNetworkErrorAlert(_ container: UIViewController){
+        
+        let alertController = UIAlertController(
+            title: nil,
+            message: __("网络超时，请重试"),
+            preferredStyle: .alert)
+        container.present(alertController,animated: true,completion: nil)
+        
+        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
+            container.dismiss(animated: true, completion: nil)
+        }
+    }
+
+    
     func setAlert(title:String,image:String){
         hintAlert.dataSouce(title: __("\(title)"), image: image)
         hintAlert.isHidden = false
@@ -332,10 +355,10 @@ extension WebViewController {
         }, completionHandler: { [weak self](isSuccess, error) in
             DispatchQueue.main.async { [self] in
                 if isSuccess {// 成功
-                    self!.setAlert(title: "以保存到相册", image: "ok_icon")
+                    self!.setAlert(title: __("已保存到相册"), image: "ok_icon")
                                     
                 } else {
-                    self!.setAlert(title: "保存失败", image: "fail_icon")
+                    self!.setAlert(title: __("保存失败"), image: "fail_icon")
                 }
             }
         })

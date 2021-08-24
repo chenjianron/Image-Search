@@ -38,7 +38,7 @@ class AlertView: UIView{
     
     func dataSouce(title:String, image:String) {
         imageView.image = UIImage(named: image)
-        textLabel.text = title
+        textLabel.text = __(title)
     }
     
     required init?(coder: NSCoder) {
