@@ -5,5 +5,8 @@
   Created by GC on 2021/8/20.
   
 */
-"NSCameraUsageDescription"="ddddd的发送到发定时发送地方";
+
+// 未翻译
+"App需要您的同意,才能访问相机"="App需要您的同意,才能访问相机";
+"App需要您的同意,才能访问相册"="App需要您的同意,才能访问相册";
 
