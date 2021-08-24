@@ -7,12 +7,14 @@
 */
 
 // 未翻译
+"图片上传转链接失败"="图片上传转链接失败";
+"似乎已断开与互联网的连接。"="似乎已断开与互联网的连接。";
+"\(title)"="\(title)";
 "搜索关键字"="搜索关键字";
 "请输入合法链接！"="请输入合法链接！";
 "请输入非空字符"="请输入非空字符";
 
 // 已翻译
-"似乎已断开与互联网的连接。" = "URLSessionTask failed with error: The Internet connection appears to be offline.";
 "按图搜索"="Search by image";
 "选择图片"="Select Image";
 "图片"="image";
@@ -21,17 +23,14 @@
 "图片url"="Picture URL";
 "关键词"="Key words";
 "搜索记录"="Search Records";
-"上传失败"="Upload Failed";
 "网络超时，请重试"="Network timed out, please try again";
+"清空"="Clear";
 "暂无搜索记录"="No search history";
-"已保存到相册"="Saved to Albums";
-"保存失败"="Save Failed";
 "编辑"="Edit";
 "取消"="Cancel";
 "删除"="Delete";
 "搜索图片"="Search pictures";
 "保存到相册"="Save to Albums";
-"清空"="Clear";
 "意见反馈"="Feedback";
 "分享给好友"="Share to friends";
 "给个评价"="Give a comment ";
@@ -43,8 +42,14 @@
 "请连接网络后重试！"="Please try again after connecting to the network!";
 "请输入有效链接！"="Please enter a valid link!";
 "输入图片URL"="Enter picture URL";
+"导入"="Import";
 "输入关键词"="enter keyword";
 "搜索"="Search";
+"上传失败"="Upload Failed";
+"复制图片"="Copy pictures";
+"保存图片"="save Picture";
+"已保存到相册"="Saved to Albums";
+"保存失败"="Save Failed";
 "请选择搜索引擎"="Please select a search engine";
 "您还没有开启消息通知"="You haven't turned on Notifications yet";
 "“通知”可能包括提醒、声音和图标标记。这些可在“设置”中配置。"="Notifications may include alerts, sounds, and icon badges. These can be configured in settings.";

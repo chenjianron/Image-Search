@@ -93,7 +93,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     }()
     lazy var bottomRightbutton:UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "forward.png"), for: .normal)
+        button.setImage(UIImage(named: "forward"), for: .normal)
         button.addTarget(self, action: #selector(WebViewController.forward), for: .touchUpInside)
         return button
     }()
@@ -717,7 +717,7 @@ extension WebViewController {
         }
         
         bottomRightbutton.snp.makeConstraints{(make) in
-            make.bottom.equalToSuperview().offset(-42)
+            make.bottom.equalToSuperview().offset(-47)
             make.left.equalToSuperview().offset(124)
         }
         

@@ -32,6 +32,7 @@ class ButtonView :UIView {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
         label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
         
@@ -60,7 +61,7 @@ class ButtonView :UIView {
         textLabel.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(12)
             make.centerY.equalToSuperview()
-//            make.width.equalTo(56)
+            make.width.equalTo(56)
             make.height.equalTo(40)
         }
         imageView.snp.makeConstraints { (make) in

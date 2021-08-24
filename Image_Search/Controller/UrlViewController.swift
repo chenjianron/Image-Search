@@ -314,7 +314,7 @@ extension UrlViewController {
         }
         
         titleLable.snp.makeConstraints{ (make) in
-            make.width.equalTo(103)
+            make.width.equalTo(130)
             make.height.equalTo(24)
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 24))
             make.centerX.equalToSuperview()
@@ -336,7 +336,7 @@ extension UrlViewController {
         }
         
         hintLabel.snp.makeConstraints{ (make) in
-            make.width.equalTo(60)
+            make.width.equalTo(100)
             make.height.equalTo(21)
             make.centerY.equalToSuperview()
             make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 16))

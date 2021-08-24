@@ -26,7 +26,7 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
     lazy var rightButton: UIBarButtonItem = {
         // 導覽列左邊按鈕
         let rightButton = UIBarButtonItem(
-            title:"清空",
+            title:__("清空"),
             style:.plain ,
             target:self ,
             action: #selector(SearchRecordViewController.deleteAlert))
