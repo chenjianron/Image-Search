@@ -27,6 +27,16 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     var isStop = false
     var isLoding = false
     
+    var bannerView: UIView? {
+        return Marketing.shared.bannerView(.webBanner, rootViewController: self)
+    }
+    var bannerInset: CGFloat {
+        if bannerView != nil {
+            return Ad.default.adaptiveBannerHeight
+        } else {
+            return 0
+        }
+    }
     lazy var myWebView :WKWebView = {
         var javascript = ""
         javascript += "document.documentElement.style.webkitTouchCallout='none';" //禁止长按
@@ -122,6 +132,17 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         super.viewDidLoad()
         setupUI()
         setupConstrains()
+        setupAdBannerView()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        Statistics.beginLogPageView("搜索结果页")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        Statistics.endLogPageView("搜索结果页")
     }
     
 }
@@ -184,6 +205,7 @@ extension WebViewController: WKUIDelegate {
                         let headers:HTTPHeaders = [
                             "Content-type": "text/html; charset=GBK"
                         ]
+                        Statistics.event(.SearchResultTap, label: "搜索图片")
                         AF.upload(multipartFormData: { (multipartFormData) in
                             multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
                         },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
@@ -200,9 +222,11 @@ extension WebViewController: WKUIDelegate {
                     }
                     let copyHandle = UIAlertAction(title: __("复制图片"), style: .default) { (alertAction) in
                         UIPasteboard.general.image = image
+                        Statistics.event(.SearchResultTap, label: "复制图片")
                         self.setAlert(title: "已复制到粘贴板中", image: "ok_icon")
                     }
                     let saveHandle = UIAlertAction(title: __("保存图片"), style: .default) { (alertAction) in
+                        Statistics.event(.SearchResultTap, label: "保存图片")
                         saveImage(image: image)
                     }
                     let cancleHandle = UIAlertAction(title: __("取消"), style: .cancel, handler: nil)
@@ -328,10 +352,7 @@ extension WebViewController {
     
     func showNetworkErrorAlert(_ container: UIViewController){
         
-        let alertController = UIAlertController(
-            title: nil,
-            message: __("网络超时，请重试"),
-            preferredStyle: .alert)
+        let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
         container.present(alertController,animated: true,completion: nil)
         
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
@@ -357,7 +378,7 @@ extension WebViewController {
                 if isSuccess {// 成功
                     self!.setAlert(title: __("已保存到相册"), image: "ok_icon")
                                     
-                } else {
+                } else {    
                     self!.setAlert(title: __("保存失败"), image: "fail_icon")
                 }
             }
@@ -380,6 +401,7 @@ extension WebViewController {
     }
     
     @objc func back() {
+        Statistics.event(.SearchResultTap, label: "上一页")
         // 上一頁
         if self.myWebView.isHidden == true {
             self.myWebView.isHidden = false
@@ -390,11 +412,12 @@ extension WebViewController {
     }
     
     @objc func backToPrevious(){
-        
+        Statistics.event(.SearchResultTap, label: "退出")
         self.navigationController!.popViewController(animated: true)
     }
     
     @objc func forward() {
+        Statistics.event(.SearchResultTap, label: "下一页")
         // 下一頁
         if self.myWebView.isHidden {
             self.myWebView.isHidden = false
@@ -405,6 +428,7 @@ extension WebViewController {
     }
     
     @objc func reload() {
+        Statistics.event(.SearchResultTap, label: "刷新")
         // 重新讀取
         if self.myWebView.isHidden {
             self.myWebView.isHidden = false
@@ -415,7 +439,7 @@ extension WebViewController {
     }
     
     @objc func stop() {
-    
+        Statistics.event(.SearchResultTap, label: "取消刷新")
         self.navigationItem.rightBarButtonItem = refreshRightBarBtn
         leftRightBtnState()
         bottomIndexbutton.isEnabled = true
@@ -439,6 +463,7 @@ extension WebViewController {
     }
     
     @objc func goIndex(){
+        Statistics.event(.SearchResultTap, label: "主页")
         if keyword == nil {
             if self.firstUrl.contains("www.google.com.hk") {
                 myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[0])!))
@@ -476,28 +501,26 @@ extension WebViewController {
     }
     
     func setKeyword(keyword:String){
+        Statistics.event(.SearchResultTap, label: "搜索引擎")
         self.keyword = keyword
         self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
         print(self.firstUrl!)
     }
     
     @objc func selectUrlSearchEngine(){
+        Statistics.event(.SearchResultTap, label: "搜索引擎")
         // 建立一個提示框
-        let alertController = UIAlertController(
-            title: __("请选择搜索引擎"), message: nil,
-            preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: __("请选择搜索引擎"), message: nil,preferredStyle: .actionSheet)
         // 建立[取消]按鈕
-        let cancelAction = UIAlertAction(
-            title: __("取消"),
-            style: .cancel,
-            handler: nil)
+        let cancelAction = UIAlertAction(title: __("取消"), style: .cancel, handler: { _ in
+            Statistics.event(.SearchEngineTap, label: "取消")
+        })
         alertController.addAction(cancelAction)
         
         // 建立[確認]按鈕
-        let google = UIAlertAction(
-            title: "Google",
-            style: .default,
+        let google = UIAlertAction(title: "Google",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Google")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -510,10 +533,9 @@ extension WebViewController {
             })
         alertController.addAction(google)
         
-        let yandex = UIAlertAction(
-            title: "Yandex",
-            style: .default,
+        let yandex = UIAlertAction(title: "Yandex",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Yandex")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -526,10 +548,9 @@ extension WebViewController {
             })
         alertController.addAction(yandex)
         
-        let souGou = UIAlertAction(
-            title: "Sougou",
-            style: .default,
+        let souGou = UIAlertAction(title: "Sougou",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Sougou")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -549,29 +570,23 @@ extension WebViewController {
         }
         
         // 顯示提示框
-        self.present(
-            alertController,
-            animated: true,
-            completion: nil)
+        self.present(alertController,animated: true,completion: nil)
     }
     
     @objc func selectKeywordUrlSearchEngine(){
+        Statistics.event(.SearchResultTap, label: "搜索引擎")
         // 建立一個提示框
-        let alertController = UIAlertController(
-            title: __("请选择搜索引擎"), message: nil,
-            preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: __("请选择搜索引擎"), message: nil,preferredStyle: .actionSheet)
         // 建立[取消]按鈕
-        let cancelAction = UIAlertAction(
-            title: __("取消"),
-            style: .cancel,
-            handler: nil)
+        let cancelAction = UIAlertAction(title: __("取消"),style: .cancel,handler: {_ in
+            Statistics.event(.SearchEngineTap, label: "取消")
+        })
         alertController.addAction(cancelAction)
         
         // 建立[確認]按鈕
-        let google = UIAlertAction(
-            title: "Google",
-            style: .default,
+        let google = UIAlertAction(title: "Google",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Google")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -585,10 +600,9 @@ extension WebViewController {
             })
         alertController.addAction(google)
         
-        let yandex = UIAlertAction(
-            title: "Yandex",
-            style: .default,
+        let yandex = UIAlertAction(title: "Yandex",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Yandex")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -602,10 +616,9 @@ extension WebViewController {
             })
         alertController.addAction(yandex)
         
-        let souGou = UIAlertAction(
-            title: "Sougou",
-            style: .default,
+        let souGou = UIAlertAction(title: "Sougou",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Sougou")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -619,10 +632,9 @@ extension WebViewController {
             })
         alertController.addAction(souGou)
         
-        let bing = UIAlertAction(
-            title: "Bing",
-            style: .default,
+        let bing = UIAlertAction(title: "Bing",style: .default,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "Bing")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -648,6 +660,26 @@ extension WebViewController {
 // MARK: - UI
 extension WebViewController {
     
+    func setupAdBannerView() {
+        
+        if let bannerView = self.bannerView {
+            view.addSubview(bannerView)
+            bannerView.snp.makeConstraints { make in
+                make.top.equalTo(safeAreaTop)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(Ad.default.adaptiveBannerHeight)
+            }
+            myWebView.snp.remakeConstraints{ make in
+                make.width.equalTo(fullScreenSize.width)
+                make.height.equalTo(fullScreenSize.height - 83 - 44 - CGFloat(bannerInset))
+                make.centerX.equalToSuperview()
+                make.top.equalTo(safeAreaTop).offset(Float(bannerInset))
+                make.bottom.equalTo(bottomBackgroundLabel).offset(-83)
+            }
+            
+        }
+    }
+    
     func setupUI(){
         
         self.view.backgroundColor = .white
@@ -659,11 +691,11 @@ extension WebViewController {
             centerBarBtn.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(selectUrlSearchEngine)))
         }
         self.navigationItem.titleView = centerBarBtn
-        self.view.addSubview(self.myWebView)
-        self.view.addSubview(self.networkErrorImageView)
+        self.view.addSubview(myWebView)
+        self.view.addSubview(networkErrorImageView)
         self.view.addSubview(networkErrorHint)
-        self.view.sendSubviewToBack(self.networkErrorImageView)
-        self.view.bringSubviewToFront(self.myWebView)
+        self.view.sendSubviewToBack(networkErrorImageView)
+        self.view.bringSubviewToFront(myWebView)
         self.view.addSubview(bottomBackgroundLabel)
         self.myWebView.addSubview(progressView)
         bottomBackgroundLabel.addSubview(bottomLeftbutton)

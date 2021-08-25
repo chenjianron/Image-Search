@@ -142,9 +142,10 @@ extension UrlViewController {
 //            self.view.layoutIfNeeded()
             self.view.backgroundColor = .clear
         } completion: { _ in
-            self.dismiss(animated: false) {
-                complete()
-            }
+            complete()
+//            self.dismiss(animated: false) {
+//
+//            }
         }
 
     }
@@ -200,8 +201,10 @@ extension UrlViewController {
     @objc func search(){
         
         if self.type == "url" {
+            Statistics.event(.HomePageTap, label: "图片url-导入")
             urlNetwordRequest()
         } else {
+            Statistics.event(.HomePageTap, label: "关键词-搜索")
             keywordNetwordRequest()
         }
         
@@ -238,10 +241,15 @@ extension UrlViewController {
     }
     
     @objc func cancel(){
-        self.delegate.cancel()
-        dismissAnimate {
+        if self.type == "url" {
+            Statistics.event(.HomePageTap, label: "图片url-关闭")
+            urlNetwordRequest()
+        } else {
+            Statistics.event(.HomePageTap, label: "关键词-关闭")
+            keywordNetwordRequest()
         }
-
+            self.delegate.cancel()
+        
     }
 }
 

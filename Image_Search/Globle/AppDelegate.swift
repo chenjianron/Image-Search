@@ -26,10 +26,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window!.rootViewController = nav
         // 將 UIWindow 設置為可見的
         self.window!.makeKeyAndVisible()
-
+        
+        AppTracking.shared.requestIDFA()
+        setupNotification(launchOptions: launchOptions)
+        Marketing.shared.setup()
         return true
     }
 
+}
 
+// MARk: -友盟推送
+
+extension AppDelegate {
+    
+    func setupNotification(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
+        UIApplication.shared.applicationIconBadgeNumber = 0
+   
+        let entity = UMessageRegisterEntity()
+        entity.types = Int(UMessageAuthorizationOptions.alert.rawValue)
+               | Int(UMessageAuthorizationOptions.sound.rawValue)
+               | Int(UMessageAuthorizationOptions.badge.rawValue)
+           
+        UMessage.registerForRemoteNotifications(launchOptions: launchOptions, entity: entity, completionHandler: { (granted, error) in
+            LLog("推送: ", granted)
+            if let error = error {
+                LLog(error.localizedDescription)
+           }
+        })
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+       UMessage.registerDeviceToken(deviceToken)
+       
+       #if DEBUG
+       print(#function, "deviceToken", NotificationHandler.deviceToken(deviceToken) ?? "")
+       #endif
+   }
+   
+   func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        LLog(error)
+    }
+   
+   func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        NotificationHandler.process(userInfo: userInfo)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
+        NotificationHandler.process(userInfo: userInfo)
+    }
 }
 

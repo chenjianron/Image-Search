@@ -12,6 +12,17 @@ class SettingViewController: UIViewController {
     
     let fullScreenSize = UIScreen.main.bounds.size
     let titles = [[__("意见反馈")],[__("分享给好友"), __("给个评价"),__("隐私政策"), __("用户协议")]]
+    
+    var bannerView: UIView? {
+        return Marketing.shared.bannerView(.settingBanner, rootViewController: self)
+    }
+    var bannerInset: CGFloat {
+        if bannerView != nil {
+            return Ad.default.adaptiveBannerHeight
+        } else {
+            return 0
+        }
+    }
     var delegate:MainViewController?
     
     lazy var leftBarBtn:UIBarButtonItem = {
@@ -34,17 +45,27 @@ class SettingViewController: UIViewController {
         super.viewDidLoad()
         setUpUI()
         setupConstrains()
+        setupAdBannerView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationController?.navigationBar.barTintColor = UIColor.white
+        Statistics.beginLogPageView("设置页")
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        Statistics.endLogPageView("设置页")
+    }
+    
 }
 
 //MARK: -
 extension SettingViewController{
     
     @objc func backToPrevious(){
+        Statistics.event(.SettingsTap, label: "返回")
         self.navigationController!.popViewController(animated: true)
     }
     
@@ -55,6 +76,17 @@ extension SettingViewController{
 
 //MARK: - UI
 extension SettingViewController {
+    
+    func setupAdBannerView() {
+        if let bannerView = self.bannerView {
+            view.addSubview(bannerView)
+            bannerView.snp.makeConstraints { make in
+                make.bottom.equalTo(safeAreaBottom)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(Ad.default.adaptiveBannerHeight)
+            }
+        }
+    }
     
     func setUpUI(){
         //        navigationController?.navigationBar.barStyle = .black
@@ -76,22 +108,20 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch indexPath.row {
         case 0:
+            Statistics.event(.SettingsTap, label: "意见反馈")
             break
         case 1:
-            // Statistics.event(.setting_tap, label: "隐私政策")
+             Statistics.event(.SettingsTap, label: "分享给好友")
             // sendEMail()
             break
         case 2:
-            // Statistics.event(.setting_tap, label: "分享给好友")
+             Statistics.event(.SettingsTap, label: "给个评价")
             break
         case 3:
-            // Statistics.event(.setting_tap, label: "评价")
+             Statistics.event(.SettingsTap, label: "隐私政策")
             break
         case 4:
-            // Statistics.event(.setting_tap, label: "隐私政策")
-            break
-        case 5:
-            // Statistics.event(.setting_tap, label: "用户协议")
+             Statistics.event(.SettingsTap, label: "用户协议")
             break
         default:
             ()

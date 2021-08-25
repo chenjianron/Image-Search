@@ -17,6 +17,16 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     
     let fullScreenSize = UIScreen.main.bounds.size
     
+    var bannerView: UIView? {
+        return Marketing.shared.bannerView(.homeBanner, rootViewController: self)
+    }
+    var bannerInset: CGFloat {
+        if bannerView != nil {
+            return Ad.default.adaptiveBannerHeight
+        } else {
+            return 0
+        }
+    }
     var headers: HTTPHeaders = [:]
     var isSelect = false
     
@@ -114,6 +124,7 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
         super.viewDidLoad()
         setupUI()
         setupConstraints()
+        setupAdBannerView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -131,12 +142,24 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
 //MARK: -
 extension MainViewController {
     
+    func showAnimate() {
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
+            UIView.animate(withDuration: 0.3) {
+//                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
+                let alertController = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
+                alertController.modalPresentationStyle = .fullScreen
+                alertController.view.isHidden = true
+                self.present(alertController, animated: false, completion: nil)
+            }
+        }
+    }
+    
+    func dismissAnimate(complete: @escaping () -> Void) {
+            self.dismiss(animated: false, completion: complete)
+    }
+    
     func showNetworkErrorAlert(_ container: UIViewController){
-        
-        let alertController = UIAlertController(
-            title: nil,
-            message: __("网络超时，请重试"),
-            preferredStyle: .alert)
+        let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
         container.present(alertController,animated: true,completion: nil)
         
         self.loadingView.isHidden = true
@@ -179,6 +202,8 @@ extension MainViewController {
     }
     
     @objc func imageSearch(){
+        Statistics.beginLogPageView("相册页")
+        Statistics.event(.HomePageTap, label: "图片")
         isImage = true
         imagePicker = UIImagePickerController()
         imagePicker.delegate = self
@@ -189,6 +214,8 @@ extension MainViewController {
     }
     
     @objc func cameraSearch(){
+        Statistics.beginLogPageView("拍照页")
+        Statistics.event(.HomePageTap, label: "相机")
         isImage = false
         cameraPicker = UIImagePickerController()
         cameraPicker.delegate = self
@@ -199,6 +226,8 @@ extension MainViewController {
     }
     
     @objc func fileSearch(){
+        Statistics.beginLogPageView("文件页")
+        Statistics.event(.HomePageTap, label: "文件")
         let letdocumentTypes = ["public.image"]
         let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
         documentPicker.modalPresentationStyle = .fullScreen
@@ -207,6 +236,7 @@ extension MainViewController {
     }
     
     @objc func urlSearch(){
+        Statistics.event(.HomePageTap, label: "图片url")
         let urlEditWindowViewController = UrlViewController()
         urlEditWindowViewController.setType(type: "url")
         urlEditWindowViewController.setDelegate(delegate: self)
@@ -214,6 +244,7 @@ extension MainViewController {
     }
     
     @objc func keywordSearch(){
+        Statistics.event(.HomePageTap, label: "关键词")
         let keywordEditWindowViewController = UrlViewController()
         keywordEditWindowViewController.setType(type: __("关键词"))
         keywordEditWindowViewController.setDelegate(delegate: self)
@@ -221,6 +252,7 @@ extension MainViewController {
     }
     
     @objc func recordSearch(){
+        Statistics.event(.HomePageTap, label: "搜索记录")
         self.navigationController?.pushViewController(SearchRecordViewController(),animated: false)
     }
     
@@ -243,6 +275,7 @@ extension MainViewController {
                     print(lastUrl)
                     SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
                     self.dismiss(animated: true, completion: nil)
+                    Statistics.endLogPageView("拍照页")
                     let webViewController = WebViewController()
                     webViewController.delegate = self
                     webViewController.setURL(url: lastUrl)
@@ -265,7 +298,6 @@ extension MainViewController {
         headers = [
             "Content-type": "text/html; charset=GBK"
         ]
-        self.imagePicker.view.isUserInteractionEnabled = false
         if !isSelect {
             isSelect = true
             showActivityIndicatory(uiView: imagePicker.view)
@@ -275,8 +307,8 @@ extension MainViewController {
                 if let lastUrl = result.value{
                     SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
                     self.loadingView.isHidden = true
-                    self.imagePicker.view.isUserInteractionEnabled = true
                     self.dismiss(animated: true, completion: nil)
+                    Statistics.endLogPageView("拍照页")
                     let webViewController = WebViewController()
                     webViewController.delegate = self
                     webViewController.setURL(url: lastUrl)
@@ -309,6 +341,12 @@ extension MainViewController:UIImagePickerControllerDelegate{
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         self.dismiss(animated: true, completion: nil)
+        if isImage {
+            Statistics.endLogPageView("相册页")
+
+        } else {
+            Statistics.endLogPageView("拍照页")
+        }
     }
 }
 
@@ -323,11 +361,11 @@ extension MainViewController:UIDocumentPickerDelegate {
         headers = [
             "Content-type": "text/html; charset=GBK"
         ]
-        self.dismiss(animated: true, completion: nil)
         self.showActivityIndicatory(uiView:self.view)
         if !isSelect {
             // 顯示進度條显
             isSelect = true
+            showAnimate()
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((UIImage(data: imgData)!).jpegData(compressionQuality: 0.8)!), withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
@@ -335,18 +373,22 @@ extension MainViewController:UIDocumentPickerDelegate {
                     print(lastUrl)
                     SQL.insert(imagedata: imgData)
                     self.loadingView.isHidden = true
-                    let webViewController = WebViewController()
-                    webViewController.delegate = self
-                    webViewController.setURL(url: lastUrl)
-                    self.navigationController!.pushViewController(webViewController,animated: false)
+                    Statistics.endLogPageView("文件页")
+                    dismissAnimate {
+                        let webViewController = WebViewController()
+                        webViewController.delegate = self
+                        webViewController.setURL(url: lastUrl)
+                        self.navigationController!.pushViewController(webViewController,animated: false)
+                    }
                     isSelect = false
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                    dismissAnimate{
+                        self.loadingView.isHidden = true
                         showNetworkErrorAlert(self)
+                        isSelect = false
                     }
-                    isSelect = false
                 }
             }
         }
@@ -354,6 +396,7 @@ extension MainViewController:UIDocumentPickerDelegate {
     
     func documentPickerWasCancelled(_: UIDocumentPickerViewController){
         self.dismiss(animated: true, completion: nil)
+        Statistics.endLogPageView("文件页")
     }
     
 }
@@ -361,6 +404,22 @@ extension MainViewController:UIDocumentPickerDelegate {
 
 //MARK: - UI
 extension MainViewController {
+    
+    func setupAdBannerView() {
+        if let bannerView = self.bannerView {
+            view.addSubview(bannerView)
+            bannerView.snp.makeConstraints { make in
+                make.top.equalTo(safeAreaTop)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(Ad.default.adaptiveBannerHeight)
+            }
+            searchImageView.snp.remakeConstraints{make in
+                make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 32+30))
+                make.centerX.equalToSuperview()
+            }
+            
+        }
+    }
     
     func setupUI() {
         // 底色
@@ -413,7 +472,6 @@ extension MainViewController {
         recordSearchButton.isUserInteractionEnabled = true
         recordSearchButton.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(recordSearch)))
         bottomBackgroundLabel.addSubview(recordSearchButton)
-        
     }
     
     func setupConstraints() { 

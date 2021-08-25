@@ -19,6 +19,16 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
     var collectionView:UICollectionView!
     var loadingView: UIView!
     
+    var bannerView: UIView? {
+        return Marketing.shared.bannerView(.webBanner, rootViewController: self)
+    }
+    var bannerInset: CGFloat {
+        if bannerView != nil {
+            return Ad.default.adaptiveBannerHeight
+        } else {
+            return 0
+        }
+    }
     lazy var leftBarBtn:UIBarButtonItem = {
         let leftBarBtn = UIBarButtonItem(image: UIImage(named: "back.png")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
         return leftBarBtn
@@ -57,12 +67,21 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
         setupResourceData()
         setupUI()
         setupConstraints()
+        setupAdBannerView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         self.navigationController?.navigationBar.barTintColor = UIColor.white
         collectionView.reloadData()
+        Statistics.beginLogPageView("搜索记录页")
     }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        Statistics.endLogPageView("搜索记录页")
+    }
+    
     
 }
 
@@ -71,10 +90,7 @@ extension SearchRecordViewController {
     
     func showNetworkErrorAlert(_ container: UIViewController){
         
-        let alertController = UIAlertController(
-            title: nil,
-            message: __("网络超时，请重试"),
-            preferredStyle: .alert)
+        let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
         container.present(alertController,animated: true,completion: nil)
         
         self.loadingView.isHidden = true
@@ -139,19 +155,13 @@ extension SearchRecordViewController {
     
     func searchKeyword(row:Int){
         // 建立一個提示框
-        let alertController = UIAlertController(
-            title: __("编辑"), message: nil,
-            preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: __("编辑"), message: nil,preferredStyle: .actionSheet)
         // 建立[取消]按鈕
-        let cancelAction = UIAlertAction(
-            title: __("取消"),
-            style: .cancel,
-            handler: nil)
+        let cancelAction = UIAlertAction(title: __("取消"),style: .cancel,handler: nil)
         alertController.addAction(cancelAction)
-        let searchKeywordAction = UIAlertAction(
-            title: __("搜索关键字"),
-            style: .default,
+        let searchKeywordAction = UIAlertAction(title: __("搜索关键字"),style: .default,
             handler: {_ in
+                Statistics.event(.SearchRecordTap, label: "搜索关键字")
                 self.dismiss(animated: true, completion: nil)
                 let webViewController = WebViewController()
                 webViewController.delegate = self
@@ -170,9 +180,7 @@ extension SearchRecordViewController {
                 //                }
             })
         alertController.addAction(searchKeywordAction)
-        let deleteAction = UIAlertAction(
-            title: __("删除"),
-            style: .destructive,
+        let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
             handler: { [self]_ in
                 SQL.delete(id: self.resourceData[row].id!)
                 self.resourceData = []
@@ -199,20 +207,14 @@ extension SearchRecordViewController {
     
     func selectImage(row:Int){
         // 建立一個提示框
-        let alertController = UIAlertController(
-            title: __("编辑"), message: nil,
-            preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: __("编辑"), message: nil,preferredStyle: .actionSheet)
         // 建立[取消]按鈕
-        let cancelAction = UIAlertAction(
-            title: __("取消"),
-            style: .cancel,
-            handler: nil)
+        let cancelAction = UIAlertAction(title: __("取消"),style: .cancel,handler: nil)
         alertController.addAction(cancelAction)
         // 建立[確認]按鈕
-        let searchImageBtn = UIAlertAction(
-            title: __("搜索图片"),
-            style: .default,
+        let searchImageBtn = UIAlertAction(title: __("搜索图片"),style: .default,
             handler: {_ in
+                Statistics.event(.SearchRecordTap, label: "搜索图片")
                 let headers: HTTPHeaders =  [
                     "Content-type": "text/html; charset=GBK"
                 ]
@@ -250,11 +252,9 @@ extension SearchRecordViewController {
                 }
             })
         alertController.addAction(searchImageBtn)
-        let saveImageBtn = UIAlertAction(
-            title: __("保存到相册"),
-            style: .default,
-            handler: {_ in
+        let saveImageBtn = UIAlertAction(title: __("保存到相册"),style: .default,handler: {_ in
                 // UIImageWriteToSavedPhotosAlbum(UIImage(data: self.resourceData[row].image!)! ,self,nil, nil)
+            Statistics.event(.SearchRecordTap, label: "保存到相册")
                 switch PHPhotoLibrary.authorizationStatus(){
                 case .authorized:
                     self.saveImage(image: UIImage(data:self.resourceData[row].image!)!)
@@ -281,10 +281,9 @@ extension SearchRecordViewController {
             })
         alertController.addAction(saveImageBtn)
         
-        let deleteAction = UIAlertAction(
-            title: __("删除"),
-            style: .destructive,
+        let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
             handler: { [self]_ in
+                Statistics.event(.SearchRecordTap, label: "删除")
                 SQL.delete(id: self.resourceData[row].id!)
                 self.resourceData = []
                 SQL.find(resourceData: &self.resourceData)
@@ -310,21 +309,18 @@ extension SearchRecordViewController {
     }
     
     @objc func backToPrevious(){
+        Statistics.event(.SearchRecordTap, label: "返回")
         self.navigationController!.popViewController(animated: true)
     }
     
     @objc func deleteAlert(){
         
         let alertController = UIAlertController()
-        let cancelAction = UIAlertAction(
-            title: __("取消"),
-            style: .cancel,
-            handler: nil)
+        let cancelAction = UIAlertAction(title: __("取消"),style: .cancel,handler: nil)
         alertController.addAction(cancelAction)
-        let deleteAction = UIAlertAction(
-            title: __("清空"),
-            style: .destructive,
+        let deleteAction = UIAlertAction(title: __("清空"),style: .destructive,
             handler: {_ in
+                Statistics.event(.SearchEngineTap, label: "清空")
                 if SQL.deleteAll() {
                     self.resourceData = []
                     self.collectionView.reloadData()
@@ -340,10 +336,7 @@ extension SearchRecordViewController {
             popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
         }
-        self.present(
-            alertController,
-            animated: true,
-            completion: nil)
+        self.present(alertController,animated: true,completion: nil)
         // 建立[確認]按鈕
     }
 }
@@ -381,6 +374,25 @@ extension SearchRecordViewController {
 
 // MARK: -UI
 extension SearchRecordViewController {
+    
+    func setupAdBannerView() {
+        
+        if let bannerView = self.bannerView {
+            view.addSubview(bannerView)
+            bannerView.snp.makeConstraints { make in
+                make.top.equalTo(safeAreaTop)
+                make.left.right.equalToSuperview()
+                make.height.equalTo(Ad.default.adaptiveBannerHeight)
+            }
+            collectionView.snp.remakeConstraints{make in
+                make.centerX.equalToSuperview()
+                make.width.equalTo(fullScreenSize.width)
+                make.height.equalTo(fullScreenSize.height - 44 - CGFloat(bannerInset))
+                make.top.equalTo(safeAreaTop).offset(Float(bannerInset))
+            }
+            
+        }
+    }
     
     func setupUI(){
         

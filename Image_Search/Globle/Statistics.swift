@@ -32,7 +32,10 @@ class Statistics {
     enum Event: String {
         case
         HomePageTap,  //首页点击计数
-        SettingsTap //设置页点击计数
+        SettingsTap, //设置页点击计数
+        SearchResultTap,
+        SearchEngineTap,
+        SearchRecordTap
     }
     
     static func event(_ event: Event, label: String) {
