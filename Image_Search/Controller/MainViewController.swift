@@ -55,7 +55,7 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     }()
     lazy var searchImageView: UIImageView = {
         let searchImageView = UIImageView()
-        searchImageView.image = UIImage(named: "search_icon.png")
+        searchImageView.image = UIImage(named: "index_search")
         return searchImageView
     }()
     lazy var appTitle: UILabel = {
@@ -89,56 +89,52 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     }()
     lazy var imageSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("图片"), image: "image_search.png")
+        searchButton.dataSouce(title: __("图片"), image: "index_imageSearch")
         return searchButton
     }()
     lazy var cameraSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("相机"), image: "camera_search.png")
+        searchButton.dataSouce(title: __("相机"), image: "index_cameraSearch")
         return searchButton
     }()
     lazy var fileSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("文件"), image: "file_search.png")
+        searchButton.dataSouce(title: __("文件"), image: "index_fileSearch")
         return searchButton
     }()
     lazy var urlSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("图片url"), image: "url_search.png")
+        searchButton.dataSouce(title: __("图片url"), image: "index_imageUrlSearch")
         return searchButton
     }()
     lazy var keywordSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("关键词"), image: "keyword_search.png")
+        searchButton.dataSouce(title: __("关键词"), image: "index_keywordSearch")
         return searchButton
     }()
     lazy var recordSearchButton: ButtonView = {
         let searchButton = ButtonView()
-        searchButton.dataSouce(title: __("搜索记录"), image: "record_search.png")
+        searchButton.dataSouce(title: __("搜索记录"), image: "index_searchRecord")
         return searchButton
     }()
     
     
     override func viewDidLoad() {
-        let ctx = Ad.default.interstitialSignal(key: K.ParamName.LaunchInterstitial)
         super.viewDidLoad()
-        ctx.didEndAction = {  _ in
-            self.setupUI()
-            self.setupConstraints()
-            self.setupAdBannerView()
-        }
+        self.setupUI()
+        self.setupConstraints()
+        self.setupAdBannerView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.navigationController?.navigationBar.barTintColor = UIColor(red: 19/255, green: 165/255, blue: 255/255, alpha: 1)
         Statistics.beginLogPageView("首页")
-        //        }
-        
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.barTintColor = UIColor(red: 19/255, green: 165/255, blue: 255/255, alpha: 1)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
         Statistics.endLogPageView("首页")
+        super.viewWillDisappear(animated)
     }
 }
 
@@ -239,11 +235,14 @@ extension MainViewController {
     @objc func fileSearch(){
         Statistics.beginLogPageView("文件页")
         Statistics.event(.HomePageTap, label: "文件")
-        let letdocumentTypes = ["public.PNG","public.JPEG"]
-        let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
-        documentPicker.modalPresentationStyle = .fullScreen
-        documentPicker.delegate = self
-        self.present(documentPicker, animated: true, completion: nil)
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
+        ctx.didEndAction = { [self] _ in
+            let letdocumentTypes = ["public.PNG","public.JPEG"]
+            let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
+            documentPicker.modalPresentationStyle = .fullScreen
+            documentPicker.delegate = self
+            self.present(documentPicker, animated: true, completion: nil)
+        }
     }
     
     @objc func urlSearch(){
@@ -435,10 +434,9 @@ extension MainViewController {
                 make.height.equalTo(Ad.default.adaptiveBannerHeight)
             }
             searchImageView.snp.remakeConstraints{make in
-                make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 32+30))
+                make.top.equalTo(safeAreaTop).offset(GetWidthHeight.share.getHeight(height: 32 + Float(Ad.default.adaptiveBannerHeight)))
                 make.centerX.equalToSuperview()
             }
-            
         }
     }
     
@@ -504,77 +502,77 @@ extension MainViewController {
         
         searchImageView.snp.makeConstraints { make in
             //            make.top.equalTo(safeAreaTop).offset(32)
-            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 32))
+            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.share.getHeight(height: 32))
             make.centerX.equalToSuperview()
         }
         
         appTitle.snp.makeConstraints{ make in
             //            make.top.equalTo(safeAreaTop).offset(136)
-            make.top.equalTo(searchImageView.snp.bottom).offset(GetWidthHeight.getHeight(height: 10))
+            make.top.equalTo(searchImageView.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 10))
             make.centerX.equalToSuperview()
         }
         
         hintTitle.snp.makeConstraints{ (make) in
             //            make.top.equalTo(safeAreaTop).offset(248)
-            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 248))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
+            make.top.equalToSuperview().offset(30)
+            make.left.equalToSuperview().offset(24)
         }
         
         bottomBackgroundLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 223))
-            //            make.left.equalToSuperview().offset(20)
-            //            make.right.equalToSuperview().offset(20)
+            make.bottom.equalTo(safeAreaBottom).offset(-24)
             make.height.equalToSuperview().multipliedBy(0.6)
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 20))
-            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 20))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 20))
+            make.right.equalToSuperview().offset(-GetWidthHeight.share.getWidth(width: 20))
             
         }
         
         imageSearchButton.snp.makeConstraints { (make) in
-            make.height.equalTo(92)
             make.width.equalTo(136)
-            //            make.center.equalToSuperview()
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 80))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 80))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 24))
+//            if Util.hasTopNotch {
+//                
+//            }
         }
         
         cameraSearchButton.snp.makeConstraints{(make) in
-            make.height.equalTo(92 )
             make.width.equalTo(136)
-            //            make.center.equalToSuperview()
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 80))
-            //            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
-            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 80))
+            make.right.equalToSuperview().offset(-GetWidthHeight.share.getWidth(width: 24))
         }
         
         fileSearchButton.snp.makeConstraints{(make) in
-            make.height.equalTo(92 )
+            make.height.equalTo(imageSearchButton)
             make.width.equalTo(136)
             //            make.center.equalToSuperview()
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 196))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
+            make.top.equalTo(imageSearchButton.snp.bottom).offset(24)
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 196))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 24))
         }
         
         urlSearchButton.snp.makeConstraints{(make) in
-            make.height.equalTo(92 )
+            make.height.equalTo(cameraSearchButton)
             make.width.equalTo(136)
+            make.top.equalTo(cameraSearchButton.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 24))
             //            make.center.equalToSuperview()
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 196))
-            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 196))
+            make.right.equalToSuperview().offset(-GetWidthHeight.share.getWidth(width: 24))
         }
         
         keywordSearchButton.snp.makeConstraints{(make) in
-            make.height.equalTo(92 )
+            make.height.equalTo(fileSearchButton)
             make.width.equalTo(136)
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 312))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 24))
+            make.top.equalTo(fileSearchButton.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 312))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 24))
         }
         
         recordSearchButton.snp.makeConstraints{(make) in
-            make.height.equalTo(92)
+            make.height.equalTo(urlSearchButton)
             make.width.equalTo(keywordSearchButton)
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 312))
-            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
+            make.top.equalTo(urlSearchButton.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 312))
+            make.right.equalToSuperview().offset(-GetWidthHeight.share.getWidth(width: 24))
         }
     }
 }

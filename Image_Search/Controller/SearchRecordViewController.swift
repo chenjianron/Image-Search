@@ -471,8 +471,8 @@ extension SearchRecordViewController {
         }
         hintAlert.snp.makeConstraints{
             make in
-            make.left.equalToSuperview().offset(Float(fullScreenSize.width) / 2 - GetWidthHeight.getWidth(width: 60))
-            make.top.equalTo(safeTop).offset(GetWidthHeight.getHeight(height: 270))
+            make.left.equalToSuperview().offset(Float(fullScreenSize.width) / 2 - GetWidthHeight.share.getWidth(width: 60))
+            make.top.equalTo(safeTop).offset(GetWidthHeight.share.getHeight(height: 270))
         }
     }
     

@@ -12,7 +12,7 @@ class ButtonView :UIView {
     lazy var backgroundLabel: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.init(hex: 0xFFFFFF, alpha: 0.9)
-        view.layer.cornerRadius = 13
+        view.layer.cornerRadius = 12
         view.layer.masksToBounds = false
         if #available(iOS 13.0, *) {
             view.layer.shadowColor = CGColor(red: 0, green: 0, blue: 0, alpha: 1)
@@ -53,8 +53,7 @@ class ButtonView :UIView {
     func setupUI() {
         addSubview(backgroundLabel)
         backgroundLabel.snp.makeConstraints{ (make) in
-            make.width.equalTo(136)
-            make.height.equalTo(92)
+            make.edges.equalToSuperview()
         }
         backgroundLabel.addSubview(imageView)
         backgroundLabel.addSubview(textLabel)

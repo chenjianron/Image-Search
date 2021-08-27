@@ -44,10 +44,10 @@ class KeywordCollectionViewCell: UICollectionViewCell {
         }
         
         label.snp.makeConstraints{ (make) in
-            make.width.equalTo(GetWidthHeight.getWidth(width: 85))
-            make.height.equalTo(GetWidthHeight.getHeight(height: 60))
-            make.top.equalToSuperview().offset(GetWidthHeight.getWidth(width: 68))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 51))
+            make.width.equalTo(GetWidthHeight.share.getWidth(width: 85))
+            make.height.equalTo(GetWidthHeight.share.getHeight(height: 60))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 68))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 51))
         }
     }
 }

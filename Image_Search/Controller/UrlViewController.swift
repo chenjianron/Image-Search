@@ -317,22 +317,22 @@ extension UrlViewController {
         
         backgroundBoard.snp.makeConstraints{ (make) in
             make.width.equalTo(335)
-            make.height.equalTo(GetWidthHeight.getHeight(height: 204))
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 202))
+            make.height.equalTo(GetWidthHeight.share.getHeight(height: 204))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 202))
             make.centerX.equalToSuperview()
         }
         
         cancelBtn.snp.makeConstraints{ (make) in
             make.width.equalTo(24)
             make.height.equalTo(24)
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 12))
-            make.right.equalToSuperview().offset(GetWidthHeight.getWidth(width: -20))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 12))
+            make.right.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: -20))
         }
         
         titleLable.snp.makeConstraints{ (make) in
             make.width.equalTo(130)
             make.height.equalTo(24)
-            make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 24))
+            make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 24))
             make.centerX.equalToSuperview()
             
         }
@@ -340,14 +340,14 @@ extension UrlViewController {
         hintTitle.snp.makeConstraints{ (make) in
             make.width.equalTo(140)
             make.height.equalTo(20)
-            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.getHeight(height: 4))
+            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 4))
             make.centerX.equalToSuperview()
         }
         
         inputTextField.snp.makeConstraints{ (make) in
             make.width.equalTo(295)
             make.height.equalTo(38)
-            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.getHeight(height:28))
+            make.top.equalTo(titleLable.snp.bottom).offset(GetWidthHeight.share.getHeight(height:28))
             make.centerX.equalToSuperview()
         }
         
@@ -355,13 +355,13 @@ extension UrlViewController {
             make.width.equalTo(100)
             make.height.equalTo(21)
             make.centerY.equalToSuperview()
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 16))
+            make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 16))
         }
         
         searchBtn.snp.makeConstraints{ (make) in
             make.width.equalTo(152)
             make.height.equalTo(38)
-            make.top.equalTo(inputTextField.snp.bottom).offset(GetWidthHeight.getHeight(height: 24))
+            make.top.equalTo(inputTextField.snp.bottom).offset(GetWidthHeight.share.getHeight(height: 24))
             make.centerX.equalToSuperview()
         }
         

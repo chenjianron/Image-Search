@@ -29,8 +29,6 @@ enum Banner {
     case webBanner
 }
 
-
-
 class Marketing {
     
     static let shared = Marketing()
@@ -68,14 +66,13 @@ class Marketing {
                                         K.ParamName.SearchImageInterstitial:10,
                                         
                                         K.ParamName.ShareRT: 1,
-                                        K.ParamName.ImagePickerRT: 5,
-                                        K.ParamName.LauchAPPRT: 2,
+                                        K.ParamName.ImagePickerRT: 2,
+                                        K.ParamName.LauchAPPRT: 5,
        ])
         
         MarketingHelper.presentUpdateAlert()
 
         Ad.default.setup(bannerUnitID: K.IDs.BannerUnitID, interstitialUnitID: K.IDs.InterstitialUnitID, openAdUnitID: nil, rewardAdUnitID: nil, isEnabled: true)
-
         
         let view = SimpleLoadingView(logo: UIImage.icon)
         view.backgroundColor = .white
@@ -143,7 +140,6 @@ extension Marketing {
     func didShareRT() {
         let rtCounter = Counter.find(key: K.ParamName.ShareRT)
         rtCounter.increase()
-        
         if !RT.default.hasUserRTed && rtCounter.hitsMax {
             SKStoreReviewController.requestReview()
             rtCounter.limitsHitsMaxUntilDate = Date().addingTimeInterval(TimeInterval(60 * 60 * Preset.named(K.ParamName.RTTime).intValue))

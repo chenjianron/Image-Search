@@ -10,15 +10,17 @@ import UIKit
 
 class GetWidthHeight {
     
-    static let fullScreenSize = UIScreen.main.bounds.size
-    static let IPhone11ProWidth = 375
-    static let IPhone11ProHeigth = 812 
+    static let share = GetWidthHeight()
     
-    static func getWidth(width:Float) -> Float{
+    let fullScreenSize = UIScreen.main.bounds.size
+    let IPhone11ProWidth = 375
+    let IPhone11ProHeigth = 812
+    
+    func getWidth(width:Float) -> Float{
         return Float(fullScreenSize.width) * (width / Float(IPhone11ProWidth))
     }
     
-    static func getHeight(height:Float) -> Float {
+    func getHeight(height:Float) -> Float {
         return Float(fullScreenSize.height) * ( height / Float(IPhone11ProHeigth))
     }
 }
