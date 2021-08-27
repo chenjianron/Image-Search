@@ -237,7 +237,7 @@ extension MainViewController {
         Statistics.event(.HomePageTap, label: "文件")
         let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
         ctx.didEndAction = { [self] _ in
-            let letdocumentTypes = ["public.PNG","public.JPEG"]
+            let letdocumentTypes = ["public.Image","public.JPEG","public.GIF","public.HEIC","public.HEIF","public.tiff"]
             let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
             documentPicker.modalPresentationStyle = .fullScreen
             documentPicker.delegate = self

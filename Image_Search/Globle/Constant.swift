@@ -36,18 +36,18 @@ struct K {
 //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
 //        #endif
         
-        #if DEBUG
+//        #if DEBUG
            static let BannerUnitID = "ca-app-pub-3940256099942544/2934735716"
            static let InterstitialUnitID = "ca-app-pub-3940256099942544/4411468910"
            static let InterstitialTransferUnitID = "ca-app-pub-3940256099942544/4411468910"
            static let RewardUnitID = "ca-app-pub-3940256099942544/1712485313"
-        #else
-           static let BannerUnitID = "ca-app-pub-1526777558889812/7898692549"
-           static let InterstitialUnitID = "ca-app-pub-1526777558889812/4626549998"
-           static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
-           static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/5423421726"
-    //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
-        #endif
+//        #else
+//           static let BannerUnitID = "ca-app-pub-1526777558889812/7898692549"
+//           static let InterstitialUnitID = "ca-app-pub-1526777558889812/4626549998"
+//           static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
+//           static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/5423421726"
+//    //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
+//        #endif
 
         
 
