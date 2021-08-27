@@ -14,6 +14,7 @@
 		670FE3A626D3318100C55520 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 670FE3A126D3318100C55520 /* Assets.xcassets */; };
 		670FE3A826D3866900C55520 /* keyword_background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 670FE3A726D3866900C55520 /* keyword_background.jpg */; };
 		670FE3AA26D3F67500C55520 /* empty_image.png in Resources */ = {isa = PBXBuildFile; fileRef = 670FE3A926D3F67500C55520 /* empty_image.png */; };
+		6775D14926D7259D004E942F /* IsolatedInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6775D14826D7259D004E942F /* IsolatedInteraction.swift */; };
 		677BDF5B26BB7BAA00B5B387 /* WebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */; };
 		677D7ED426BCE40C005A902D /* TopButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 677D7ED326BCE40C005A902D /* TopButtonView.swift */; };
 		678846A726BA348600B15D20 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678846A626BA348600B15D20 /* SettingTableViewCell.swift */; };
@@ -70,6 +71,8 @@
 		670FE3A326D3318100C55520 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizations.strings"; sourceTree = "<group>"; };
 		670FE3A726D3866900C55520 /* keyword_background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = keyword_background.jpg; sourceTree = "<group>"; };
 		670FE3A926D3F67500C55520 /* empty_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = empty_image.png; sourceTree = "<group>"; };
+		6775D14826D7259D004E942F /* IsolatedInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IsolatedInteraction.swift; sourceTree = "<group>"; };
+		6775D14A26D78505004E942F /* Image_Search.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Image_Search.entitlements; sourceTree = "<group>"; };
 		677BDF5A26BB7BAA00B5B387 /* WebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewController.swift; sourceTree = "<group>"; };
 		677D7ED326BCE40C005A902D /* TopButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopButtonView.swift; sourceTree = "<group>"; };
 		678846A626BA348600B15D20 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
@@ -164,6 +167,7 @@
 			children = (
 				67E5D2FF26D32F1100643C63 /* GetWidthHeight.swift */,
 				67895E4E26B9206F00F30042 /* UIViewController.swift */,
+				6775D14826D7259D004E942F /* IsolatedInteraction.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -189,6 +193,7 @@
 		67D1AA7826B7A2A500832DA0 /* Image_Search */ = {
 			isa = PBXGroup;
 			children = (
+				6775D14A26D78505004E942F /* Image_Search.entitlements */,
 				67E5D30226D32F6D00643C63 /* model */,
 				67E5D2F826D32EED00643C63 /* Engine */,
 				67895E4D26B9204600F30042 /* Extension */,
@@ -434,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				67E5D2F126D3288800643C63 /* Statistics.swift in Sources */,
+				6775D14926D7259D004E942F /* IsolatedInteraction.swift in Sources */,
 				67D1AA7E26B7A2A500832DA0 /* MainViewController.swift in Sources */,
 				67E5D30E26D32FC300643C63 /* AlertView.swift in Sources */,
 				67E5D30C26D32FAB00643C63 /* SearchRecordViewController.swift in Sources */,
@@ -547,7 +553,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -603,7 +609,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -619,17 +625,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = Image_Search/Image_Search.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = WBZ3547R4B;
+				DEVELOPMENT_TEAM = BYLX9G7HJ9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Image_Search/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "GC.Image-Search";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.softin.Image-Search";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Image_Search/Globle/Image_Search-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -644,17 +650,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_ENTITLEMENTS = Image_Search/Image_Search.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = WBZ3547R4B;
+				DEVELOPMENT_TEAM = BYLX9G7HJ9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Image_Search/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "GC.Image-Search";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.softin.Image-Search";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Image_Search/Globle/Image_Search-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

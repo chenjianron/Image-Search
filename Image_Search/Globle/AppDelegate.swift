@@ -8,7 +8,7 @@
 import UIKit
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate { 
 
     var window:UIWindow?
 
@@ -26,10 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window!.rootViewController = nav
         // 將 UIWindow 設置為可見的
         self.window!.makeKeyAndVisible()
-        
+        Marketing.shared.setup()
         AppTracking.shared.requestIDFA()
         setupNotification(launchOptions: launchOptions)
-        Marketing.shared.setup()
         return true
     }
 

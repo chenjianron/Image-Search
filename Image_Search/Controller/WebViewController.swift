@@ -15,7 +15,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
     let urlSearchEngineUrlPrefix = ["https://www.google.com.hk/searchbyimage?image_url=","https://yandex.com/images/search?family=yes&rpt=imageview&url=","https://pic.sogou.com/ris?query="]
-    let keywordSearchEngineUrlPrefix = ["https://www.google.com/search?q=","&tbm=isch", "https://yandex.com/images/search?from=tabbar&text=","https://pic.sogou.com/pics?query=","https://cn.bing.com/images/search?q="]
+    let keywordSearchEngineUrlPrefix = ["https://www.google.com/search?q=","&tbm=isch", "https://yandex.com/images/search?from=tabbar&text=","https://pic.sogou.com/pic/searchList.jsp?uID=&v=5&statref=index_form_1&spver=0&rcer=&keyword=","https://cn.bing.com/images/search?q="]
     let urlSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/"]
     let keywordSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/","https://www.bing.com/"]
     
@@ -162,6 +162,7 @@ extension WebViewController: WKUIDelegate {
                   return(jsonString)} getURLandRect()
                 """, touchPoint.x, touchPoint.y)
             myWebView.evaluateJavaScript(jsString) { [self] result, error in
+                guard let r = result else {return }
                 let data = (result as! String).data(using: .utf8)
                 var resultDic: [AnyHashable : Any]? = nil
                 do {
@@ -202,20 +203,23 @@ extension WebViewController: WKUIDelegate {
                 if let image = image {
                     let imageHandleAlertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
                     let searchHandle = UIAlertAction(title: __("搜索图片"), style: .default) { (alertAction) in
-                        let headers:HTTPHeaders = [
-                            "Content-type": "text/html; charset=GBK"
-                        ]
                         Statistics.event(.SearchResultTap, label: "搜索图片")
-                        AF.upload(multipartFormData: { (multipartFormData) in
-                            multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
-                        },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
-                            if let lastUrl = result.value{
-                                    secondSearch(image, lastUrl)
-                            } else {
-                                print(__("上传失败"))
-                                print(result.error?.errorDescription ?? " ")
-                                if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
-                                    showNetworkErrorAlert(self)
+                        let ctx = Ad.default.interstitialSignal(key: K.ParamName.SearchImageInterstitial)
+                        ctx.didEndAction = { [self] _ in
+                            let headers:HTTPHeaders = [
+                                "Content-type": "text/html; charset=GBK"
+                            ]
+                            AF.upload(multipartFormData: { (multipartFormData) in
+                                multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                            },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
+                                if let lastUrl = result.value{
+                                        secondSearch(image, lastUrl)
+                                } else {
+                                    print(__("上传失败"))
+                                    print(result.error?.errorDescription ?? " ")
+                                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                                        showNetworkErrorAlert(self)
+                                    }
                                 }
                             }
                         }
@@ -227,7 +231,10 @@ extension WebViewController: WKUIDelegate {
                     }
                     let saveHandle = UIAlertAction(title: __("保存图片"), style: .default) { (alertAction) in
                         Statistics.event(.SearchResultTap, label: "保存图片")
-                        saveImage(image: image)
+                        let ctx = Ad.default.interstitialSignal(key: K.ParamName.SaveImageInterstitial)
+                        ctx.didEndAction = { [self] _ in
+                            saveImage(image: image)
+                        }
                     }
                     let cancleHandle = UIAlertAction(title: __("取消"), style: .cancel, handler: nil)
                     imageHandleAlertController.addAction(searchHandle)
@@ -325,7 +332,7 @@ extension WebViewController {
                 myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
                 SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
             } else {
-                centerBarBtn.setText(title: "pic.sogou.com/ris?query=")
+                centerBarBtn.setText(title: "Sougou")
                 myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
                 SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
             }
@@ -354,7 +361,11 @@ extension WebViewController {
         
         let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
         container.present(alertController,animated: true,completion: nil)
-        
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
             container.dismiss(animated: true, completion: nil)
         }
@@ -371,18 +382,20 @@ extension WebViewController {
     
     func saveImage(image: UIImage) {
         
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-        }, completionHandler: { [weak self](isSuccess, error) in
-            DispatchQueue.main.async { [self] in
-                if isSuccess {// 成功
-                    self!.setAlert(title: __("已保存到相册"), image: "ok_icon")
-                                    
-                } else {    
-                    self!.setAlert(title: __("保存失败"), image: "fail_icon")
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.SaveImageInterstitial)
+        ctx.didEndAction = { [self] _ in
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            }, completionHandler: { [weak self](isSuccess, error) in
+                DispatchQueue.main.async { [self] in
+                    if isSuccess {// 成功
+                        self!.setAlert(title: __("已保存到相册"), image: "ok_icon")
+                    } else {
+                        self!.setAlert(title: __("保存失败"), image: "fail_icon")
+                    }
                 }
-            }
-        })
+            })
+        }
     }
     
     func leftRightBtnState(){
@@ -525,6 +538,7 @@ extension WebViewController {
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
                 self.firstUrl = self.urlSearchEngineUrlPrefix[0] + self.imageLink!
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
                 self.centerBarBtn.setText(title: "Google")
                 if self.isLoding {
                     self.stop()
@@ -541,6 +555,7 @@ extension WebViewController {
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Yandex")
                 self.firstUrl = self.urlSearchEngineUrlPrefix[1] + self.imageLink!
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
                 if self.isLoding {
                     self.stop()
                 }
@@ -556,6 +571,7 @@ extension WebViewController {
                 self.myWebView.isHidden = false
                 self.centerBarBtn.setText(title: "Sougou")
                 self.firstUrl = self.urlSearchEngineUrlPrefix[2] + self.imageLink!
+                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
                 if self.isLoding {
                     self.stop()
                 }
@@ -647,7 +663,11 @@ extension WebViewController {
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
         alertController.addAction(bing)
-        
+        if let popoverController = alertController.popoverPresentationController {
+            popoverController.sourceView = self.view
+            popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+            popoverController.permittedArrowDirections = []
+        }
         // 顯示提示框
         self.present(
             alertController,
@@ -665,15 +685,15 @@ extension WebViewController {
         if let bannerView = self.bannerView {
             view.addSubview(bannerView)
             bannerView.snp.makeConstraints { make in
-                make.top.equalTo(safeAreaTop)
+                make.top.equalTo(safeAreaTop).offset(4)
                 make.left.right.equalToSuperview()
                 make.height.equalTo(Ad.default.adaptiveBannerHeight)
             }
             myWebView.snp.remakeConstraints{ make in
                 make.width.equalTo(fullScreenSize.width)
-                make.height.equalTo(fullScreenSize.height - 83 - 44 - CGFloat(bannerInset))
+                make.height.equalTo(fullScreenSize.height - 83 - 44  - 4 - CGFloat(bannerInset))
                 make.centerX.equalToSuperview()
-                make.top.equalTo(safeAreaTop).offset(Float(bannerInset))
+                make.top.equalTo(safeAreaTop).offset(Float(bannerInset + 4))
                 make.bottom.equalTo(bottomBackgroundLabel).offset(-83)
             }
             
@@ -735,7 +755,7 @@ extension WebViewController {
         networkErrorHint.snp.makeConstraints{
             (make) in
             make.top.equalTo(safeAreaTop).offset(372)
-            make.left.equalToSuperview().offset(132)
+            make.centerX.equalToSuperview()
         }
         
         bottomBackgroundLabel.snp.makeConstraints{(make) in

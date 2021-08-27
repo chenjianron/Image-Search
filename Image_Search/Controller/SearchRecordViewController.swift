@@ -94,7 +94,6 @@ extension SearchRecordViewController {
         container.present(alertController,animated: true,completion: nil)
         
         self.loadingView.isHidden = true
-        self.view.isUserInteractionEnabled = true
         
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
             container.dismiss(animated: true, completion: nil)
@@ -108,7 +107,7 @@ extension SearchRecordViewController {
         //        container.backgroundColor = UIColor(hex: 0xffffff, alpha: 0.3)
         loadingView = UIView()
         loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-        loadingView.center = CGPoint(x: uiView.center.x, y: uiView.center.y + uiView.contentOffset.y)
+        loadingView.center = CGPoint(x: uiView.center.x, y: view.center.x + uiView.contentOffset.y)
         loadingView.backgroundColor = UIColor(hex: 0x444444, alpha: 0.7)
         loadingView.clipsToBounds = true
         loadingView.layer.cornerRadius = 10
@@ -138,19 +137,21 @@ extension SearchRecordViewController {
     }
     
     private func saveImage(image: UIImage) {
-        
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-        }, completionHandler: { [weak self](isSuccess, error) in
-            DispatchQueue.main.async { [self] in
-                if isSuccess {// 成功
-                    self!.setAlert(title: "已保存到相册", image: "ok_icon")
-                    
-                } else {
-                    self!.setAlert(title: "保存失败", image: "fail_icon")
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.SaveImageInterstitial)
+        ctx.didEndAction = { [self] _ in
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            }, completionHandler: { [weak self](isSuccess, error) in
+                DispatchQueue.main.async { [self] in
+                    if isSuccess {// 成功
+                        self!.setAlert(title: "已保存到相册", image: "ok_icon")
+                        
+                    } else {
+                        self!.setAlert(title: "保存失败", image: "fail_icon")
+                    }
                 }
-            }
-        })
+            })
+        }
     }
     
     func searchKeyword(row:Int){
@@ -161,17 +162,21 @@ extension SearchRecordViewController {
         alertController.addAction(cancelAction)
         let searchKeywordAction = UIAlertAction(title: __("搜索关键字"),style: .default,
             handler: {_ in
-                Statistics.event(.SearchRecordTap, label: "搜索关键字")
-                self.dismiss(animated: true, completion: nil)
-                let webViewController = WebViewController()
-                webViewController.delegate = self
-                webViewController.setKeyword(keyword: self.resourceData[row].keyword!)
-                self.navigationController!.pushViewController(webViewController,animated: false)
-                SQL.delete(id: self.resourceData[row].id!)
-                SQL.insert(keyword: self.resourceData[row].keyword!)
-                self.resourceData = []
-                SQL.find(resourceData: &self.resourceData)
-                self.collectionView.reloadData()
+                let ctx = Ad.default.interstitialSignal(key: K.ParamName.SearchImageInterstitial)
+                ctx.didEndAction = { [self] _ in
+                    Statistics.event(.SearchRecordTap, label: "搜索关键字")
+                    self.dismiss(animated: true, completion: nil)
+                    let webViewController = WebViewController()
+                    webViewController.delegate = self
+                    webViewController.setKeyword(keyword: self.resourceData[row].keyword!)
+                    self.navigationController!.pushViewController(webViewController,animated: false)
+                    SQL.delete(id: self.resourceData[row].id!)
+                    SQL.insert(keyword: self.resourceData[row].keyword!)
+                    self.resourceData = []
+                    SQL.find(resourceData: &self.resourceData)
+                    self.collectionView.reloadData()
+
+                }
                 //                if self.resourceData.count == 0 {
                 //                    self.emptySearchRecordImageView.isHidden = false
                 //                    self.emptySearchRecordHint.isHidden = false
@@ -182,17 +187,20 @@ extension SearchRecordViewController {
         alertController.addAction(searchKeywordAction)
         let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
             handler: { [self]_ in
-                SQL.delete(id: self.resourceData[row].id!)
-                self.resourceData = []
-                SQL.find(resourceData: &self.resourceData)
-                self.collectionView.reloadData()
-                if self.resourceData.count == 0 {
-                    self.emptySearchRecordImageView.isHidden = false
-                    self.emptySearchRecordHint.isHidden = false
-                    self.collectionView.isHidden = true
-                    self.rightButton.isEnabled = false
+                let ctx = Ad.default.interstitialSignal(key: K.ParamName.DeleteImageInterstitial)
+                ctx.didEndAction = { [self] _ in
+                    SQL.delete(id: self.resourceData[row].id!)
+                    resourceData = []
+                    SQL.find(resourceData: &self.resourceData)
+                    self.collectionView.reloadData()
+                    if resourceData.count == 0 {
+                        emptySearchRecordImageView.isHidden = false
+                        emptySearchRecordHint.isHidden = false
+                        collectionView.isHidden = true
+                        rightButton.isEnabled = false
+                    }
                 }
-            })
+        })
         alertController.addAction(deleteAction)
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = self.view
@@ -215,84 +223,94 @@ extension SearchRecordViewController {
         let searchImageBtn = UIAlertAction(title: __("搜索图片"),style: .default,
             handler: {_ in
                 Statistics.event(.SearchRecordTap, label: "搜索图片")
-                let headers: HTTPHeaders =  [
-                    "Content-type": "text/html; charset=GBK"
-                ]
-                self.showActivityIndicatory(uiView: self.collectionView)
-                self.view.isUserInteractionEnabled = false
-                AF.upload(multipartFormData: { (multipartFormData) in
-                    multipartFormData.append( self.resourceData[row].image!, withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
-                }, to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
-                    if let lastUrl = result.value{
-                        self.dismiss(animated: true, completion: nil)
-                        loadingView.isHidden = true
-                        let webViewController = WebViewController()
-                        webViewController.delegate = self
-                        webViewController.setURL(url: lastUrl)
-                        self.navigationController!.pushViewController(webViewController,animated: false)
-                        SQL.delete(id: resourceData[row].id!)
-                        SQL.insert(imagedata: self.resourceData[row].image!)
-                        self.resourceData = []
-                        SQL.find(resourceData: &self.resourceData)
-                        collectionView.reloadData()
-                        self.loadingView.isHidden = true
-                        self.view.isUserInteractionEnabled = true
-                        if self.resourceData.count == 0 {
-                            self.emptySearchRecordImageView.isHidden = false
-                            self.emptySearchRecordHint.isHidden = false
-                            self.collectionView.isHidden = true
-                        }
-                    } else {
-                        print("图片上传转链接失败")
-                        print(result.error?.errorDescription ?? "")
-                        if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
-                            showNetworkErrorAlert(self)
+                let ctx = Ad.default.interstitialSignal(key: K.ParamName.SearchImageInterstitial)
+                ctx.didEndAction = { [self] _ in
+                    let headers: HTTPHeaders =  [
+                        "Content-type": "text/html; charset=GBK"
+                    ]
+                    self.dismiss(animated: true, completion: nil)
+                    self.showActivityIndicatory(uiView: self.collectionView)
+                    IsolatedInteraction.shared.showAnimate(vc: self)
+                    AF.upload(multipartFormData: { (multipartFormData) in
+                        multipartFormData.append( self.resourceData[row].image!, withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                    }, to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
+                        if let lastUrl = result.value{
+                            SQL.delete(id: resourceData[row].id!)
+                            SQL.insert(imagedata: self.resourceData[row].image!)
+                            self.resourceData = []
+                            SQL.find(resourceData: &self.resourceData)
+                            collectionView.reloadData()
+                            self.loadingView.isHidden = true
+                            if self.resourceData.count == 0 {
+                                self.emptySearchRecordImageView.isHidden = false
+                                self.emptySearchRecordHint.isHidden = false
+                                self.collectionView.isHidden = true
+                            }
+                            loadingView.isHidden = true
+                            IsolatedInteraction.shared.dismissAnimate(vc: self, complete: {
+                                let webViewController = WebViewController()
+                                webViewController.delegate = self
+                                webViewController.setURL(url: lastUrl)
+                                self.navigationController!.pushViewController(webViewController,animated: false)
+                            })
+                        } else {
+                            print("图片上传转链接失败")
+                            print(result.error?.errorDescription ?? "")
+                            if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                                showNetworkErrorAlert(self)
+                            }
                         }
                     }
                 }
+                
             })
         alertController.addAction(searchImageBtn)
         let saveImageBtn = UIAlertAction(title: __("保存到相册"),style: .default,handler: {_ in
                 // UIImageWriteToSavedPhotosAlbum(UIImage(data: self.resourceData[row].image!)! ,self,nil, nil)
             Statistics.event(.SearchRecordTap, label: "保存到相册")
-                switch PHPhotoLibrary.authorizationStatus(){
-                case .authorized:
-                    self.saveImage(image: UIImage(data:self.resourceData[row].image!)!)
-                case .notDetermined:
-                    PHPhotoLibrary.requestAuthorization { [weak self](status) in
-                        if status == .authorized {
-                            self?.saveImage(image: UIImage(data:self!.resourceData[row].image!)!)
-                        } else {
-                            print("User denied")
+            let ctx = Ad.default.interstitialSignal(key: K.ParamName.SaveImageInterstitial)
+            ctx.didEndAction = { [self] _ in
+                    switch PHPhotoLibrary.authorizationStatus(){
+                    case .authorized:
+                        self.saveImage(image: UIImage(data:self.resourceData[row].image!)!)
+                    case .notDetermined:
+                        PHPhotoLibrary.requestAuthorization { [weak self](status) in
+                            if status == .authorized {
+                                self?.saveImage(image: UIImage(data:self!.resourceData[row].image!)!)
+                            } else {
+                                print("User denied")
+                            }
                         }
-                    }
-                case .restricted, .denied:
-                    if let url = URL.init(string: UIApplication.openSettingsURLString) {
-                        if UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.openURL(url)
+                    case .restricted, .denied:
+                        if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                            if UIApplication.shared.canOpenURL(url) {
+                                UIApplication.shared.openURL(url)
+                            }
                         }
+                    case .limited:
+                        break
+                    @unknown default:
+                        break
                     }
-                case .limited:
-                    break
-                @unknown default:
-                    break
-                }
-                
-            })
+            }
+        })
         alertController.addAction(saveImageBtn)
         
         let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
             handler: { [self]_ in
                 Statistics.event(.SearchRecordTap, label: "删除")
-                SQL.delete(id: self.resourceData[row].id!)
-                self.resourceData = []
-                SQL.find(resourceData: &self.resourceData)
-                self.collectionView.reloadData()
-                if self.resourceData.count == 0 {
-                    self.emptySearchRecordImageView.isHidden = false
-                    self.emptySearchRecordHint.isHidden = false
-                    self.collectionView.isHidden = true
-                    self.rightButton.isEnabled = false
+                let ctx = Ad.default.interstitialSignal(key: K.ParamName.DeleteImageInterstitial)
+                ctx.didEndAction = { [self] _ in
+                    SQL.delete(id: self.resourceData[row].id!)
+                    self.resourceData = []
+                    SQL.find(resourceData: &self.resourceData)
+                    self.collectionView.reloadData()
+                    if self.resourceData.count == 0 {
+                        self.emptySearchRecordImageView.isHidden = false
+                        self.emptySearchRecordHint.isHidden = false
+                        self.collectionView.isHidden = true
+                        self.rightButton.isEnabled = false
+                    }
                 }
             })
         alertController.addAction(deleteAction)
@@ -442,12 +460,14 @@ extension SearchRecordViewController {
         emptySearchRecordImageView.snp.makeConstraints{
             (make) in
             make.top.equalTo(safeAreaTop).offset(142)
-            make.left.equalToSuperview().offset(46)
+//            make.left.equalToSuperview().offset(46)
+            make.centerX.equalToSuperview()
         }
         emptySearchRecordHint.snp.makeConstraints{
             (make) in
             make.top.equalTo(safeAreaTop).offset(372)
-            make.left.equalToSuperview().offset(132)
+//            make.left.equalToSuperview().offset(132)
+            make.centerX.equalToSuperview()
         }
         hintAlert.snp.makeConstraints{
             make in

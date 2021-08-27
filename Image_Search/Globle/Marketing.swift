@@ -51,25 +51,26 @@ class Marketing {
         Preset.default.setup(defaults: [
                                         K.ParamName.IDFA_Count: 0,
                                         K.ParamName.IDFA_Time: 72,
-            
+                                        
                                         K.ParamName.HomePageBanner : 1,
                                         K.ParamName.SettingPageBanner : 1,
                                         K.ParamName.SearchRecordBanner : 1,
                                         K.ParamName.WebBanner:1,
                                         
                                         K.ParamName.LaunchInterstitial : 5,
-                                        K.ParamName.EnterForegroundInterstitial: 5,
-                                        K.ParamName.saveInterstitial: 10,
-                                        K.ParamName.deleteInterstitial: 10,
-
-                                        K.ParamName.pushAlertDays: 5,
+                                        K.ParamName.SwitchInterstitial : 5,
+                                        K.ParamName.PickerInterstitial : 10,
+                                        K.ParamName.CameraInterstitial: 10,
+                                        K.ParamName.URLInterstitial: 10,
+                                        K.ParamName.KeywordInterstitial: 10,
+                                        K.ParamName.SaveImageInterstitial:10,
+                                        K.ParamName.DeleteImageInterstitial:10,
+                                        K.ParamName.SearchImageInterstitial:10,
                                         
-                                        K.ParamName.RTTime: 1,
                                         K.ParamName.ShareRT: 1,
-                                        K.ParamName.saveRT: 2,
-                                        K.ParamName.EnterRT: 5,
-                 
-                                        ])
+                                        K.ParamName.ImagePickerRT: 5,
+                                        K.ParamName.LauchAPPRT: 2,
+       ])
         
         MarketingHelper.presentUpdateAlert()
 
@@ -85,16 +86,10 @@ class Marketing {
         }
         view.logoImageView.layer.cornerRadius = 16
         view.loadingLabel.text = nil
-        Ad.default.setupLaunchInterstitial(launchKey: K.ParamName.LaunchInterstitial, enterForegroundKey: K.ParamName.EnterForegroundInterstitial, loadingView: view)
-        
+        Ad.default.setupLaunchInterstitial(launchKey: K.ParamName.LaunchInterstitial, enterForegroundKey: K.ParamName.SwitchInterstitial, loadingView: view)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didLaunchOrEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification,
-                                               object: nil)
-        
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(didEnterBackground),
-                                               name: UIApplication.didEnterBackgroundNotification,
                                                object: nil)
         
         didLaunchOrEnterForeground()
@@ -131,7 +126,7 @@ extension Marketing {
             counter.limitsHitsMaxUntilDate = Date().addingTimeInterval(TimeInterval(interval))
         }
     }
-        
+    
     // MARK: - 评论
     @objc func didLaunchOrEnterForeground() {
 
@@ -143,6 +138,7 @@ extension Marketing {
             rtCounter.limitsHitsMaxUntilDate = Date().addingTimeInterval(TimeInterval(60 * 60 * Preset.named(K.ParamName.RTTime).intValue))
         }
     }
+
     
     func didShareRT() {
         let rtCounter = Counter.find(key: K.ParamName.ShareRT)
@@ -154,8 +150,8 @@ extension Marketing {
         }
     }
     
-    func didSaveRT() {
-        let rtCounter = Counter.find(key: K.ParamName.saveRT)
+    func didImagePickerRT() {
+        let rtCounter = Counter.find(key: K.ParamName.ImagePickerRT)
         rtCounter.increase()
         
         if !RT.default.hasUserRTed && rtCounter.hitsMax {
@@ -165,8 +161,14 @@ extension Marketing {
     }
     
     
-    @objc func didEnterBackground() {
-        //
+    @objc func didLauchAPPRT() {
+        let rtCounter = Counter.find(key: K.ParamName.LauchAPPRT)
+        rtCounter.increase()
+        
+        if !RT.default.hasUserRTed && rtCounter.hitsMax {
+            SKStoreReviewController.requestReview()
+            rtCounter.limitsHitsMaxUntilDate = Date().addingTimeInterval(TimeInterval(60 * 60 * Preset.named(K.ParamName.RTTime).intValue))
+        }
     }
     
 

@@ -7,12 +7,12 @@
 */
 
 // 未翻译
-"图片上传转链接失败"="图片上传转链接失败";
-"似乎已断开与互联网的连接。"="似乎已断开与互联网的连接。";
+"图片上传转链接失败"="Picture upload and link transfer failed";
+"似乎已断开与互联网的连接"="Seems to have been disconnected from the Internet";
 "\(title)"="\(title)";
-"搜索关键字"="搜索关键字";
-"请输入合法链接！"="请输入合法链接！";
-"请输入非空字符"="请输入非空字符";
+"搜索关键字"="Search keywords";
+"请输入合法链接"="Please enter a legal link";
+"请输入非空字符"="Please enter a non empty character";
 
 // 已翻译
 "按图搜索"="Search by image";

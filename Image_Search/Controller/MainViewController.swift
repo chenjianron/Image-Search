@@ -12,7 +12,6 @@ import Toolkit
 import WebKit
 import Foundation
 
-
 class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINavigationControllerDelegate{
     
     let fullScreenSize = UIScreen.main.bounds.size
@@ -121,16 +120,20 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     
     
     override func viewDidLoad() {
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.LaunchInterstitial)
         super.viewDidLoad()
-        setupUI()
-        setupConstraints()
-        setupAdBannerView()
+        ctx.didEndAction = {  _ in
+            self.setupUI()
+            self.setupConstraints()
+            self.setupAdBannerView()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        Statistics.beginLogPageView("首页")
         self.navigationController?.navigationBar.barTintColor = UIColor(red: 19/255, green: 165/255, blue: 255/255, alpha: 1)
+        Statistics.beginLogPageView("首页")
+        //        }
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -145,7 +148,7 @@ extension MainViewController {
     func showAnimate() {
         DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
             UIView.animate(withDuration: 0.3) {
-//                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
+                //                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
                 let alertController = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
                 alertController.modalPresentationStyle = .fullScreen
                 alertController.view.isHidden = true
@@ -155,7 +158,7 @@ extension MainViewController {
     }
     
     func dismissAnimate(complete: @escaping () -> Void) {
-            self.dismiss(animated: false, completion: complete)
+        self.dismiss(animated: false, completion: complete)
     }
     
     func showNetworkErrorAlert(_ container: UIViewController){
@@ -204,31 +207,39 @@ extension MainViewController {
     @objc func imageSearch(){
         Statistics.beginLogPageView("相册页")
         Statistics.event(.HomePageTap, label: "图片")
-        isImage = true
-        imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.modalPresentationStyle = .fullScreen
-        imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
-        imagePicker.isToolbarHidden = true
-        self.present(imagePicker, animated: false, completion: nil)
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
+        ctx.didEndAction = { [self] _ in
+            isImage = true
+            imagePicker = UIImagePickerController()
+            imagePicker.delegate = self
+            imagePicker.modalPresentationStyle = .fullScreen
+            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+            imagePicker.isToolbarHidden = true
+            present(self.imagePicker, animated: false, completion: nil)
+        }
+        
     }
+    
     
     @objc func cameraSearch(){
         Statistics.beginLogPageView("拍照页")
         Statistics.event(.HomePageTap, label: "相机")
-        isImage = false
-        cameraPicker = UIImagePickerController()
-        cameraPicker.delegate = self
-        cameraPicker.modalPresentationStyle = .fullScreen
-        cameraPicker.sourceType = UIImagePickerController.SourceType.camera
-        cameraPicker.isToolbarHidden = true
-        self.present(cameraPicker, animated: false, completion: nil)
+        let ctx = Ad.default.interstitialSignal(key: K.ParamName.CameraInterstitial)
+        ctx.didEndAction = { [self] _ in
+            isImage = false
+            cameraPicker = UIImagePickerController()
+            cameraPicker.delegate = self
+            cameraPicker.modalPresentationStyle = .fullScreen
+            cameraPicker.sourceType = UIImagePickerController.SourceType.camera
+            cameraPicker.isToolbarHidden = true
+            self.present(cameraPicker, animated: false, completion: nil)
+        }
     }
     
     @objc func fileSearch(){
         Statistics.beginLogPageView("文件页")
         Statistics.event(.HomePageTap, label: "文件")
-        let letdocumentTypes = ["public.image"]
+        let letdocumentTypes = ["public.PNG","public.JPEG"]
         let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
         documentPicker.modalPresentationStyle = .fullScreen
         documentPicker.delegate = self
@@ -268,26 +279,29 @@ extension MainViewController {
             // 顯示進度條
             isSelect = true
             self.showActivityIndicatory(uiView: cameraPicker.view)
+            IsolatedInteraction.shared.showAnimate(vc: cameraPicker)
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "search"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString (){ [self] (result) in
                 if let lastUrl = result.value{
-                    print(lastUrl)
-                    SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
-                    self.dismiss(animated: true, completion: nil)
                     Statistics.endLogPageView("拍照页")
-                    let webViewController = WebViewController()
-                    webViewController.delegate = self
-                    webViewController.setURL(url: lastUrl)
-                    self.loadingView.isHidden = true
-                    self.navigationController!.pushViewController(webViewController,animated: false)
+                    SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
                     isSelect = false
+                    IsolatedInteraction.shared.dismissAnimate(vc: cameraPicker) {
+                        self.dismiss(animated: true, completion: nil)
+                        let webViewController = WebViewController()
+                        webViewController.delegate = self
+                        webViewController.setURL(url: lastUrl)
+                        self.loadingView.isHidden = true
+                        self.navigationController!.pushViewController(webViewController,animated: false)
+                    }
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
-                        showNetworkErrorAlert(cameraPicker)
-                    }
+                    //                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                    //
+                    //                    }
+                    showNetworkErrorAlert(cameraPicker)
                     isSelect = false
                 }
             }
@@ -301,25 +315,31 @@ extension MainViewController {
         if !isSelect {
             isSelect = true
             showActivityIndicatory(uiView: imagePicker.view)
+            IsolatedInteraction.shared.showAnimate(vc: imagePicker)
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
+                    Statistics.endLogPageView("拍照页")
                     SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
                     self.loadingView.isHidden = true
-                    self.dismiss(animated: true, completion: nil)
-                    Statistics.endLogPageView("拍照页")
-                    let webViewController = WebViewController()
-                    webViewController.delegate = self
-                    webViewController.setURL(url: lastUrl)
-                    self.navigationController!.pushViewController(webViewController,animated: false)
                     isSelect = false
+                    IsolatedInteraction.shared.dismissAnimate(vc: imagePicker) {
+                        self.dismiss(animated: true, completion: nil)
+                        let webViewController = WebViewController()
+                        webViewController.delegate = self
+                        webViewController.setURL(url: lastUrl)
+                        self.navigationController!.pushViewController(webViewController,animated: false)
+                    }
+                    
+                    
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? " ")
-                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
-                       showNetworkErrorAlert(imagePicker)
-                    }
+                    //                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                    //                       showNetworkErrorAlert(imagePicker)
+                    //                    }
+                    showNetworkErrorAlert(imagePicker)
                     isSelect = false
                 }
             }
@@ -343,7 +363,7 @@ extension MainViewController:UIImagePickerControllerDelegate{
         self.dismiss(animated: true, completion: nil)
         if isImage {
             Statistics.endLogPageView("相册页")
-
+            
         } else {
             Statistics.endLogPageView("拍照页")
         }
@@ -365,8 +385,9 @@ extension MainViewController:UIDocumentPickerDelegate {
         if !isSelect {
             // 顯示進度條显
             isSelect = true
-            showAnimate()
+            IsolatedInteraction.shared.showAnimate(vc: self)
             AF.upload(multipartFormData: { (multipartFormData) in
+                guard let _ = UIImage(data: imgData) else { return  }
                 multipartFormData.append(((UIImage(data: imgData)!).jpegData(compressionQuality: 0.8)!), withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
@@ -374,12 +395,12 @@ extension MainViewController:UIDocumentPickerDelegate {
                     SQL.insert(imagedata: imgData)
                     self.loadingView.isHidden = true
                     Statistics.endLogPageView("文件页")
-                    dismissAnimate {
+                    IsolatedInteraction.shared.dismissAnimate(vc: self, complete: {
                         let webViewController = WebViewController()
                         webViewController.delegate = self
                         webViewController.setURL(url: lastUrl)
                         self.navigationController!.pushViewController(webViewController,animated: false)
-                    }
+                    })
                     isSelect = false
                 } else {
                     print(__("图片上传转链接失败"))
@@ -489,7 +510,7 @@ extension MainViewController {
         
         appTitle.snp.makeConstraints{ make in
             //            make.top.equalTo(safeAreaTop).offset(136)
-            make.top.equalTo(searchImageView.snp.bottom).offset(GetWidthHeight.getHeight(height: 12))
+            make.top.equalTo(searchImageView.snp.bottom).offset(GetWidthHeight.getHeight(height: 10))
             make.centerX.equalToSuperview()
         }
         
@@ -500,7 +521,7 @@ extension MainViewController {
         }
         
         bottomBackgroundLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 218))
+            make.top.equalTo(safeAreaTop).offset(GetWidthHeight.getHeight(height: 223))
             //            make.left.equalToSuperview().offset(20)
             //            make.right.equalToSuperview().offset(20)
             make.height.equalToSuperview().multipliedBy(0.6)
@@ -510,7 +531,7 @@ extension MainViewController {
         }
         
         imageSearchButton.snp.makeConstraints { (make) in
-            make.height.equalTo(92 )
+            make.height.equalTo(92)
             make.width.equalTo(136)
             //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 80))
@@ -522,7 +543,8 @@ extension MainViewController {
             make.width.equalTo(136)
             //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 80))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
+            //            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
+            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
         }
         
         fileSearchButton.snp.makeConstraints{(make) in
@@ -538,7 +560,7 @@ extension MainViewController {
             make.width.equalTo(136)
             //            make.center.equalToSuperview()
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 196))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
+            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
         }
         
         keywordSearchButton.snp.makeConstraints{(make) in
@@ -552,7 +574,7 @@ extension MainViewController {
             make.height.equalTo(92)
             make.width.equalTo(keywordSearchButton)
             make.top.equalToSuperview().offset(GetWidthHeight.getHeight(height: 312))
-            make.left.equalToSuperview().offset(GetWidthHeight.getWidth(width: 175))
+            make.right.equalToSuperview().offset(-GetWidthHeight.getWidth(width: 24))
         }
     }
 }

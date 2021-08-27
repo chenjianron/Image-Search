@@ -7,6 +7,9 @@
 
 import UIKit
 import SnapKit
+import Toolkit
+import SafariServices
+import MessageUI
 
 class SettingViewController: UIViewController {
     
@@ -54,6 +57,11 @@ class SettingViewController: UIViewController {
         Statistics.beginLogPageView("设置页")
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Pro.shared.addLongPressGesture(to: tableView.cellForRow(at: IndexPath(row: 0, section: 0)))
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         Statistics.endLogPageView("设置页")
@@ -63,6 +71,24 @@ class SettingViewController: UIViewController {
 
 //MARK: -
 extension SettingViewController{
+    
+    func getLanguageType() -> String {
+        let def = UserDefaults.standard
+        let allLanguages: [String] = def.object(forKey: "AppleLanguages") as! [String]
+        let chooseLanguage = allLanguages.first
+        return chooseLanguage ?? "en"
+    }
+    
+    func sendEMail () {
+        if MFMailComposeViewController.canSendMail() {
+            FeedbackMailMaker.shared.presentMailComposeViewController(from: self, recipient: K.Share.Email)
+        } else {
+            let alert = UIAlertController(title: __("未设置邮箱账户"), message: __("要发送电子邮件，请设置电子邮件账户"), preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: __("确认"), style: .default, handler: nil)
+            alert.addAction(cancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
     
     @objc func backToPrevious(){
         Statistics.event(.SettingsTap, label: "返回")
@@ -109,19 +135,41 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
         switch indexPath.row {
         case 0:
             Statistics.event(.SettingsTap, label: "意见反馈")
+            sendEMail()
             break
         case 1:
              Statistics.event(.SettingsTap, label: "分享给好友")
-            // sendEMail()
+            let content = K.Share.normalContent.toURL()
+            let activityVC = UIActivityViewController(activityItems: [content as Any], applicationActivities: nil)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                if let popVC = activityVC.popoverPresentationController {
+                    if let cell = self.tableView.cellForRow(at: indexPath) as? SettingTableViewCell {
+                        popVC.sourceView = cell.titleLabel
+                    }
+                }
+            }
+            activityVC.completionWithItemsHandler = { (activityType, completed, returnedItems, error) in
+                if completed {
+                    Marketing.shared.didShareRT()
+                }
+            }
+            present(activityVC, animated: true, completion: nil)
             break
         case 2:
              Statistics.event(.SettingsTap, label: "给个评价")
+            RT.default.rateApp()
             break
         case 3:
              Statistics.event(.SettingsTap, label: "隐私政策")
+             guard let url = Util.webURL(urlStr: K.Website.PrivacyPolicy) else { return }
+             let vc = SFSafariViewController(url: url)
+             self.present(vc, animated: true, completion: nil)
             break
         case 4:
              Statistics.event(.SettingsTap, label: "用户协议")
+             guard let url = Util.webURL(urlStr: K.Website.UserAgreement) else { return }
+             let vc = SFSafariViewController(url: url)
+             self.present(vc, animated: true, completion: nil)
             break
         default:
             ()
@@ -177,5 +225,20 @@ extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 52
+    }
+}
+
+extension Util {
+    static func webURL(urlStr: String) -> URL? {
+        if var urlComponents = URLComponents(string: urlStr) {
+            var queryItems = [URLQueryItem]()
+            queryItems.append(URLQueryItem(name: "lang", value: Util.languageCode()))
+            queryItems.append(URLQueryItem(name: "version", value: Util.appVersion()))
+            urlComponents.queryItems = queryItems
+            if let url = urlComponents.url {
+                return url
+            }
+        }
+        return nil
     }
 }

@@ -22,6 +22,7 @@ class TopButtonView :UIView {
     lazy var textLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont(name: "Helvetica", size: 14)
+        label.textAlignment = .center
         label.backgroundColor = UIColor(red: 251/255, green: 251/255, blue: 251/255, alpha: 1)
         return label
     }()
@@ -52,7 +53,6 @@ class TopButtonView :UIView {
         textLabel.snp.makeConstraints { (make) in
             make.left.equalToSuperview().offset(12)
             make.top.equalToSuperview().offset(5)
-            make.width.equalTo(47)
             make.height.equalTo(20)
         }
         

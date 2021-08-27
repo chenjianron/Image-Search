@@ -44,6 +44,7 @@ class UrlViewController:UIViewController {
         let label = UILabel()
         label.font = UIFont(name: "Helvetica", size: 16)
         label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textAlignment = .center
         return label
     }()
     lazy var hintTitle: UILabel = {
@@ -202,10 +203,17 @@ extension UrlViewController {
         
         if self.type == "url" {
             Statistics.event(.HomePageTap, label: "图片url-导入")
-            urlNetwordRequest()
+            let ctx = Ad.default.interstitialSignal(key: K.ParamName.URLInterstitial)
+            ctx.didEndAction = { [self] _ in
+                urlNetwordRequest()
+            }
         } else {
             Statistics.event(.HomePageTap, label: "关键词-搜索")
-            keywordNetwordRequest()
+            Statistics.event(.HomePageTap, label: "图片url-导入")
+            let ctx = Ad.default.interstitialSignal(key: K.ParamName.KeywordInterstitial)
+            ctx.didEndAction = { [self] _ in
+                keywordNetwordRequest()
+            }
         }
         
     }
