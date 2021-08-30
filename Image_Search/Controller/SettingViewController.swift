@@ -43,6 +43,7 @@ class SettingViewController: UIViewController {
         tableView.register(SettingTableViewCell.classForCoder(), forCellReuseIdentifier: "SettingTableViewCell")
         return tableView
     }()
+    lazy var appsView: UIView = SettingsFeaturedApps.createAppsView(width: self.view.width)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -132,48 +133,55 @@ extension SettingViewController {
 extension SettingViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch indexPath.row {
-        case 0:
+        if indexPath.section == 0 {
             Statistics.event(.SettingsTap, label: "意见反馈")
             sendEMail()
-            break
-        case 1:
-             Statistics.event(.SettingsTap, label: "分享给好友")
-            let content = K.Share.normalContent.toURL()
-            let activityVC = UIActivityViewController(activityItems: [content as Any], applicationActivities: nil)
-            if UIDevice.current.userInterfaceIdiom == .pad {
-                if let popVC = activityVC.popoverPresentationController {
-                    if let cell = self.tableView.cellForRow(at: indexPath) as? SettingTableViewCell {
-                        popVC.sourceView = cell.titleLabel
+        } else if indexPath.section == 1 {
+            switch indexPath.row {
+            case 0:
+                Statistics.event(.SettingsTap, label: "分享给好友")
+                let content = K.Share.normalContent.toURL()
+                let activityVC = UIActivityViewController(activityItems: [content as Any], applicationActivities: nil)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    if let popVC = activityVC.popoverPresentationController {
+                        if let cell = self.tableView.cellForRow(at: indexPath) as? SettingTableViewCell {
+                            popVC.sourceView = cell.titleLabel
+                        }
                     }
                 }
-            }
-            activityVC.completionWithItemsHandler = { (activityType, completed, returnedItems, error) in
-                if completed {
-                    Marketing.shared.didShareRT()
+                activityVC.completionWithItemsHandler = { (activityType, completed, returnedItems, error) in
+                    if completed {
+                        Marketing.shared.didShareRT()
+                    }
                 }
+                present(activityVC, animated: true, completion: nil)
+            case 1:
+                 Statistics.event(.SettingsTap, label: "给个评价")
+                let urlString = "itms-apps://itunes.apple.com/app/id\(K.IDs.AppID)?action=write-review"
+                if let url = URL(string: urlString) {
+                    if #available(iOS 10.0, *) {
+                        UIApplication.shared.open(url, options: [:],
+                                                  completionHandler: nil)
+                    } else {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+            case 2:
+                 Statistics.event(.SettingsTap, label: "隐私政策")
+                 guard let url = Util.webURL(urlStr: K.Website.PrivacyPolicy) else { return }
+                 let vc = SFSafariViewController(url: url)
+                vc.modalPresentationStyle = .fullScreen
+                 self.present(vc, animated: true, completion: nil)
+            case 3:
+                 Statistics.event(.SettingsTap, label: "用户协议")
+                 guard let url = Util.webURL(urlStr: K.Website.UserAgreement) else { return }
+                 let vc = SFSafariViewController(url: url)
+                 self.present(vc, animated: true, completion: nil)
+            default:
+                break
             }
-            present(activityVC, animated: true, completion: nil)
-            break
-        case 2:
-             Statistics.event(.SettingsTap, label: "给个评价")
-            RT.default.rateApp()
-            break
-        case 3:
-             Statistics.event(.SettingsTap, label: "隐私政策")
-             guard let url = Util.webURL(urlStr: K.Website.PrivacyPolicy) else { return }
-             let vc = SFSafariViewController(url: url)
-             self.present(vc, animated: true, completion: nil)
-            break
-        case 4:
-             Statistics.event(.SettingsTap, label: "用户协议")
-             guard let url = Util.webURL(urlStr: K.Website.UserAgreement) else { return }
-             let vc = SFSafariViewController(url: url)
-             self.present(vc, animated: true, completion: nil)
-            break
-        default:
-            ()
         }
+        
         tableView.deselectRow(at: indexPath, animated: false)
     }
     

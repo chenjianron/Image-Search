@@ -7,12 +7,73 @@
 
 import Foundation
 
+var urlSearchEngineUrlPrefix: [String]{
+    if inChina(){
+        return
+            ["https://yandex.com/images/search?family=yes&rpt=imageview&url=",
+            "https://pic.sogou.com/ris?query=",
+            "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIHMP&sbisrc=UrlPaste&q=imgurl:"
+            ]
+    } else {
+        return ["https://www.google.com.hk/searchbyimage?image_url=",
+                "https://yandex.com/images/search?family=yes&rpt=imageview&url=",
+                "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIHMP&sbisrc=UrlPaste&q=imgurl:",
+                ]
+    }
+}
+var urlSearchEngineName:[String]{
+    if inChina() {
+        return ["Yandex","Sougou","Bing"]
+    } else {
+        return ["Google","Yandex","Bing"]
+    }
+}
+var urlSearchEngineSource :[String] {
+    if inChina() {
+        return [ "https://yandex.com/","https://www.sogou.com/","https://www.bing.com/" ]
+    } else {
+        return [
+            "https://yandex.com/","https://www.bing.com/" ,"https://www.google.com/"
+        ]
+    }
+}
+var keywordSearchEngineUrlPrefix :[String] {
+    if inChina() {
+        return ["https://yandex.com/images/search?from=tabbar&text=",
+                "https://pic.sogou.com/pic/searchList.jsp?uID=&v=5&statref=index_form_1&spver=0&rcer=&keyword=",
+                "https://cn.bing.com/images/search?q="
+                
+            ]
+    } else {
+        return ["https://www.google.com/search?q=","&tbm=isch",
+                "https://yandex.com/images/search?from=tabbar&text=",
+                "https://cn.bing.com/images/search?q="
+        ]
+    }
+}
+var keywordSearchEngineUrlName:[String] {
+    if inChina(){
+        return ["Yandex","Sougou","Bing"]
+    }else {
+        return ["Google","Yandex","Bing"]
+    }
+}
+var keywordSearchEngineSource :[String] {
+    if inChina() {
+        return [ "https://yandex.com/","https://www.sogou.com/","https://www.bing.com/" ]
+    } else {
+        return [
+            "https://yandex.com/","https://www.bing.com/" ,"https://www.google.com/"
+        ]
+    }
+}
+
 struct K {
     struct IDs {
         
         static let AppID = "1571453641"
         
-//        static let GroupName = "group.com.softin.ScreenRecorder3"
+        //        static let GroupName = "group.com.softin.ScreenRecorder3"
         
         static let UMengKey = "60c069791568bb08a5be664b"
         
@@ -23,34 +84,34 @@ struct K {
         static let Secret = "ImageSearch/\(Util.appVersion())/meto.otf"
         static let adMobAppId = "ca-app-pub-1526777558889812~7180568285"
         
-//        #if DEBUG
-//        static let BannerUnitID = "ca-app-pub-1526777558889812/1928241607"
-//        static let InterstitialUnitID = "ca-app-pub-1526777558889812/3463016257"
-//        static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/7318786197"
-//        static let RewardUnitID = "ca-app-pub-3940256099942544/1712485313"
-//        #else
-//        static let BannerUnitID = "ca-app-pub-1526777558889812/1928241607"
-//        static let InterstitialUnitID = "ca-app-pub-1526777558889812/3463016257"
-//        static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
-//        static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/7318786197"
-//        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
-//        #endif
+        //        #if DEBUG
+        //        static let BannerUnitID = "ca-app-pub-1526777558889812/1928241607"
+        //        static let InterstitialUnitID = "ca-app-pub-1526777558889812/3463016257"
+        //        static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/7318786197"
+        //        static let RewardUnitID = "ca-app-pub-3940256099942544/1712485313"
+        //        #else
+        //        static let BannerUnitID = "ca-app-pub-1526777558889812/1928241607"
+        //        static let InterstitialUnitID = "ca-app-pub-1526777558889812/3463016257"
+        //        static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
+        //        static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/7318786197"
+        //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
+        //        #endif
         
-//        #if DEBUG
-           static let BannerUnitID = "ca-app-pub-3940256099942544/2934735716"
-           static let InterstitialUnitID = "ca-app-pub-3940256099942544/4411468910"
-           static let InterstitialTransferUnitID = "ca-app-pub-3940256099942544/4411468910"
-           static let RewardUnitID = "ca-app-pub-3940256099942544/1712485313"
-//        #else
-//           static let BannerUnitID = "ca-app-pub-1526777558889812/7898692549"
-//           static let InterstitialUnitID = "ca-app-pub-1526777558889812/4626549998"
-//           static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
-//           static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/5423421726"
-//    //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
-//        #endif
-
+        //        #if DEBUG
+        static let BannerUnitID = "ca-app-pub-3940256099942544/2934735716"
+        static let InterstitialUnitID = "ca-app-pub-3940256099942544/4411468910"
+        static let InterstitialTransferUnitID = "ca-app-pub-3940256099942544/4411468910"
+        static let RewardUnitID = "ca-app-pub-3940256099942544/1712485313"
+        //        #else
+        //           static let BannerUnitID = "ca-app-pub-1526777558889812/7898692549"
+        //           static let InterstitialUnitID = "ca-app-pub-1526777558889812/4626549998"
+        //           static let InterstitialSaveUnitID = "ca-app-pub-1526777558889812/2930324944"
+        //           static let InterstitialTransferUnitID = "ca-app-pub-1526777558889812/5423421726"
+        //    //        static let RewardUnitID = "ca-app-pub-1526777558889812/5423421726"
+        //        #endif
         
-
+        
+        
     }
     
     struct Share {
@@ -74,14 +135,14 @@ struct K {
     
     struct ParamName {
         
-//        static let EnterForegroundInterstitial = "p1-2" // 每N次进入前台弹出插屏广告
-//        static let saveInterstitial = "p1-3" //每N次连接成功插屏
-//        static let deleteInterstitial = "p1-4"  // 每N次分享插屏
-//        
+        //        static let EnterForegroundInterstitial = "p1-2" // 每N次进入前台弹出插屏广告
+        //        static let saveInterstitial = "p1-3" //每N次连接成功插屏
+        //        static let deleteInterstitial = "p1-4"  // 每N次分享插屏
+        //
         static let pushAlertDays = "p3-1" // 用户未允许通知提醒，每隔N天后弹出通知提醒
-//        
+        //
         static let RTTime = "p3-0"  //评论间隔小时
-//        static let saveRT = "p3-2" //保存后弹窗
+        //        static let saveRT = "p3-2" //保存后弹窗
         static let EnterRT = "p3-3" //启动/返回应用弹窗
         
         static let IDFA_Time = "S.Ad.广告跟踪二次弹窗时间"

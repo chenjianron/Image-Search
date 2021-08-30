@@ -165,24 +165,17 @@ extension SearchRecordViewController {
                 let ctx = Ad.default.interstitialSignal(key: K.ParamName.SearchImageInterstitial)
                 ctx.didEndAction = { [self] _ in
                     Statistics.event(.SearchRecordTap, label: "搜索关键字")
-                    self.dismiss(animated: true, completion: nil)
-                    let webViewController = WebViewController()
-                    webViewController.delegate = self
-                    webViewController.setKeyword(keyword: self.resourceData[row].keyword!)
-                    self.navigationController!.pushViewController(webViewController,animated: false)
                     SQL.delete(id: self.resourceData[row].id!)
                     SQL.insert(keyword: self.resourceData[row].keyword!)
                     self.resourceData = []
                     SQL.find(resourceData: &self.resourceData)
                     self.collectionView.reloadData()
-
+                    self.dismiss(animated: true, completion: nil)
+                    let webViewController = WebViewController()
+                    webViewController.delegate = self
+                    webViewController.setKeyword(keyword: self.resourceData[row].keyword!)
+                    self.navigationController!.pushViewController(webViewController,animated: false)
                 }
-                //                if self.resourceData.count == 0 {
-                //                    self.emptySearchRecordImageView.isHidden = false
-                //                    self.emptySearchRecordHint.isHidden = false
-                //                    self.collectionView.isHidden = true
-                //                    self.leftBarBtn.isEnabled = false
-                //                }
             })
         alertController.addAction(searchKeywordAction)
         let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
@@ -274,12 +267,14 @@ extension SearchRecordViewController {
                     case .authorized:
                         self.saveImage(image: UIImage(data:self.resourceData[row].image!)!)
                     case .notDetermined:
-                        PHPhotoLibrary.requestAuthorization { [weak self](status) in
-                            if status == .authorized {
-                                self?.saveImage(image: UIImage(data:self!.resourceData[row].image!)!)
-                            } else {
-                                print("User denied")
-                            }
+                        PHPhotoLibrary.requestAuthorization { (status) in
+                            DispatchQueue.main.async(execute: {
+                                if status == .authorized {
+                                    self.saveImage(image: UIImage(data:self.resourceData[row].image!)!)
+                                } else {
+                                    print("User denied")
+                                }
+                            })
                         }
                     case .restricted, .denied:
                         if let url = URL.init(string: UIApplication.openSettingsURLString) {
@@ -287,11 +282,9 @@ extension SearchRecordViewController {
                                 UIApplication.shared.openURL(url)
                             }
                         }
-                    case .limited:
+                    default:
                         break
-                    @unknown default:
-                        break
-                    }
+                }
             }
         })
         alertController.addAction(saveImageBtn)

@@ -11,6 +11,8 @@ import Alamofire
 import Toolkit
 import WebKit
 import Foundation
+import AVFoundation
+import Photos
 
 class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINavigationControllerDelegate{
     
@@ -163,7 +165,7 @@ extension MainViewController {
         
         self.loadingView.isHidden = true
         
-        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (ktimer) in
             container.dismiss(animated: true, completion: nil)
         }
     }
@@ -205,15 +207,41 @@ extension MainViewController {
         Statistics.event(.HomePageTap, label: "图片")
         let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
         ctx.didEndAction = { [self] _ in
-            isImage = true
-            imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.modalPresentationStyle = .fullScreen
-            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
-            imagePicker.isToolbarHidden = true
-            present(self.imagePicker, animated: false, completion: nil)
+            switch PHPhotoLibrary.authorizationStatus(){
+            case .authorized:
+                isImage = true
+                imagePicker = UIImagePickerController()
+                imagePicker.delegate = self
+                imagePicker.modalPresentationStyle = .fullScreen
+                imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+                imagePicker.isToolbarHidden = true
+                present(self.imagePicker, animated: false, completion: nil)
+            case .notDetermined:
+                PHPhotoLibrary.requestAuthorization { (status) in
+                    DispatchQueue.main.async(execute: {
+                        if status == .authorized {
+                            isImage = true
+                            imagePicker = UIImagePickerController()
+                            imagePicker.delegate = self
+                            imagePicker.modalPresentationStyle = .fullScreen
+                            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+                            imagePicker.isToolbarHidden = true
+                            present(self.imagePicker, animated: false, completion: nil)
+                        } else {
+                            print("User denied")
+                        }
+                    })
+            }
+            case .restricted, .denied:
+                if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+            default:
+                break
+            }
         }
-        
     }
     
     
@@ -222,13 +250,40 @@ extension MainViewController {
         Statistics.event(.HomePageTap, label: "相机")
         let ctx = Ad.default.interstitialSignal(key: K.ParamName.CameraInterstitial)
         ctx.didEndAction = { [self] _ in
-            isImage = false
-            cameraPicker = UIImagePickerController()
-            cameraPicker.delegate = self
-            cameraPicker.modalPresentationStyle = .fullScreen
-            cameraPicker.sourceType = UIImagePickerController.SourceType.camera
-            cameraPicker.isToolbarHidden = true
-            self.present(cameraPicker, animated: false, completion: nil)
+            switch AVCaptureDevice.authorizationStatus(for: .video){
+            case .authorized:
+                isImage = false
+                cameraPicker = UIImagePickerController()
+                cameraPicker.delegate = self
+                cameraPicker.modalPresentationStyle = .fullScreen
+                cameraPicker.sourceType = UIImagePickerController.SourceType.camera
+                cameraPicker.isToolbarHidden = true
+                self.present(cameraPicker, animated: false, completion: nil)
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .video,completionHandler: { (status) in
+                    DispatchQueue.main.async(execute: {
+                        if status {
+                            isImage = false
+                            cameraPicker = UIImagePickerController()
+                            cameraPicker.delegate = self
+                            cameraPicker.modalPresentationStyle = .fullScreen
+                            cameraPicker.sourceType = UIImagePickerController.SourceType.camera
+                            cameraPicker.isToolbarHidden = true
+                            self.present(cameraPicker, animated: false, completion: nil)
+                        } else {
+                            print("User denied")
+                        }
+                    })
+                })
+            case .restricted, .denied:
+                if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                    if UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+            default:
+                break
+           }
         }
     }
     
@@ -237,7 +292,7 @@ extension MainViewController {
         Statistics.event(.HomePageTap, label: "文件")
         let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
         ctx.didEndAction = { [self] _ in
-            let letdocumentTypes = ["public.Image","public.JPEG","public.GIF","public.HEIC","public.HEIF","public.tiff"]
+            let letdocumentTypes = ["public.PNG","public.JPEG","public.GIF"]
             let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
             documentPicker.modalPresentationStyle = .fullScreen
             documentPicker.delegate = self
@@ -277,7 +332,7 @@ extension MainViewController {
         if !isSelect {
             // 顯示進度條
             isSelect = true
-            self.showActivityIndicatory(uiView: cameraPicker.view)
+            showActivityIndicatory(uiView: cameraPicker.view)
             IsolatedInteraction.shared.showAnimate(vc: cameraPicker)
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "search"+".jpeg", mimeType: "image/png")
@@ -286,22 +341,22 @@ extension MainViewController {
                     Statistics.endLogPageView("拍照页")
                     SQL.insert(imagedata: (self.image as! UIImage?)!.jpegData(compressionQuality: 0.8)! as Data)
                     isSelect = false
+                    self.loadingView.isHidden = true
                     IsolatedInteraction.shared.dismissAnimate(vc: cameraPicker) {
-                        self.dismiss(animated: true, completion: nil)
-                        let webViewController = WebViewController()
-                        webViewController.delegate = self
-                        webViewController.setURL(url: lastUrl)
-                        self.loadingView.isHidden = true
-                        self.navigationController!.pushViewController(webViewController,animated: false)
+                        self.dismiss(animated: true, completion: {
+                            let webViewController = WebViewController()
+                            webViewController.delegate = self
+                            webViewController.setURL(url: lastUrl)
+                            self.navigationController!.pushViewController(webViewController,animated: false)
+                        })
                     }
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    //                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
-                    //
-                    //                    }
-                    showNetworkErrorAlert(cameraPicker)
                     isSelect = false
+                    dismiss(animated: true, completion: {
+                        showNetworkErrorAlert(self)
+                    })
                 }
             }
         }
@@ -324,11 +379,13 @@ extension MainViewController {
                     self.loadingView.isHidden = true
                     isSelect = false
                     IsolatedInteraction.shared.dismissAnimate(vc: imagePicker) {
-                        self.dismiss(animated: true, completion: nil)
-                        let webViewController = WebViewController()
-                        webViewController.delegate = self
-                        webViewController.setURL(url: lastUrl)
-                        self.navigationController!.pushViewController(webViewController,animated: false)
+                        self.dismiss(animated: true, completion: {
+                            let webViewController = WebViewController()
+                            webViewController.delegate = self
+                            webViewController.setURL(url: lastUrl)
+                            self.navigationController!.pushViewController(webViewController,animated: false)
+                        })
+                        
                     }
                     
                     
@@ -338,8 +395,9 @@ extension MainViewController {
                     //                    if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
                     //                       showNetworkErrorAlert(imagePicker)
                     //                    }
-                    showNetworkErrorAlert(imagePicker)
                     isSelect = false
+                    showNetworkErrorAlert(imagePicker)
+                    
                 }
             }
         }
@@ -387,13 +445,13 @@ extension MainViewController:UIDocumentPickerDelegate {
             IsolatedInteraction.shared.showAnimate(vc: self)
             AF.upload(multipartFormData: { (multipartFormData) in
                 guard let _ = UIImage(data: imgData) else { return  }
-                multipartFormData.append(((UIImage(data: imgData)!).jpegData(compressionQuality: 0.8)!), withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)
+                    Statistics.endLogPageView("文件页")
                     SQL.insert(imagedata: imgData)
                     self.loadingView.isHidden = true
-                    Statistics.endLogPageView("文件页")
                     IsolatedInteraction.shared.dismissAnimate(vc: self, complete: {
                         let webViewController = WebViewController()
                         webViewController.delegate = self
@@ -530,9 +588,9 @@ extension MainViewController {
             make.width.equalTo(136)
             make.top.equalToSuperview().offset(GetWidthHeight.share.getHeight(height: 80))
             make.left.equalToSuperview().offset(GetWidthHeight.share.getWidth(width: 24))
-//            if Util.hasTopNotch {
-//                
-//            }
+            //            if Util.hasTopNotch {
+            //
+            //            }
         }
         
         cameraSearchButton.snp.makeConstraints{(make) in

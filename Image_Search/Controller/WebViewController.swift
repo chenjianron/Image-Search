@@ -14,10 +14,6 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     
     // 取得螢幕的尺寸
     let fullScreenSize = UIScreen.main.bounds.size
-    let urlSearchEngineUrlPrefix = ["https://www.google.com.hk/searchbyimage?image_url=","https://yandex.com/images/search?family=yes&rpt=imageview&url=","https://pic.sogou.com/ris?query="]
-    let keywordSearchEngineUrlPrefix = ["https://www.google.com/search?q=","&tbm=isch", "https://yandex.com/images/search?from=tabbar&text=","https://pic.sogou.com/pic/searchList.jsp?uID=&v=5&statref=index_form_1&spver=0&rcer=&keyword=","https://cn.bing.com/images/search?q="]
-    let urlSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/"]
-    let keywordSearchEngineSource = ["https://www.google.com/","https://yandex.com/","https://www.sogou.com/","https://www.bing.com/"]
     
     var delegate:UIViewController?
     var firstUrl:String!
@@ -50,7 +46,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         longPress.numberOfTouchesRequired = 1
         longPress.cancelsTouchesInView = true
         
-        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 83),configuration: config)
+        let myWebView = WKWebView(frame: CGRect(x: 0, y: 0 , width: fullScreenSize.width, height: fullScreenSize.height - 49),configuration: config)
         myWebView.navigationDelegate = self
         myWebView.uiDelegate = self
         myWebView.addGestureRecognizer(longPress)
@@ -70,7 +66,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
     }()
     lazy var centerBarBtn:TopButtonView = {
         let barBtn = TopButtonView()
-        barBtn.setText(title: "Google")
+        barBtn.setText(title: urlSearchEngineName[0])
         barBtn.isUserInteractionEnabled = true
         return barBtn
     }()
@@ -90,9 +86,9 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         } else {
             // Fallback on earlier versions
         }
-        label.layer.shadowOffset = CGSize(width: 1, height: 1)
-        label.layer.shadowOpacity = 0.3
-        label.layer.shadowRadius = 3
+        label.layer.shadowOffset = CGSize(width: -2, height: -3)
+        label.layer.shadowOpacity = 0.1
+        label.layer.shadowRadius = 1
         return label
     }()
     lazy var bottomLeftbutton:UIButton = {
@@ -210,7 +206,7 @@ extension WebViewController: WKUIDelegate {
                                 "Content-type": "text/html; charset=GBK"
                             ]
                             AF.upload(multipartFormData: { (multipartFormData) in
-                                multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
+                                multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image")
                             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                                 if let lastUrl = result.value{
                                         secondSearch(image, lastUrl)
@@ -321,39 +317,22 @@ extension WebViewController: WKUIDelegate {
 extension WebViewController {
     
     func secondSearch(_ image:UIImage, _ lastUrl:String){
-        
-        if keyword == nil {
-            if self.firstUrl.contains("www.google.com.hk") {
-                centerBarBtn.setText(title: "Google")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-            } else if self.firstUrl.contains("yandex.com/images/search?family=yes&rpt=imageview&url="){
-                centerBarBtn.setText(title: "Yandex")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+        imageLink = lastUrl
+        SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+        if centerBarBtn.textLabel.text == "Bing"{
+            myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[2]+lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
+        } else if centerBarBtn.textLabel.text == "Yandex" {
+            if inChina() {
+                myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[0] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
             } else {
-                centerBarBtn.setText(title: "Sougou")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
+                myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[1] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
+
             }
-        } else {
-            if self.firstUrl.contains("www.google.com") {
-                centerBarBtn.setText(title: "Google")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-            } else if self.firstUrl.contains("yandex.com"){
-                centerBarBtn.setText(title: "Yandex")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[1] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-            } else if self.firstUrl.contains("sogou.com"){
-                centerBarBtn.setText(title: "Sougou")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[2] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-            } else {
-                centerBarBtn.setText(title: "Google")
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineUrlPrefix[0] + lastUrl)!))
-                SQL.insert(imagedata: (image as UIImage).jpegData(compressionQuality: 0.8)! as Data)
-            }
+                
+        } else if centerBarBtn.textLabel.text == "Google" {
+            myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[0] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
+        } else if centerBarBtn.textLabel.text == "Sougou"{
+            myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[1] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
         }
     }
     
@@ -477,33 +456,14 @@ extension WebViewController {
     
     @objc func goIndex(){
         Statistics.event(.SearchResultTap, label: "主页")
-        if keyword == nil {
-            if self.firstUrl.contains("www.google.com.hk") {
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[0])!))
-                centerBarBtn.setText(title: "Google")
-                
-            } else if self.firstUrl.contains("yandex.com"){
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[1])!))
-                centerBarBtn.setText(title: "Yandex")
-            } else {
-                myWebView.load(URLRequest(url: URL(string: self.urlSearchEngineSource[2])!))
-                centerBarBtn.setText(title: "Sougou")
-            }
-        } else {
-            if firstUrl.contains("www.google.com") {
-                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[0])!))
-                centerBarBtn.setText(title: "Google")
-            } else if firstUrl.contains("yandex.com"){
-                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[1])!))
-                centerBarBtn.setText(title: "Yandex")
-            } else if firstUrl.contains("pic.sogou.com") {
-                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[2])!))
-                centerBarBtn.setText(title: "Sougou")
-            } else {
-                myWebView.load(URLRequest(url: URL(string: self.keywordSearchEngineSource[3])!))
-                centerBarBtn.setText(title: "Bing")
-            }
-            
+        if centerBarBtn.textLabel.text == "Bing"{
+                myWebView.load(URLRequest(url: URL(string:"https://www.bing.com/")!))
+        } else if centerBarBtn.textLabel.text == "Yandex" {
+                myWebView.load(URLRequest(url: URL(string:"https://yandex.com/")!))
+        } else if centerBarBtn.textLabel.text == "Google" {
+            myWebView.load(URLRequest(url: URL(string:"https://www.google.com/")!))
+        } else if centerBarBtn.textLabel.text == "Sougou"{
+            myWebView.load(URLRequest(url: URL(string:"https://www.sogou.com/")!))
         }
     }
     
@@ -516,8 +476,12 @@ extension WebViewController {
     func setKeyword(keyword:String){
         Statistics.event(.SearchResultTap, label: "搜索引擎")
         self.keyword = keyword
-        self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
-        print(self.firstUrl!)
+        if inChina() {
+            self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword
+        } else {
+            self.firstUrl =  keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
+        }
+        
     }
     
     @objc func selectUrlSearchEngine(){
@@ -531,53 +495,53 @@ extension WebViewController {
         alertController.addAction(cancelAction)
         
         // 建立[確認]按鈕
-        let google = UIAlertAction(title: "Google",style: .default,
+        let first = UIAlertAction(title: urlSearchEngineName[0],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Google")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.firstUrl = self.urlSearchEngineUrlPrefix[0] + self.imageLink!
+                self.firstUrl = urlSearchEngineUrlPrefix[0] + self.imageLink!
                 self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-                self.centerBarBtn.setText(title: "Google")
+                self.centerBarBtn.setText(title: urlSearchEngineName[0])
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(google)
+        alertController.addAction(first)
         
-        let yandex = UIAlertAction(title: "Yandex",style: .default,
+        let second = UIAlertAction(title: urlSearchEngineName[1],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Yandex")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.centerBarBtn.setText(title: "Yandex")
-                self.firstUrl = self.urlSearchEngineUrlPrefix[1] + self.imageLink!
+                self.centerBarBtn.setText(title: urlSearchEngineName[1])
+                self.firstUrl = urlSearchEngineUrlPrefix[1] + self.imageLink!
                 self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(yandex)
+        alertController.addAction(second)
         
-        let souGou = UIAlertAction(title: "Sougou",style: .default,
+        let third = UIAlertAction(title: urlSearchEngineName[2],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Sougou")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.centerBarBtn.setText(title: "Sougou")
-                self.firstUrl = self.urlSearchEngineUrlPrefix[2] + self.imageLink!
+                self.centerBarBtn.setText(title: urlSearchEngineName[2])
+                self.firstUrl = urlSearchEngineUrlPrefix[2] + self.imageLink!
                 self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(souGou)
+        alertController.addAction(third)
         
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = self.view
@@ -600,69 +564,69 @@ extension WebViewController {
         alertController.addAction(cancelAction)
         
         // 建立[確認]按鈕
-        let google = UIAlertAction(title: "Google",style: .default,
+        let first = UIAlertAction(title: keywordSearchEngineUrlName[0],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Google")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.firstUrl = self.keywordSearchEngineUrlPrefix[0] + self.keyword + self.keywordSearchEngineUrlPrefix[1]
-                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-                self.centerBarBtn.setText(title: "Google")
+                if inChina() {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[0] + self.keyword
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                } else {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[0] + self.keyword + keywordSearchEngineUrlPrefix[1]
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                }
+                self.centerBarBtn.setText(title: keywordSearchEngineUrlName[0])
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(google)
+        alertController.addAction(first)
         
-        let yandex = UIAlertAction(title: "Yandex",style: .default,
+        let second = UIAlertAction(title: keywordSearchEngineUrlName[1],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Yandex")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.centerBarBtn.setText(title: "Yandex")
-                self.firstUrl = self.keywordSearchEngineUrlPrefix[2] + self.keyword
-                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                self.centerBarBtn.setText(title: keywordSearchEngineUrlName[1])
+                if inChina() {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[1] + self.keyword
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                } else {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[2] + self.keyword
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                }
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(yandex)
+        alertController.addAction(second)
         
-        let souGou = UIAlertAction(title: "Sougou",style: .default,
+        let third = UIAlertAction(title: keywordSearchEngineUrlName[2],style: .default,
             handler: {_ in
                 Statistics.event(.SearchEngineTap, label: "Sougou")
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
-                self.centerBarBtn.setText(title: "Sougou")
-                self.firstUrl = self.keywordSearchEngineUrlPrefix[3] + self.keyword
-                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                self.centerBarBtn.setText(title: keywordSearchEngineUrlName[2])
+                if inChina() {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[2] + self.keyword
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                } else {
+                    self.firstUrl = keywordSearchEngineUrlPrefix[3] + self.keyword
+                    self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                }
                 if self.isLoding {
                     self.stop()
                 }
                 self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
             })
-        alertController.addAction(souGou)
-        
-        let bing = UIAlertAction(title: "Bing",style: .default,
-            handler: {_ in
-                Statistics.event(.SearchEngineTap, label: "Bing")
-                self.networkErrorImageView.isHidden = true
-                self.networkErrorHint.isHidden = false
-                self.myWebView.isHidden = false
-                self.centerBarBtn.setText(title: "Bing")
-                self.firstUrl = self.keywordSearchEngineUrlPrefix[4] + self.keyword
-                self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-                if self.isLoding {
-                    self.stop()
-                }
-                self.myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
-            })
-        alertController.addAction(bing)
+        alertController.addAction(third)
+    
         if let popoverController = alertController.popoverPresentationController {
             popoverController.sourceView = self.view
             popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
@@ -691,10 +655,10 @@ extension WebViewController {
             }
             myWebView.snp.remakeConstraints{ make in
                 make.width.equalTo(fullScreenSize.width)
-                make.height.equalTo(fullScreenSize.height - 83 - 44  - 4 - CGFloat(bannerInset))
+//                make.height.equalTo(fullScreenSize.height - 49 - 44  - 4 - CGFloat(bannerInset))
                 make.centerX.equalToSuperview()
                 make.top.equalTo(safeAreaTop).offset(Float(bannerInset + 4))
-                make.bottom.equalTo(bottomBackgroundLabel).offset(-83)
+                make.bottom.equalTo(bottomBackgroundLabel.snp.top).offset(0)
             }
             
         }
@@ -737,7 +701,7 @@ extension WebViewController {
         
         myWebView.snp.makeConstraints{(make) in
             make.top.left.right.equalToSuperview()
-            make.bottom.equalTo(bottomBackgroundLabel).offset(-83)
+            make.bottom.equalTo(bottomBackgroundLabel.snp.top).offset(0)
         }
         
         progressView.snp.makeConstraints{ (make) in
@@ -759,22 +723,23 @@ extension WebViewController {
         }
         
         bottomBackgroundLabel.snp.makeConstraints{(make) in
-            make.height.equalTo(83)
-            make.bottom.left.right.equalToSuperview()
+            make.height.equalTo(49)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(safeAreaBottom).offset(0)
         }
         
         bottomLeftbutton.snp.makeConstraints{(make) in
-            make.bottom.equalToSuperview().offset(-47)
-            make.left.equalToSuperview().offset(52)
+            make.left.equalTo(bottomBackgroundLabel.snp.left).offset(52)
+            make.top.equalTo(bottomBackgroundLabel.snp.top).offset(12)
         }
         
         bottomRightbutton.snp.makeConstraints{(make) in
-            make.bottom.equalToSuperview().offset(-47)
+            make.top.equalToSuperview().offset(12)
             make.left.equalToSuperview().offset(124)
         }
         
         bottomIndexbutton.snp.makeConstraints{ (make) in
-            make.bottom.equalToSuperview().offset(-49)
+            make.top.equalToSuperview().offset(12)
             make.right.equalToSuperview().offset(-54)
         }
         

@@ -155,6 +155,8 @@ extension UrlViewController {
         
         if self.verifyUrl(urlString: self.inputTextField.text) {
             AF.request(self.inputTextField.text!).response{ [self] response in
+                searchBtn.isUserInteractionEnabled = true
+                cancelBtn.isUserInteractionEnabled = true
                 print(response.response?.statusCode ?? "")
                 if response.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                     self.hintTitle.text = __("请连接网络后重试！")
@@ -176,11 +178,16 @@ extension UrlViewController {
             }
         } else {
             self.hintTitle.text = __("请输入合法链接！")
+            searchBtn.isUserInteractionEnabled = true
+            cancelBtn.isUserInteractionEnabled = true
+
         }
     }
     
     func keywordNetwordRequest(){
         AF.request("https://www.google.com/search?q=" + self.inputTextField.text! + " &tbm=isch").response{ [self] response in
+            searchBtn.isUserInteractionEnabled = true
+            cancelBtn.isUserInteractionEnabled = true
             if response.error?.errorDescription == "URLSessionTask failed with error: The Internet connection appears to be offline." {
                 self.hintTitle.text = __("请连接网络后重试！")
             } else  {
@@ -200,7 +207,8 @@ extension UrlViewController {
     }
     
     @objc func search(){
-        
+        searchBtn.isUserInteractionEnabled = false
+        cancelBtn.isUserInteractionEnabled = false
         if self.type == "url" {
             Statistics.event(.HomePageTap, label: "图片url-导入")
             let ctx = Ad.default.interstitialSignal(key: K.ParamName.URLInterstitial)
@@ -249,13 +257,7 @@ extension UrlViewController {
     }
     
     @objc func cancel(){
-        if self.type == "url" {
-            Statistics.event(.HomePageTap, label: "图片url-关闭")
-            urlNetwordRequest()
-        } else {
-            Statistics.event(.HomePageTap, label: "关键词-关闭")
-            keywordNetwordRequest()
-        }
+        
             self.delegate.cancel()
         
     }
