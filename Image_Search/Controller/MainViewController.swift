@@ -32,10 +32,13 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     
     var imagePicker:UIImagePickerController!
     var cameraPicker:UIImagePickerController!
-    var loadingView: UIView!
+
     var image:Any!
     var isImage:Bool!
     
+    lazy var loadingView: UIView = {
+        return UIView()
+    }()
     lazy var dformatter:DateFormatter = {
         let dformatter = DateFormatter()
         dformatter.dateFormat = "MM-dd hh:mm:ss"
@@ -141,57 +144,6 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
 //MARK: -
 extension MainViewController {
     
-    func showAnimate() {
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
-            UIView.animate(withDuration: 0.3) {
-                //                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
-                let alertController = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
-                alertController.modalPresentationStyle = .fullScreen
-                alertController.view.isHidden = true
-                self.present(alertController, animated: false, completion: nil)
-            }
-        }
-    }
-    
-    func dismissAnimate(complete: @escaping () -> Void) {
-        self.dismiss(animated: false, completion: complete)
-    }
-    
-    func showNetworkErrorAlert(_ container: UIViewController){
-        let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
-        container.present(alertController,animated: true,completion: nil)
-        
-        self.loadingView.isHidden = true
-        
-        Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { (ktimer) in
-            container.dismiss(animated: true, completion: nil)
-        }
-    }
-    
-    func showActivityIndicatory(uiView: UIView) {
-        //     var container: UIView = UIView()
-        //     container.frame = uiView.frame
-        //     container.center = uiView.center
-        //        container.backgroundColor = UIColor(hex: 0xffffff, alpha: 0.3)
-        loadingView = UIView()
-        loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-        loadingView.center = uiView.center
-        loadingView.backgroundColor = UIColor(hex: 0x444444, alpha: 0.7)
-        loadingView.clipsToBounds = true
-        loadingView.layer.cornerRadius = 10
-        
-        let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
-        actInd.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        actInd.style =
-            UIActivityIndicatorView.Style.whiteLarge 
-        actInd.center = CGPoint(x: loadingView.frame.size.width / 2,
-                                y: loadingView.frame.size.height / 2);
-        loadingView.addSubview(actInd)
-        self.loadingView.isHidden = false
-        uiView.addSubview(loadingView)
-        actInd.startAnimating()
-    }
-    
     func cancel(){
         self.dismiss(animated: true, completion: nil)
     }
@@ -259,7 +211,6 @@ extension MainViewController {
         }
     }
     
-    
     @objc func cameraSearch(){
         Statistics.beginLogPageView("拍照页")
         Statistics.event(.HomePageTap, label: "相机")
@@ -292,15 +243,15 @@ extension MainViewController {
                 })
             case .restricted, .denied:
                 let alertController = UIAlertController(title: __("无相机权限"), message:__("无相机权限，请在系统设置中允许授权“Image_Search”的使用权限"),
-                        preferredStyle: .alert)
-                    // 建立[確認]按鈕
-                    let cancelAction = UIAlertAction(
-                        title: __("不允许"),
-                        style: .default,
-                        handler: {
-                        (action: UIAlertAction!) -> Void in
-                    })
-                    alertController.addAction(cancelAction)
+                    preferredStyle: .alert)
+                // 建立[確認]按鈕
+                let cancelAction = UIAlertAction(
+                    title: __("不允许"),
+                    style: .default,
+                    handler: {
+                    (action: UIAlertAction!) -> Void in
+                })
+                alertController.addAction(cancelAction)
                 let okAction = UIAlertAction(title: __("允许"), style: .default, handler: {_ in
                     if let url = URL.init(string: UIApplication.openSettingsURLString) {
                         if UIApplication.shared.canOpenURL(url) {
@@ -364,7 +315,7 @@ extension MainViewController {
         if !isSelect {
             // 顯示進度條
             isSelect = true
-            showActivityIndicatory(uiView: cameraPicker.view)
+            showActivityIndicatory(containView: cameraPicker.view, loadingView: loadingView)
             IsolatedInteraction.shared.showAnimate(vc: cameraPicker)
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "search"+".jpeg", mimeType: "image/png")
@@ -387,6 +338,7 @@ extension MainViewController {
                     print(result.error?.errorDescription ?? "")
                     isSelect = false
                     dismiss(animated: true, completion: {
+                        self.loadingView.isHidden = true
                         showNetworkErrorAlert(self)
                     })
                 }
@@ -400,7 +352,7 @@ extension MainViewController {
         ]
         if !isSelect {
             isSelect = true
-            showActivityIndicatory(uiView: imagePicker.view)
+            showActivityIndicatory(containView: imagePicker.view, loadingView: loadingView)
             IsolatedInteraction.shared.showAnimate(vc: imagePicker)
             AF.upload(multipartFormData: { (multipartFormData) in
                 multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
@@ -420,7 +372,6 @@ extension MainViewController {
                         
                     }
                     
-                    
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? " ")
@@ -428,6 +379,7 @@ extension MainViewController {
                     //                       showNetworkErrorAlert(imagePicker)
                     //                    }
                     isSelect = false
+                    self.loadingView.isHidden = true
                     showNetworkErrorAlert(imagePicker)
                     
                 }
@@ -470,14 +422,14 @@ extension MainViewController:UIDocumentPickerDelegate {
         headers = [
             "Content-type": "text/html; charset=GBK"
         ]
-        self.showActivityIndicatory(uiView:self.view)
+        showActivityIndicatory(containView:self.view, loadingView: loadingView)
         if !isSelect {
             // 顯示進度條显
             isSelect = true
             IsolatedInteraction.shared.showAnimate(vc: self)
             AF.upload(multipartFormData: { (multipartFormData) in
                 guard let _ = UIImage(data: imgData) else { return  }
-                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image/")
+                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image/jpeg")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)
@@ -494,11 +446,11 @@ extension MainViewController:UIDocumentPickerDelegate {
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? "")
-                    dismissAnimate{
+                    IsolatedInteraction.shared.dismissAnimate(vc: self, complete: {
                         self.loadingView.isHidden = true
-                        showNetworkErrorAlert(self)
                         isSelect = false
-                    }
+                        showNetworkErrorAlert(self)
+                    })
                 }
             }
         }
@@ -545,13 +497,9 @@ extension MainViewController {
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         
         self.view.addSubview(topBackgroundImage)
-        
         self.view.addSubview(searchImageView)
-        
         self.view.addSubview(appTitle)
-        
         self.view.addSubview(bottomBackgroundLabel)
-        
         
         SQL.createTable()
         

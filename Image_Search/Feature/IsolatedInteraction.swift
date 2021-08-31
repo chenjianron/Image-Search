@@ -12,7 +12,6 @@ class IsolatedInteraction {
     func showAnimate(vc:UIViewController) {
         DispatchQueue.main.asyncAfter(deadline: .now()+0.1) {
             UIView.animate(withDuration: 0.3) {
-//                self.view.backgroundColor = UIColor.init(hex: 0x000000, alpha: 0.3)
                 let alertController = UIAlertController(title: "", message: "", preferredStyle: .actionSheet)
                 alertController.modalPresentationStyle = .fullScreen
                 alertController.view.isHidden = true

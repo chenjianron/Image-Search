@@ -155,7 +155,7 @@ extension WebViewController: WKUIDelegate {
                   return(jsonString)} getURLandRect()
                 """, touchPoint.x, touchPoint.y)
             myWebView.evaluateJavaScript(jsString) { [self] result, error in
-                guard let r = result else {return }
+                guard result != nil else {return }
                 let data = (result as! String).data(using: .utf8)
                 var resultDic: [AnyHashable : Any]? = nil
                 do {

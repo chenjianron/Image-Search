@@ -9,8 +9,6 @@ import Foundation
 
 let fullScreenSize = UIScreen.main.bounds.size
 
-
-
 var urlSearchEngineUrlPrefix: [String]{
     if inChina(){
         return

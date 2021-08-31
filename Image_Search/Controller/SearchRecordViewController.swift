@@ -16,7 +16,6 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
     
     var resourceData = [SearchRecord]()
     var collectionView:UICollectionView!
-    var loadingView: UIView!
     
     var bannerView: UIView? {
         return Marketing.shared.bannerView(.webBanner, rootViewController: self)
@@ -28,6 +27,10 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
             return 0
         }
     }
+    
+    lazy var loadingView: UIView = {
+        return UIView()
+    }()
     lazy var leftBarBtn:UIBarButtonItem = {
         let leftBarBtn = UIBarButtonItem(image: UIImage(named: "back.png")?.withRenderingMode(.alwaysOriginal), style: .plain, target: self, action: #selector(backToPrevious))
         return leftBarBtn
@@ -44,6 +47,10 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
     }()
     lazy var layout : UICollectionViewFlowLayout = {
         let layout = UICollectionViewFlowLayout()
+        layout.sectionInset = UIEdgeInsets(top: 0,left: 0,bottom: 0,right: 0)
+        layout.minimumLineSpacing = 1
+        layout.minimumInteritemSpacing = 1
+        layout.itemSize = CGSize(width: (fullScreenSize.width - 1) / 2 , height: (fullScreenSize.width - 1) / 2 )
         return layout
     }()
     lazy var emptySearchRecordImageView: UIImageView = {
@@ -80,47 +87,14 @@ class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, U
         super.viewWillDisappear(animated)
         Statistics.endLogPageView("搜索记录页")
     }
-    
-    
 }
 
 // MARK: -
 extension SearchRecordViewController {
     
-    func showNetworkErrorAlert(_ container: UIViewController){
-        
-        let alertController = UIAlertController(title: nil,message: __("网络超时，请重试"),preferredStyle: .alert)
-        container.present(alertController,animated: true,completion: nil)
-        
-        self.loadingView.isHidden = true
-        
-        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { (ktimer) in
-            container.dismiss(animated: true, completion: nil)
-        }
-    }
-    
-    func showActivityIndicatory(uiView: UICollectionView) {
-        //     var container: UIView = UIView()
-        //     container.frame = uiView.frame
-        //     container.center = uiView.center
-        //        container.backgroundColor = UIColor(hex: 0xffffff, alpha: 0.3)
-        loadingView = UIView()
-        loadingView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
-        loadingView.center = CGPoint(x: uiView.center.x, y: view.center.x + uiView.contentOffset.y)
-        loadingView.backgroundColor = UIColor(hex: 0x444444, alpha: 0.7)
-        loadingView.clipsToBounds = true
-        loadingView.layer.cornerRadius = 10
-        
-        let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
-        actInd.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
-        actInd.style =
-            UIActivityIndicatorView.Style.whiteLarge
-        actInd.center = CGPoint(x: loadingView.frame.size.width / 2,
-                                y: loadingView.frame.size.height / 2);
-        loadingView.addSubview(actInd)
-        loadingView.isHidden = false
-        uiView.addSubview(loadingView)
-        actInd.startAnimating()
+    func setupResourceData(){
+        resourceData = []
+        SQL.find(resourceData: &resourceData)
     }
     
     @objc func disappear(){
@@ -144,7 +118,6 @@ extension SearchRecordViewController {
                 DispatchQueue.main.async { [self] in
                     if isSuccess {// 成功
                         self!.setAlert(title: "已保存到相册", image: "ok_icon")
-                        
                     } else {
                         self!.setAlert(title: "保存失败", image: "fail_icon")
                     }
@@ -221,7 +194,7 @@ extension SearchRecordViewController {
                         "Content-type": "text/html; charset=GBK"
                     ]
                     self.dismiss(animated: true, completion: nil)
-                    self.showActivityIndicatory(uiView: self.collectionView)
+                    showActivityIndicatory(containView: self.collectionView, loadingView: loadingView)
                     IsolatedInteraction.shared.showAnimate(vc: self)
                     AF.upload(multipartFormData: { (multipartFormData) in
                         multipartFormData.append( self.resourceData[row].image!, withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/png")
@@ -249,6 +222,7 @@ extension SearchRecordViewController {
                             print("图片上传转链接失败")
                             print(result.error?.errorDescription ?? "")
                             if result.error?.errorDescription == "URLSessionTask failed with error: \(__("似乎已断开与互联网的连接。"))" {
+                                self.loadingView.isHidden = true
                                 showNetworkErrorAlert(self)
                             }
                         }
@@ -377,7 +351,6 @@ extension SearchRecordViewController {
         } else {
             searchKeyword(row: indexPath.row)
         }
-        
     }
 }
 
@@ -386,7 +359,6 @@ extension SearchRecordViewController {
 extension SearchRecordViewController {
     
     func setupAdBannerView() {
-        
         if let bannerView = self.bannerView {
             view.addSubview(bannerView)
             bannerView.snp.makeConstraints { make in
@@ -406,16 +378,10 @@ extension SearchRecordViewController {
     
     func setupUI(){
         
-        self.view.backgroundColor = .white
-        self.navigationItem.leftBarButtonItem = leftBarBtn
-        self.navigationItem.title = __("搜索记录")
-        self.navigationItem.rightBarButtonItem = rightButton
-        //        self.navigationController?.navigationBar.tintColor = UIColor.white
-        
-        layout.sectionInset = UIEdgeInsets(top: 0,left: 0,bottom: 0,right: 0)
-        layout.minimumLineSpacing = 1
-        layout.minimumInteritemSpacing = 1
-        layout.itemSize = CGSize(width: (fullScreenSize.width - 1) / 2 , height: (fullScreenSize.width - 1) / 2 )
+        view.backgroundColor = .white
+        navigationItem.leftBarButtonItem = leftBarBtn
+        navigationItem.title = __("搜索记录")
+        navigationItem.rightBarButtonItem = rightButton
         
         collectionView = UICollectionView(frame: CGRect(x: 0, y: 0,width: fullScreenSize.width, height: fullScreenSize.height - 20),collectionViewLayout: layout)
         collectionView.backgroundColor = .white
@@ -426,18 +392,18 @@ extension SearchRecordViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
-        self.view.addSubview(collectionView)
-        self.view.addSubview(self.emptySearchRecordImageView)
-        self.view.addSubview(self.emptySearchRecordHint)
-        self.emptySearchRecordImageView.isHidden = true
-        self.emptySearchRecordHint.isHidden = true
-        self.view.addSubview(hintAlert)
+        view.addSubview(collectionView)
+        view.addSubview(self.emptySearchRecordImageView)
+        view.addSubview(self.emptySearchRecordHint)
+        view.addSubview(hintAlert)
         hintAlert.isHidden = true
+        emptySearchRecordImageView.isHidden = true
+        emptySearchRecordHint.isHidden = true
         if resourceData.count == 0 {
-            self.emptySearchRecordImageView.isHidden = false
-            self.emptySearchRecordHint.isHidden = false
-            self.collectionView.isHidden = true
-            self.rightButton.isEnabled = false
+            emptySearchRecordImageView.isHidden = false
+            emptySearchRecordHint.isHidden = false
+            collectionView.isHidden = true
+            rightButton.isEnabled = false
         }
     }
     
@@ -452,13 +418,11 @@ extension SearchRecordViewController {
         emptySearchRecordImageView.snp.makeConstraints{
             (make) in
             make.top.equalTo(safeAreaTop).offset(142)
-//            make.left.equalToSuperview().offset(46)
             make.centerX.equalToSuperview()
         }
         emptySearchRecordHint.snp.makeConstraints{
             (make) in
             make.top.equalTo(safeAreaTop).offset(372)
-//            make.left.equalToSuperview().offset(132)
             make.centerX.equalToSuperview()
         }
         hintAlert.snp.makeConstraints{
@@ -466,10 +430,5 @@ extension SearchRecordViewController {
             make.left.equalToSuperview().offset(Float(fullScreenSize.width) / 2 - GetWidthHeight.share.getWidth(width: 60))
             make.top.equalTo(safeTop).offset(GetWidthHeight.share.getHeight(height: 270))
         }
-    }
-    
-    func setupResourceData(){
-        resourceData = []
-        SQL.find(resourceData: &resourceData)
     }
 }
