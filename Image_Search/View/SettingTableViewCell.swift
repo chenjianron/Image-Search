@@ -10,8 +10,6 @@ import UIKit
 
 class SettingTableViewCell: UITableViewCell {
     
-    let fullScreenSize = UIScreen.main.bounds.size
-    
     lazy var titleLabel:UILabel = {
         let label = UILabel.init()
         label.font = UIFont(name: "Helvetica", size: 15)

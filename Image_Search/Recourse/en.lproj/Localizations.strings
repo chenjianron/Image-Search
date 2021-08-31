@@ -9,7 +9,6 @@
 // 未翻译
 "图片上传转链接失败"="Picture upload and link transfer failed";
 "似乎已断开与互联网的连接"="Seems to have been disconnected from the Internet";
-"\(title)"="\(title)";
 "搜索关键字"="Search keywords";
 "请输入合法链接"="Please enter a legal link";
 "请输入非空字符"="Please enter a non empty character";
@@ -36,6 +35,9 @@
 "给个评价"="Give a comment ";
 "隐私政策"="Privacy Policy";
 "用户协议"="User Agreements";
+"未设置邮箱账户"="No email account set up";
+"要发送电子邮件，请设置电子邮件账户"="Please set up an email account to send emails";
+"确认"="Confirm";
 "设置"="Settings";
 "帮助与反馈"="Help&Feedback";
 "关于我们"="About Us";
@@ -51,6 +53,9 @@
 "已保存到相册"="Saved to Albums";
 "保存失败"="Save Failed";
 "请选择搜索引擎"="Please select a search engine";
+"尚未允许“跟踪”权限"="Tracking” permission not yet allowed";
+"为了向您提供更优质、喜欢的服务，我们想访问您的相关权限，需要您的同意。"="In order to provide you with better quality and favorite services, we want to access your relevant permissions, and your consent is required.";
+"去设置"="Go Settings";
 "您还没有开启消息通知"="You haven't turned on Notifications yet";
 "“通知”可能包括提醒、声音和图标标记。这些可在“设置”中配置。"="Notifications may include alerts, sounds, and icon badges. These can be configured in settings.";
 "稍后再说"="Later";
@@ -58,3 +63,9 @@
 "无邮件账户"="No Mail Accounts";
 "请设置邮件账户来发送电子邮件"="Please set up a Mail account in order to send email.";
 "好"="OK";
+"无相册权限"="Can’t access Photos";
+"无相机权限"="No camera permission";
+"无相册权限，请在系统设置中允许授权“Image_Search”的使用权限"="No photo album permission, please allow “ImageSearch” authorization in system settings_ Permission";
+"无相机权限，请在系统设置中允许授权“Image_Search”的使用权限"="No camera permission, please allow to authorize the permission of “imagesearch” in the system settings";
+"不允许"="Don't Allow";
+"允许"="Allow";

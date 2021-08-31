@@ -12,7 +12,6 @@ import Photos
 
 class  SearchRecordViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource{
     
-    let fullScreenSize = UIScreen.main.bounds.size
     let dformatter = DateFormatter()
     
     var resourceData = [SearchRecord]()

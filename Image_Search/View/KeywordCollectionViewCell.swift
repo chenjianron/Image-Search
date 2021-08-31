@@ -9,8 +9,6 @@ import UIKit
 
 class KeywordCollectionViewCell: UICollectionViewCell {
     
-    let fullScreenSize = UIScreen.main.bounds.size
-    
     lazy var imageView:UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "keyword_background.jpg")

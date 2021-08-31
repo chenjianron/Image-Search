@@ -9,8 +9,6 @@ import UIKit
 
 class AlertView: UIView{
     
-    let fullScreenSize = UIScreen.main.bounds.size
-    
     lazy var backgroundLabel: UIView = {
         let loadingView = UIView()
         loadingView.backgroundColor = UIColor(hex: 0x383838, alpha: 0.8)
@@ -24,8 +22,6 @@ class AlertView: UIView{
     }()
     lazy var textLabel: UILabel = {
         let label = UILabel()
-//        label.font = UIFont(name: "Helvetica", size: 14)
-//        label.font = UIFont.boldSystemFont(ofSize: 14)
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor.white
         return label

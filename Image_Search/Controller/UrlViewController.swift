@@ -9,8 +9,7 @@ import UIKit
 import Alamofire
 
 class UrlViewController:UIViewController {
-    
-    let fullScreenSize = UIScreen.main.bounds.size
+
     let dformatter = DateFormatter()
     var delegate:MainViewController!
     var type:String!
@@ -144,9 +143,6 @@ extension UrlViewController {
             self.view.backgroundColor = .clear
         } completion: { _ in
             complete()
-//            self.dismiss(animated: false) {
-//
-//            }
         }
 
     }
@@ -257,9 +253,7 @@ extension UrlViewController {
     }
     
     @objc func cancel(){
-        
             self.delegate.cancel()
-        
     }
 }
 
@@ -267,16 +261,8 @@ extension UrlViewController {
 //MARK: - TextView
 extension UrlViewController:UITextFieldDelegate {
     
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("textFieldDidBeginEditing")
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField){
-        print("textFieldDidEndEditing")
-    }
-    
-    func textFieldDidChangeSelection(_ textField: UITextField) {
-        print("textFieldDidChangeSelection")
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        print("textField")
         if self.hintTitle.text?.count != 0 {
             self.hintTitle.text = ""
         }
@@ -286,10 +272,13 @@ extension UrlViewController:UITextFieldDelegate {
         } else if len == 0 {
             hintLabel.isHidden = false
         }
+        return true
     }
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-      // 设置相应其他的textField
-          return true
+    
+    func textFieldShouldClear(_ textField: UITextField) -> Bool{
+        print("textFieldShouldClear")
+        hintLabel.isHidden = false
+        return true
     }
 }
 

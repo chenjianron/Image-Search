@@ -12,8 +12,7 @@ import SafariServices
 import MessageUI
 
 class SettingViewController: UIViewController {
-    
-    let fullScreenSize = UIScreen.main.bounds.size
+
     let titles = [[__("意见反馈")],[__("分享给好友"), __("给个评价"),__("隐私政策"), __("用户协议")]]
     
     var bannerView: UIView? {

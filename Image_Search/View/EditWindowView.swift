@@ -9,7 +9,6 @@ import UIKit
 
 class EditWindowView:UIView {
     
-    let fullScreenSize = UIScreen.main.bounds.size
     var delegate:MainViewController!
     var type:String!
     

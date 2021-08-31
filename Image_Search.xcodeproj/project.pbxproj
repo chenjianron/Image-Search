@@ -167,11 +167,18 @@
 		67895E4D26B9204600F30042 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				67E5D2FF26D32F1100643C63 /* GetWidthHeight.swift */,
 				67895E4E26B9206F00F30042 /* UIViewController.swift */,
-				6775D14826D7259D004E942F /* IsolatedInteraction.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		6798DDB926DCCAAD003D8099 /* Feature */ = {
+			isa = PBXGroup;
+			children = (
+				67E5D2FF26D32F1100643C63 /* GetWidthHeight.swift */,
+				6775D14826D7259D004E942F /* IsolatedInteraction.swift */,
+			);
+			path = Feature;
 			sourceTree = "<group>";
 		};
 		67D1AA6D26B7A2A500832DA0 = {
@@ -195,6 +202,7 @@
 		67D1AA7826B7A2A500832DA0 /* Image_Search */ = {
 			isa = PBXGroup;
 			children = (
+				6798DDB926DCCAAD003D8099 /* Feature */,
 				6775D14A26D78505004E942F /* Image_Search.entitlements */,
 				67E5D30226D32F6D00643C63 /* model */,
 				67E5D2F826D32EED00643C63 /* Engine */,

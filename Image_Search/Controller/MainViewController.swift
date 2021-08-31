@@ -16,10 +16,8 @@ import Photos
 
 class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINavigationControllerDelegate{
     
-    let fullScreenSize = UIScreen.main.bounds.size
-    
     var bannerView: UIView? {
-        return Marketing.shared.bannerView(.homeBanner, rootViewController: self)
+        return Marketing.shared.bannerView(.homeBanner, rootViewController:self)
     }
     var bannerInset: CGFloat {
         if bannerView != nil {
@@ -28,6 +26,7 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
             return 0
         }
     }
+    
     var headers: HTTPHeaders = [:]
     var isSelect = false
     
@@ -119,7 +118,6 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
         searchButton.dataSouce(title: __("搜索记录"), image: "index_searchRecord")
         return searchButton
     }()
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -233,11 +231,28 @@ extension MainViewController {
                     })
             }
             case .restricted, .denied:
-                if let url = URL.init(string: UIApplication.openSettingsURLString) {
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.openURL(url)
+                let alertController = UIAlertController(title: __("无相册权限"), message:__("无相册权限，请在系统设置中允许授权“Image_Search”的使用权限"),
+                        preferredStyle: .alert)
+                    // 建立[確認]按鈕
+                    let cancelAction = UIAlertAction(
+                        title: __("不允许"),
+                        style: .default,
+                        handler: {
+                        (action: UIAlertAction!) -> Void in
+                    })
+                    alertController.addAction(cancelAction)
+                let okAction = UIAlertAction(title: __("允许"), style: .default, handler: {_ in
+                    if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                        if UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.openURL(url)
+                        }
                     }
-                }
+                })
+                alertController.addAction(okAction)
+                self.present(
+                      alertController,
+                      animated: true,
+                      completion: nil)
             default:
                 break
             }
@@ -276,11 +291,28 @@ extension MainViewController {
                     })
                 })
             case .restricted, .denied:
-                if let url = URL.init(string: UIApplication.openSettingsURLString) {
-                    if UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.openURL(url)
+                let alertController = UIAlertController(title: __("无相机权限"), message:__("无相机权限，请在系统设置中允许授权“Image_Search”的使用权限"),
+                        preferredStyle: .alert)
+                    // 建立[確認]按鈕
+                    let cancelAction = UIAlertAction(
+                        title: __("不允许"),
+                        style: .default,
+                        handler: {
+                        (action: UIAlertAction!) -> Void in
+                    })
+                    alertController.addAction(cancelAction)
+                let okAction = UIAlertAction(title: __("允许"), style: .default, handler: {_ in
+                    if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                        if UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.openURL(url)
+                        }
                     }
-                }
+                })
+                alertController.addAction(okAction)
+                self.present(
+                      alertController,
+                      animated: true,
+                      completion: nil)
             default:
                 break
            }
@@ -292,7 +324,7 @@ extension MainViewController {
         Statistics.event(.HomePageTap, label: "文件")
         let ctx = Ad.default.interstitialSignal(key: K.ParamName.PickerInterstitial)
         ctx.didEndAction = { [self] _ in
-            let letdocumentTypes = ["public.PNG","public.JPEG","public.GIF"]
+            let letdocumentTypes = ["public.PNG","public.JPEG"]
             let documentPicker = UIDocumentPickerViewController.init(documentTypes: letdocumentTypes, in: .open)
             documentPicker.modalPresentationStyle = .fullScreen
             documentPicker.delegate = self
@@ -445,7 +477,7 @@ extension MainViewController:UIDocumentPickerDelegate {
             IsolatedInteraction.shared.showAnimate(vc: self)
             AF.upload(multipartFormData: { (multipartFormData) in
                 guard let _ = UIImage(data: imgData) else { return  }
-                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image")
+                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image/")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)

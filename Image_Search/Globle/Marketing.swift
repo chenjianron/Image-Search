@@ -22,30 +22,29 @@ class BannerWrap {
     }
 }
 
-enum Banner {
-    case homeBanner
-    case settingBanner
-    case searchRecordBanner
-    case webBanner
-}
-
 class Marketing {
     
     static let shared = Marketing()
     
+    enum Banner {
+        case homeBanner
+        case settingBanner
+        case searchRecordBanner
+        case webBanner
+    }
+    
     private var bannerViews: [Banner : BannerWrap] = [:]
-
     
     func setup() {
-        
+        // UMeng
         UMConfigure.initWithAppkey(K.IDs.UMengKey, channel: "App Store")
         RT.default.setup(appID: K.IDs.AppID)
-        
+        // 初始化在线参数
         JSON.setupPMs(id: K.IDs.SSID,
                       key: K.IDs.SSKey ,
                       region: K.IDs.SSRG,
                       secret: K.IDs.Secret)
-
+        // Params
         Preset.default.setup(defaults: [
                                         K.ParamName.IDFA_Count: 0,
                                         K.ParamName.IDFA_Time: 72,
@@ -71,7 +70,7 @@ class Marketing {
        ])
         
         MarketingHelper.presentUpdateAlert()
-
+        // Ad
         Ad.default.setup(bannerUnitID: K.IDs.BannerUnitID, interstitialUnitID: K.IDs.InterstitialUnitID, openAdUnitID: nil, rewardAdUnitID: nil, isEnabled: true)
         
         let view = SimpleLoadingView(logo: UIImage.icon)
@@ -84,6 +83,7 @@ class Marketing {
         view.logoImageView.layer.cornerRadius = 16
         view.loadingLabel.text = nil
         Ad.default.setupLaunchInterstitial(launchKey: K.ParamName.LaunchInterstitial, enterForegroundKey: K.ParamName.SwitchInterstitial, loadingView: view)
+        // Notification
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didLaunchOrEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification,
@@ -98,6 +98,11 @@ class Marketing {
     }
     
     
+    
+}
+
+// MARK: - Public
+extension Marketing {
     func bannerView(_ type: Banner, rootViewController: UIViewController) -> UIView? {
         guard let wrap: BannerWrap = bannerViews[type] else { return nil }
         if wrap.view == nil && Preset.named(wrap.presetKey).boolValue {
@@ -107,6 +112,7 @@ class Marketing {
     }
 }
 
+// MARK: - Private
 extension Marketing {
     
     func showNotificationIfNeed() {

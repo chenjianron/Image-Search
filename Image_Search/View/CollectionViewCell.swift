@@ -9,8 +9,6 @@ import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
     
-    let fullScreenSize = UIScreen.main.bounds.size
-    
     lazy var imageView:UIImageView = {
         let imageView = UIImageView()
         return imageView

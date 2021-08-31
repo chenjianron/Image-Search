@@ -11,10 +11,7 @@ import Alamofire
 import Photos
 
 class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate{
-    
-    // 取得螢幕的尺寸
-    let fullScreenSize = UIScreen.main.bounds.size
-    
+        
     var delegate:UIViewController?
     var firstUrl:String!
     var imageLink:String?
@@ -54,7 +51,7 @@ class WebViewController: UIViewController,UITextFieldDelegate, WKNavigationDeleg
         return myWebView
     }()
     lazy var progressView: UIProgressView = {
-        let  progressView: UIProgressView = UIProgressView(progressViewStyle: .default)
+        let progressView: UIProgressView = UIProgressView(progressViewStyle: .default)
         progressView.progressTintColor = UIColor.init(hex: 0x13A5FF, alpha: 1)
         progressView.progress = 0.05
         progressView.trackTintColor = UIColor.white
