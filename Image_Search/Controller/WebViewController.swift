@@ -203,7 +203,7 @@ extension WebViewController: WKUIDelegate {
                                 "Content-type": "text/html; charset=GBK"
                             ]
                             AF.upload(multipartFormData: { (multipartFormData) in
-                                multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image")
+                                multipartFormData.append((( image as UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "YourImageName"+".jpeg", mimeType: "image/jpeg")
                             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                                 if let lastUrl = result.value{
                                         secondSearch(image, lastUrl)
@@ -323,7 +323,6 @@ extension WebViewController {
                 myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[0] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
             } else {
                 myWebView.load(URLRequest(url: URL(string:(urlSearchEngineUrlPrefix[1] + lastUrl).addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)!))
-
             }
                 
         } else if centerBarBtn.textLabel.text == "Google" {
@@ -375,18 +374,8 @@ extension WebViewController {
     }
     
     func leftRightBtnState(){
-        
-        if myWebView.canGoBack == false {
-            self.bottomLeftbutton.isEnabled = false
-        } else {
-            self.bottomLeftbutton.isEnabled = true
-            
-        }
-        if myWebView.canGoForward == false {
-            self.bottomRightbutton.isEnabled = false
-        } else {
-            self.bottomRightbutton.isEnabled = true
-        }
+            self.bottomLeftbutton.isEnabled = myWebView.canGoBack
+            self.bottomRightbutton.isEnabled = myWebView.canGoForward
     }
     
     @objc func back() {
@@ -441,9 +430,7 @@ extension WebViewController {
     @objc func go() {
         // 隱藏鍵盤
         self.view.endEditing(true)
-        if self.imageLink == nil {
-            self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        }
+        self.firstUrl = self.firstUrl.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
         myWebView.load(URLRequest(url: URL(string: self.firstUrl)!))
         // 你也可以設置 HTML 內容到一個常數
         // 用來載入一個靜態的網頁內容
@@ -466,7 +453,7 @@ extension WebViewController {
     
     func setURL(url:String){
         imageLink = url
-        firstUrl = urlSearchEngineUrlPrefix[0] + url
+        firstUrl = urlSearchEngineUrlPrefix[0] + imageLink!
         
     }
     
@@ -494,7 +481,7 @@ extension WebViewController {
         // 建立[確認]按鈕
         let first = UIAlertAction(title: urlSearchEngineName[0],style: .default,
             handler: {_ in
-                Statistics.event(.SearchEngineTap, label: "Google")
+                Statistics.event(.SearchEngineTap, label:urlSearchEngineName[0])
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -510,7 +497,7 @@ extension WebViewController {
         
         let second = UIAlertAction(title: urlSearchEngineName[1],style: .default,
             handler: {_ in
-                Statistics.event(.SearchEngineTap, label: "Yandex")
+                Statistics.event(.SearchEngineTap, label: urlSearchEngineName[1])
                 self.networkErrorImageView.isHidden = true
                 self.networkErrorHint.isHidden = false
                 self.myWebView.isHidden = false
@@ -545,7 +532,6 @@ extension WebViewController {
             popoverController.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
             popoverController.permittedArrowDirections = []
         }
-        
         // 顯示提示框
         self.present(alertController,animated: true,completion: nil)
     }
@@ -657,7 +643,6 @@ extension WebViewController {
                 make.top.equalTo(safeAreaTop).offset(Float(bannerInset + 4))
                 make.bottom.equalTo(bottomBackgroundLabel.snp.top).offset(0)
             }
-            
         }
     }
     

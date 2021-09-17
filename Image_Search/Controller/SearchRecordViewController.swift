@@ -148,7 +148,7 @@ extension SearchRecordViewController {
                     webViewController.setKeyword(keyword: self.resourceData[row].keyword!)
                     self.navigationController!.pushViewController(webViewController,animated: false)
                 }
-            })
+        })
         alertController.addAction(searchKeywordAction)
         let deleteAction = UIAlertAction(title: __("删除"),style: .destructive,
             handler: { [self]_ in

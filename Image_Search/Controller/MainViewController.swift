@@ -29,9 +29,6 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
     
     var headers: HTTPHeaders = [:]
     var isSelect = false
-    
-    var imagePicker:UIImagePickerController!
-    var cameraPicker:UIImagePickerController!
 
     var image:Any!
     var isImage:Bool!
@@ -121,6 +118,36 @@ class MainViewController: UIViewController,UIGestureRecognizerDelegate, UINaviga
         searchButton.dataSouce(title: __("搜索记录"), image: "index_searchRecord")
         return searchButton
     }()
+    lazy var imagePicker:UIImagePickerController = {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.modalPresentationStyle = .fullScreen
+        imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
+        imagePicker.isToolbarHidden = true
+        return imagePicker
+    }()
+    lazy var cameraPicker:UIImagePickerController = {
+        let cameraPicker = UIImagePickerController()
+        cameraPicker.delegate = self
+        cameraPicker.modalPresentationStyle = .fullScreen
+        cameraPicker.sourceType = UIImagePickerController.SourceType.camera
+        cameraPicker.isToolbarHidden = true
+        return cameraPicker
+    }()
+    lazy var cancelAction : UIAlertAction = {
+        let alertAction = UIAlertAction(title: __("不允许"),style: .default,handler: nil)
+        return alertAction
+    }()
+    lazy var okAction: UIAlertAction = {
+       let alertAction = UIAlertAction(title: __("允许"), style: .default, handler: { _ in
+            if let url = URL.init(string: UIApplication.openSettingsURLString) {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.openURL(url)
+                }
+            }
+       })
+        return alertAction
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -160,22 +187,12 @@ extension MainViewController {
             switch PHPhotoLibrary.authorizationStatus(){
             case .authorized:
                 isImage = true
-                imagePicker = UIImagePickerController()
-                imagePicker.delegate = self
-                imagePicker.modalPresentationStyle = .fullScreen
-                imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
-                imagePicker.isToolbarHidden = true
                 present(self.imagePicker, animated: false, completion: nil)
             case .notDetermined:
                 PHPhotoLibrary.requestAuthorization { (status) in
                     DispatchQueue.main.async(execute: {
                         if status == .authorized {
                             isImage = true
-                            imagePicker = UIImagePickerController()
-                            imagePicker.delegate = self
-                            imagePicker.modalPresentationStyle = .fullScreen
-                            imagePicker.sourceType = UIImagePickerController.SourceType.photoLibrary
-                            imagePicker.isToolbarHidden = true
                             present(self.imagePicker, animated: false, completion: nil)
                         } else {
                             print("User denied")
@@ -186,20 +203,7 @@ extension MainViewController {
                 let alertController = UIAlertController(title: __("无相册权限"), message:__("无相册权限，请在系统设置中允许授权“Image_Search”的使用权限"),
                         preferredStyle: .alert)
                     // 建立[確認]按鈕
-                    let cancelAction = UIAlertAction(
-                        title: __("不允许"),
-                        style: .default,
-                        handler: {
-                        (action: UIAlertAction!) -> Void in
-                    })
-                    alertController.addAction(cancelAction)
-                let okAction = UIAlertAction(title: __("允许"), style: .default, handler: {_ in
-                    if let url = URL.init(string: UIApplication.openSettingsURLString) {
-                        if UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.openURL(url)
-                        }
-                    }
-                })
+                alertController.addAction(cancelAction)
                 alertController.addAction(okAction)
                 self.present(
                       alertController,
@@ -219,22 +223,12 @@ extension MainViewController {
             switch AVCaptureDevice.authorizationStatus(for: .video){
             case .authorized:
                 isImage = false
-                cameraPicker = UIImagePickerController()
-                cameraPicker.delegate = self
-                cameraPicker.modalPresentationStyle = .fullScreen
-                cameraPicker.sourceType = UIImagePickerController.SourceType.camera
-                cameraPicker.isToolbarHidden = true
                 self.present(cameraPicker, animated: false, completion: nil)
             case .notDetermined:
                 AVCaptureDevice.requestAccess(for: .video,completionHandler: { (status) in
                     DispatchQueue.main.async(execute: {
                         if status {
                             isImage = false
-                            cameraPicker = UIImagePickerController()
-                            cameraPicker.delegate = self
-                            cameraPicker.modalPresentationStyle = .fullScreen
-                            cameraPicker.sourceType = UIImagePickerController.SourceType.camera
-                            cameraPicker.isToolbarHidden = true
                             self.present(cameraPicker, animated: false, completion: nil)
                         } else {
                             print("User denied")
@@ -245,20 +239,7 @@ extension MainViewController {
                 let alertController = UIAlertController(title: __("无相机权限"), message:__("无相机权限，请在系统设置中允许授权“Image_Search”的使用权限"),
                     preferredStyle: .alert)
                 // 建立[確認]按鈕
-                let cancelAction = UIAlertAction(
-                    title: __("不允许"),
-                    style: .default,
-                    handler: {
-                    (action: UIAlertAction!) -> Void in
-                })
                 alertController.addAction(cancelAction)
-                let okAction = UIAlertAction(title: __("允许"), style: .default, handler: {_ in
-                    if let url = URL.init(string: UIApplication.openSettingsURLString) {
-                        if UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.openURL(url)
-                        }
-                    }
-                })
                 alertController.addAction(okAction)
                 self.present(
                       alertController,
@@ -318,7 +299,7 @@ extension MainViewController {
             showActivityIndicatory(containView: cameraPicker.view, loadingView: loadingView)
             IsolatedInteraction.shared.showAnimate(vc: cameraPicker)
             AF.upload(multipartFormData: { (multipartFormData) in
-                multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "search"+".jpeg", mimeType: "image/png")
+                multipartFormData.append(((self.image as! UIImage?)!.jpegData(compressionQuality: 0.8))! , withName: "source", fileName: "search"+".jpeg", mimeType: "image")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString (){ [self] (result) in
                 if let lastUrl = result.value{
                     Statistics.endLogPageView("拍照页")
@@ -371,7 +352,6 @@ extension MainViewController {
                         })
                         
                     }
-                    
                 } else {
                     print(__("图片上传转链接失败"))
                     print(result.error?.errorDescription ?? " ")
@@ -381,7 +361,6 @@ extension MainViewController {
                     isSelect = false
                     self.loadingView.isHidden = true
                     showNetworkErrorAlert(imagePicker)
-                    
                 }
             }
         }
@@ -429,7 +408,7 @@ extension MainViewController:UIDocumentPickerDelegate {
             IsolatedInteraction.shared.showAnimate(vc: self)
             AF.upload(multipartFormData: { (multipartFormData) in
                 guard let _ = UIImage(data: imgData) else { return  }
-                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image/jpeg")
+                multipartFormData.append(imgData, withName: "source", fileName: "YourImageName", mimeType: "image")
             },  to: "http://pic.sogou.com/pic/upload_pic.jsp?", method: .post, headers: headers).responseString { [self] (result) in
                 if let lastUrl = result.value{
                     print(lastUrl)

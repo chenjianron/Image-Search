@@ -9,6 +9,7 @@ import Foundation
 
 let fullScreenSize = UIScreen.main.bounds.size
 
+
 var urlSearchEngineUrlPrefix: [String]{
     if inChina(){
         return
@@ -44,7 +45,6 @@ var keywordSearchEngineUrlPrefix :[String] {
         return ["https://yandex.com/images/search?from=tabbar&text=",
                 "https://pic.sogou.com/pic/searchList.jsp?uID=&v=5&statref=index_form_1&spver=0&rcer=&keyword=",
                 "https://cn.bing.com/images/search?q="
-                
             ]
     } else {
         return ["https://www.google.com/search?q=","&tbm=isch",
