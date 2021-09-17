@@ -75,4 +75,3 @@ extension AppDelegate {
         NotificationHandler.process(userInfo: userInfo)
     }
 }
-
