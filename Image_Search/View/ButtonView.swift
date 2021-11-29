@@ -8,6 +8,7 @@
 import UIKit
 
 class ButtonView :UIView {
+
     
     lazy var backgroundLabel: UIView = {
         let view = UIView()
@@ -48,6 +49,7 @@ class ButtonView :UIView {
     func dataSouce(title:String, image:String){
         imageView.image = UIImage(named: image)
         textLabel.text = title
+        
     }
 
     func setupUI() {

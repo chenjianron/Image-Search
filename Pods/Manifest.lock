@@ -1,0 +1,148 @@
+PODS:
+  - AdLib (5.4.2):
+    - Ads-Global/BUAdSDK (~> 3.5.1.2)
+    - Ads-Global/Domestic (~> 3.5.1.2)
+    - Google-Mobile-Ads-SDK (= 8.6.0)
+    - HouseAdLib (~> 5.0.10)
+    - Reachability
+    - SDWebImage
+    - SnapKit
+    - Toolkit (~> 5.3.39)
+  - Ads-Global/BUAdSDK (3.5.1.2):
+    - Ads-Global/BUFoundation
+    - Ads-Global/International
+  - Ads-Global/BUFoundation (3.5.1.2)
+  - Ads-Global/Domestic (3.5.1.2)
+  - Ads-Global/International (3.5.1.2)
+  - Alamofire (5.4.3)
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - Google-Mobile-Ads-SDK (8.6.0):
+    - GoogleAppMeasurement (< 9.0, >= 7.0)
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleAppMeasurement (8.6.0):
+    - GoogleAppMeasurement/AdIdSupport (= 8.6.0)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.4)
+    - GoogleUtilities/MethodSwizzler (~> 7.4)
+    - GoogleUtilities/Network (~> 7.4)
+    - "GoogleUtilities/NSData+zlib (~> 7.4)"
+    - nanopb (~> 2.30908.0)
+  - GoogleAppMeasurement/AdIdSupport (8.6.0):
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.4)
+    - GoogleUtilities/MethodSwizzler (~> 7.4)
+    - GoogleUtilities/Network (~> 7.4)
+    - "GoogleUtilities/NSData+zlib (~> 7.4)"
+    - nanopb (~> 2.30908.0)
+  - GoogleUserMessagingPlatform (2.0.0)
+  - GoogleUtilities/AppDelegateSwizzler (7.5.1):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (7.5.1):
+    - PromisesObjC (< 3.0, >= 1.2)
+  - GoogleUtilities/Logger (7.5.1):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (7.5.1):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/Network (7.5.1):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (7.5.1)"
+  - GoogleUtilities/Reachability (7.5.1):
+    - GoogleUtilities/Logger
+  - HouseAdLib (5.0.10):
+    - SDWebImage
+    - SnapKit
+    - Toolkit
+  - JGProgressHUD (2.2)
+  - MarketingHelper (0.1.10):
+    - SDWebImage
+    - Toolkit
+    - UMPush
+  - nanopb (2.30908.0):
+    - nanopb/decode (= 2.30908.0)
+    - nanopb/encode (= 2.30908.0)
+  - nanopb/decode (2.30908.0)
+  - nanopb/encode (2.30908.0)
+  - PromisesObjC (2.0.0)
+  - Reachability (3.2)
+  - SDWebImage (5.11.1):
+    - SDWebImage/Core (= 5.11.1)
+  - SDWebImage/Core (5.11.1)
+  - SnapKit (5.0.1)
+  - STRegex (2.1.1)
+  - SwiftyJSON-flow (4.1.0)
+  - Toolkit (5.3.39):
+    - JGProgressHUD
+    - Reachability
+    - SnapKit
+    - STRegex
+    - SwiftyJSON-flow (= 4.1.0)
+  - UMCommon (7.3.5):
+    - UMDevice
+  - UMDevice (2.0.4)
+  - UMPush (3.3.1):
+    - UMCommon
+
+DEPENDENCIES:
+  - AdLib
+  - Alamofire
+  - FMDB
+  - MarketingHelper (~> 0.1.4)
+  - Toolkit
+
+SPEC REPOS:
+  http://git.flowever.net/component/Specs.git:
+    - AdLib
+    - HouseAdLib
+    - MarketingHelper
+    - SwiftyJSON-flow
+    - Toolkit
+  https://github.com/CocoaPods/Specs.git:
+    - Ads-Global
+    - Alamofire
+    - FMDB
+    - Google-Mobile-Ads-SDK
+    - GoogleAppMeasurement
+    - GoogleUserMessagingPlatform
+    - GoogleUtilities
+    - JGProgressHUD
+    - nanopb
+    - PromisesObjC
+    - Reachability
+    - SDWebImage
+    - SnapKit
+    - STRegex
+    - UMCommon
+    - UMDevice
+    - UMPush
+
+SPEC CHECKSUMS:
+  AdLib: 71d0a413d39c1ce38d7b14b0176c8b74942fcc32
+  Ads-Global: 6f4b69a2e41c58cb1fa1203355d47f67b5c26db0
+  Alamofire: e447a2774a40c996748296fa2c55112fdbbc42f9
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  Google-Mobile-Ads-SDK: 0d6e2e065c4efe9836bca3fbd6ff9ef0bca073c2
+  GoogleAppMeasurement: 2c0c6e2a7ab3fe730ade6379f732bdefb46f50b0
+  GoogleUserMessagingPlatform: ab890ce5f6620f293a21b6bdd82e416a2c73aeca
+  GoogleUtilities: 3df19e3c24f7bbc291d8b5809aa6b0d41e642437
+  HouseAdLib: abca6931476df38ba56bf066de0de079a8d8ff9a
+  JGProgressHUD: d83d7a981b85d11205e19ff8ad5bb9c40571c847
+  MarketingHelper: 46c10f4fe743dd09cba46a563771078787a6dd9d
+  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
+  SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
+  STRegex: d49e88d0fe58538d3175fdd989bc1243b9be2a07
+  SwiftyJSON-flow: 6d8033763d84a8d9f5b2355ac9ada4a822b4ece5
+  Toolkit: fd47861aa7a5e5a23dee4caa6b3b7c7a8ea3c9ed
+  UMCommon: ab4d875ddefe1b06c60b577e4a58bc4d433ee067
+  UMDevice: 590115ebb238250e574988c7a3e9511f5d5cd4d3
+  UMPush: 7ef2ff2fcca16e4d5c7897183a78a0d26f920bfe
+
+PODFILE CHECKSUM: debdc9525c0001b7a14f2dc33e93cd2c232d5255
+
+COCOAPODS: 1.10.2

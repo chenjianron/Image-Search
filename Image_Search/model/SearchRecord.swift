@@ -20,3 +20,13 @@ class SearchRecord {
         self.date = date
     }
 }
+
+extension SearchRecord:Hashable {
+    static func == (lhs: SearchRecord, rhs: SearchRecord) -> Bool {
+        return lhs == rhs
+    }
+    
+    public func hash(into hasher:inout Hasher){
+        hasher.combine(ObjectIdentifier(self))
+    }
+}

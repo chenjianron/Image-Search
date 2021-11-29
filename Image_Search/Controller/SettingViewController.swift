@@ -117,7 +117,7 @@ extension SettingViewController {
     func setUpUI(){
         //        navigationController?.navigationBar.barStyle = .black
         self.view.backgroundColor = .white
-        self.navigationController?.navigationBar.barTintColor = UIColor.white
+//        self.navigationController?.navigationBar.barTintColor = UIColor.white
         self.navigationItem.leftBarButtonItem = leftBarBtn
         self.navigationItem.title = __("设置")
         self.view.addSubview(tableView)

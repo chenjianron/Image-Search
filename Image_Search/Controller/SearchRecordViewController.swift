@@ -372,7 +372,6 @@ extension SearchRecordViewController {
                 make.height.equalTo(fullScreenSize.height - 44 - CGFloat(bannerInset))
                 make.top.equalTo(safeAreaTop).offset(Float(bannerInset))
             }
-            
         }
     }
     
